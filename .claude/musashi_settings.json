@@ -1,0 +1,80 @@
+{
+  "project": {
+    "name": "Musashi",
+    "type": "ai_workflow_design",
+    "version": "1.0.0",
+    "description": "AI Agent Workflow Design Tool - Cut the code. Shape the flow."
+  },
+  "superclaude": {
+    "profile": "musashi_profile",
+    "commands": {
+      "project_commands": ".claude/musashi_commands.md",
+      "enabled": true
+    },
+    "mcp_integration": {
+      "playwright": {
+        "enabled": true,
+        "port": 3001,
+        "config": "mcp/config/mcp.json"
+      },
+      "context7": {
+        "enabled": true,
+        "max_tokens": 100000
+      },
+      "sequential_thinking": {
+        "enabled": true,
+        "model": "claude-3-sonnet-20240229"
+      }
+    },
+    "development": {
+      "auto_format": true,
+      "lint_on_save": true,
+      "test_runner": "pytest",
+      "frontend_framework": "react-typescript",
+      "backend_framework": "fastapi"
+    }
+  },
+  "tech_stack": {
+    "backend": {
+      "language": "python",
+      "version": "3.12",
+      "framework": "fastapi",
+      "database": "mongodb",
+      "auth": "jwt"
+    },
+    "frontend": {
+      "language": "typescript",
+      "framework": "react",
+      "version": "18",
+      "styling": "tailwindcss",
+      "build_tool": "vite"
+    },
+    "deployment": {
+      "containerization": "docker",
+      "orchestration": "docker-compose",
+      "ci_cd": "github-actions"
+    }
+  },
+  "workflows": {
+    "default_templates": {
+      "customer_service": "templates/customer-service.json",
+      "content_generation": "templates/content-generation.json", 
+      "data_processing": "templates/data-processing.json",
+      "integration": "templates/integration.json"
+    },
+    "node_types": {
+      "input": ["user_input", "api_call", "file_upload", "webhook"],
+      "process": ["llm_call", "data_transform", "validation", "enrichment"],
+      "decision": ["condition", "router", "filter", "classifier"], 
+      "output": ["response", "notification", "api_call", "file_save"]
+    }
+  },
+  "commands": {
+    "dev": "make dev",
+    "test": "make test-frontend && make test-backend",
+    "build": "make build",
+    "deploy": "make up",
+    "install_mcp": "make install-mcp",
+    "lint": "make lint-frontend && make lint-backend"
+  }
+}

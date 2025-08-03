@@ -1,0 +1,74 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:7.0
+    container_name: musashi-mongodb
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password123
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+      - ./mongodb/init:/docker-entrypoint-initdb.d
+    networks:
+      - musashi-network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: musashi-backend
+    restart: unless-stopped
+    environment:
+      MONGODB_URL: mongodb://admin:password123@mongodb:27017/musashi?authSource=admin
+      DATABASE_NAME: musashi
+      SECRET_KEY: your-secret-key-change-in-production
+    ports:
+      - "8000:8000"
+    depends_on:
+      - mongodb
+    volumes:
+      - ./backend:/app
+    networks:
+      - musashi-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: musashi-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - musashi-network
+
+  mcp:
+    build:
+      context: ./mcp
+      dockerfile: Dockerfile
+    container_name: musashi-mcp
+    restart: unless-stopped
+    environment:
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      CONTEXT7_MAX_TOKENS: 100000
+      THINKING_MODEL: claude-3-sonnet-20240229
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./mcp/config:/app/mcp/config:ro
+    networks:
+      - musashi-network
+
+volumes:
+  mongodb_data:
+
+networks:
+  musashi-network:
+    driver: bridge

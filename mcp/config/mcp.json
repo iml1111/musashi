@@ -1,0 +1,28 @@
+{
+  "mcpServers": {
+    "playwright": {
+      "command": "node",
+      "args": ["/app/mcp/servers/playwright/build/index.js"],
+      "env": {
+        "PLAYWRIGHT_BROWSERS_PATH": "/usr/lib/playwright",
+        "PLAYWRIGHT_HEADLESS": "true"
+      }
+    },
+    "context7": {
+      "command": "python",
+      "args": ["-m", "context7_mcp"],
+      "env": {
+        "CONTEXT7_MODEL": "gpt-4",
+        "CONTEXT7_API_KEY": "${OPENAI_API_KEY}"
+      }
+    },
+    "sequential-thinking": {
+      "command": "python",
+      "args": ["-m", "sequential_thinking_mcp"],
+      "env": {
+        "THINKING_MODEL": "claude-3-sonnet",
+        "ANTHROPIC_API_KEY": "${ANTHROPIC_API_KEY}"
+      }
+    }
+  }
+}

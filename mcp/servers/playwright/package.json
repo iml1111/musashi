@@ -1,0 +1,24 @@
+{
+  "name": "musashi-playwright-mcp",
+  "version": "1.0.0",
+  "description": "Playwright MCP server for Musashi workflow testing",
+  "main": "build/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node build/index.js",
+    "dev": "ts-node src/index.ts"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^0.4.0",
+    "playwright": "^1.40.0",
+    "zod": "^3.22.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.8.0",
+    "typescript": "^5.2.0",
+    "ts-node": "^10.9.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
