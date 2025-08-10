@@ -253,6 +253,8 @@ import { theme } from '../utils/theme';  // For colors/spacing
 
 // ✅ CORRECT - Theme system usage
 import { theme } from '../utils/theme';
+style={{ 
+  color: theme.theme.colorPrimary,
   backgroundColor: theme.palette.gray[100],
   padding: theme.spacing[16]
 }}
