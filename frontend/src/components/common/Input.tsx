@@ -2,7 +2,7 @@ import React, { forwardRef } from 'react';
 import { theme } from '../../utils/theme';
 import Typography from './Typography';
 
-interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size'> {
   label?: string;
   error?: string;
   helpText?: string;

@@ -1,6 +1,7 @@
 export const theme = {
   palette: {
     gray: {
+      50: "#fefefe",
       100: "#fcfbfb",
       200: "#f6f5f4",
       300: "#dfdcd9",
@@ -56,6 +57,7 @@ export const theme = {
       900: "#042b29"
     },
     blue: {
+      50: "#f8fcff",
       100: "#f2f9ff",
       200: "#e6f1fa",
       300: "#a3d0f7",
@@ -67,6 +69,7 @@ export const theme = {
       900: "#002a4f"
     },
     purple: {
+      50: "#fcfaff",
       100: "#f8f5fc",
       200: "#eadbfa",
       300: "#d6b6f6",

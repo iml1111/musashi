@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { theme } from '../../utils/theme';
-import Button from './Button';
 
 interface CarouselItem {
   id: string | number;
@@ -79,7 +78,7 @@ const Carousel: React.FC<CarouselProps> = ({
             gap: `${gap}px`,
           }}
         >
-          {items.map((item, index) => (
+          {items.map((item) => (
             <div
               key={item.id}
               className="flex-shrink-0"

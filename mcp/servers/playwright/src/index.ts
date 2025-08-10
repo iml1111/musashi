@@ -6,23 +6,16 @@ import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
-import { chromium, Browser, Page } from 'playwright';
+import { chromium } from 'playwright';
 import { z } from 'zod';
 
-const server = new Server(
-  {
-    name: 'musashi-playwright-mcp',
-    version: '1.0.0',
-  },
-  {
-    capabilities: {
-      tools: {},
-    },
-  }
-);
+const server = new Server({
+  name: 'musashi-playwright-mcp',
+  version: '1.0.0',
+});
 
-let browser: Browser | null = null;
-let page: Page | null = null;
+let browser: any = null;
+let page: any = null;
 
 // Schema definitions
 const NavigateSchema = z.object({

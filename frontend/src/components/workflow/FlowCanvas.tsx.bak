@@ -1,0 +1,103 @@
+import React, { useEffect } from 'react'
+import ReactFlow, {
+  Node,
+  Edge,
+  ReactFlowProvider,
+  Controls,
+  Background,
+  MiniMap,
+  BackgroundVariant,
+  MarkerType,
+  useReactFlow,
+} from 'reactflow'
+import 'reactflow/dist/style.css'
+// import { nodeTypes } from './CustomNodes'
+// import { simpleNodeTypes as nodeTypes } from './SimpleNodes'
+import { safeNodeTypes as nodeTypes } from './SafeCustomNodes'
+import { edgeTypes } from './CustomEdges'
+
+interface FlowCanvasProps {
+  nodes: Node[]
+  edges: Edge[]
+  onNodeClick: (event: React.MouseEvent, node: Node) => void
+  onPaneClick: () => void
+}
+
+// Inner component that has access to React Flow instance
+const FlowCanvasInner: React.FC<FlowCanvasProps> = ({
+  nodes,
+  edges,
+  onNodeClick,
+  onPaneClick,
+}) => {
+  const { fitView } = useReactFlow()
+
+  // Auto fit view when nodes or edges change
+  useEffect(() => {
+    if (nodes.length > 0) {
+      const timer = setTimeout(() => {
+        fitView({
+          padding: 0.2,
+          includeHiddenNodes: false,
+          minZoom: 0.5,
+          maxZoom: 1.5,
+        })
+      }, 50)
+      return () => clearTimeout(timer)
+    }
+  }, [nodes, edges, fitView])
+
+  const defaultEdgeOptions = {
+    animated: true,
+    type: 'custom',
+    markerEnd: {
+      type: MarkerType.ArrowClosed,
+      width: 20,
+      height: 20,
+      color: '#374151',
+    },
+    style: {
+      strokeWidth: 3,
+      stroke: '#374151',
+    },
+  }
+
+  return (
+    <ReactFlow
+      nodes={nodes}
+      edges={edges}
+      nodeTypes={nodeTypes}
+      edgeTypes={edgeTypes}
+      onNodeClick={onNodeClick}
+      onPaneClick={onPaneClick}
+      nodesDraggable={false}
+      nodesConnectable={false}
+      elementsSelectable={true}
+      defaultEdgeOptions={defaultEdgeOptions}
+      fitView
+      fitViewOptions={{
+        padding: 0.2,
+        includeHiddenNodes: false,
+        minZoom: 0.5,
+        maxZoom: 1.5,
+      }}
+      className="bg-gray-50"
+    >
+      <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
+      <Controls />
+      <MiniMap />
+    </ReactFlow>
+  )
+}
+
+const FlowCanvas: React.FC<FlowCanvasProps> = (props) => {
+  return (
+    <ReactFlowProvider>
+      <div className="w-full h-full">
+        <FlowCanvasInner {...props} />
+      </div>
+    </ReactFlowProvider>
+  )
+}
+
+export default FlowCanvas

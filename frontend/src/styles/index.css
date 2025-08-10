@@ -2,12 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Import animations */
+@import './animations.css';
+
 @layer base {
   * {
-    @apply border-border;
+    border-color: theme('colors.gray.200');
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-white text-gray-900;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
@@ -35,4 +38,11 @@
 
 .react-flow__minimap {
   @apply bg-white border border-gray-200 rounded-lg;
+}
+
+/* Edge animation */
+@keyframes dashdraw {
+  to {
+    stroke-dashoffset: -10;
+  }
 }

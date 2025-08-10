@@ -1,4 +1,4 @@
-.PHONY: help dev build up down logs clean install test lint
+.PHONY: help dev build run stop logs clean install test test-e2e lint
 
 help: ## Show this help message
 	@echo 'Usage: make [target]'
@@ -6,23 +6,32 @@ help: ## Show this help message
 	@echo 'Targets:'
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  %-15s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
-dev: ## Start development environment
-	docker-compose -f docker-compose.dev.yml up --build
+dev: ## Start development mode (frontend and backend separately)
+	@echo "Starting backend..."
+	cd backend && uvicorn app.main:app --reload --port 8000 &
+	@echo "Starting frontend..."
+	cd frontend && npm run dev
 
-build: ## Build all containers
-	docker-compose build
+build: ## Build Docker image
+	docker build -t musashi .
 
-up: ## Start production environment
-	docker-compose up -d
+run: ## Run Docker container
+	docker run -d --name musashi-app -p 80:80 \
+		-e MONGODB_URL=mongodb://host.docker.internal:27017 \
+		-e DATABASE_NAME=musashi \
+		-e SECRET_KEY=dev-secret-key \
+		musashi
 
-down: ## Stop all containers
-	docker-compose down
+stop: ## Stop Docker container
+	docker stop musashi-app && docker rm musashi-app
 
-logs: ## Show logs from all containers
-	docker-compose logs -f
+logs: ## Show logs from container
+	docker logs -f musashi-app
 
-clean: ## Remove all containers, networks, volumes
-	docker-compose down -v --remove-orphans
+clean: ## Remove container and image
+	-docker stop musashi-app
+	-docker rm musashi-app
+	-docker rmi musashi
 	docker system prune -f
 
 install-frontend: ## Install frontend dependencies
@@ -37,6 +46,9 @@ test-frontend: ## Run frontend tests
 test-backend: ## Run backend tests
 	cd backend && python -m pytest
 
+test-e2e: ## Run end-to-end tests with Playwright
+	npx playwright test
+
 lint-frontend: ## Lint frontend code
 	cd frontend && npm run lint
 
@@ -47,14 +59,6 @@ setup: ## Initial setup
 	cp .env.example .env
 	@echo "Created .env file. Please update it with your configuration."
 
-install-mcp: ## Install MCP servers locally
-	./mcp/scripts/install_mcp.sh
-
-test-mcp: ## Test MCP servers
-	cd mcp && python scripts/test_mcp.py
-
-mcp-dev: ## Start MCP development environment
-	docker-compose -f docker-compose.dev.yml up --build mcp
 
 test-superclaude: ## Test SuperClaude Framework integration
 	python3 scripts/test_superclaude.py

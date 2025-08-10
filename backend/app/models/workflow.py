@@ -1,23 +1,36 @@
-from typing import List, Optional, Dict, Any
-from pydantic import BaseModel, Field
+from typing import List, Optional, Dict, Any, Annotated
+from pydantic import BaseModel, Field, GetCoreSchemaHandler
+from pydantic_core import CoreSchema, core_schema
 from datetime import datetime
 from bson import ObjectId
 
 
 class PyObjectId(ObjectId):
     @classmethod
-    def __get_validators__(cls):
-        yield cls.validate
+    def __get_pydantic_core_schema__(
+        cls, source_type: Any, handler: GetCoreSchemaHandler
+    ) -> CoreSchema:
+        return core_schema.json_or_python_schema(
+            json_schema=core_schema.str_schema(),
+            python_schema=core_schema.union_schema([
+                core_schema.is_instance_schema(ObjectId),
+                core_schema.chain_schema([
+                    core_schema.str_schema(),
+                    core_schema.no_info_plain_validator_function(cls.validate),
+                ])
+            ]),
+            serialization=core_schema.plain_serializer_function_ser_schema(
+                lambda x: str(x)
+            ),
+        )
 
     @classmethod
     def validate(cls, v):
-        if not ObjectId.is_valid(v):
-            raise ValueError("Invalid ObjectId")
-        return ObjectId(v)
-
-    @classmethod
-    def __modify_schema__(cls, field_schema):
-        field_schema.update(type="string")
+        if isinstance(v, ObjectId):
+            return v
+        if isinstance(v, str) and ObjectId.is_valid(v):
+            return ObjectId(v)
+        raise ValueError("Invalid ObjectId")
 
 
 class Node(BaseModel):
@@ -34,6 +47,8 @@ class Edge(BaseModel):
     source: str
     target: str
     label: Optional[str] = None
+    sourceHandle: Optional[str] = None
+    data: Optional[Dict[str, Any]] = {}
 
 
 class WorkflowBase(BaseModel):
@@ -66,10 +81,12 @@ class WorkflowInDB(WorkflowBase):
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
-    class Config:
-        allow_population_by_field_name = True
-        arbitrary_types_allowed = True
-        json_encoders = {ObjectId: str}
+    model_config = {
+        "populate_by_name": True,
+        "arbitrary_types_allowed": True,
+        "json_encoders": {ObjectId: str},
+        "by_alias": False
+    }
 
 
 class Workflow(WorkflowInDB):

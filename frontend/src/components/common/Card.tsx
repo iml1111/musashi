@@ -50,7 +50,7 @@ const Card: React.FC<CardProps> = ({
   const baseClasses = `
     rounded-lg
     transition-all duration-200 ease-in-out
-    overflow-hidden
+    ${image ? 'overflow-hidden' : ''}
     ${image ? '' : paddingClasses[padding]}
     ${hover ? 'hover:shadow-lg cursor-pointer transform hover:-translate-y-1' : ''}
     ${className}

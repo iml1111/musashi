@@ -15,6 +15,7 @@ interface TypographyProps {
   className?: string;
   children: React.ReactNode;
   as?: keyof JSX.IntrinsicElements;
+  style?: React.CSSProperties;
 }
 
 const Typography: React.FC<TypographyProps> = ({
@@ -25,6 +26,7 @@ const Typography: React.FC<TypographyProps> = ({
   className = '',
   children,
   as,
+  style: customStyle,
   ...props
 }) => {
   const variantStyles = {
@@ -89,6 +91,7 @@ const Typography: React.FC<TypographyProps> = ({
     fontFamily: theme.typography.fontFamilies[fontFamily],
     color: colorStyles[color],
     margin: 0,
+    ...customStyle,
   };
 
   return (

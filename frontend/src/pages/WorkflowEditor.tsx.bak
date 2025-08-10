@@ -1,0 +1,413 @@
+import React, { useCallback, useState, useEffect, useRef } from 'react'
+import { useParams, useNavigate, useLocation } from 'react-router-dom'
+import ReactFlow, {
+  Node,
+  Edge,
+  addEdge,
+  Connection,
+  useNodesState,
+  useEdgesState,
+  Controls,
+  MiniMap,
+  Background,
+  ReactFlowProvider,
+} from 'reactflow'
+import 'reactflow/dist/style.css'
+import { Save, Download, ArrowLeft, Edit2, Check, X, AlertCircle, Clock } from 'lucide-react'
+import { workflowService } from '../services/workflow'
+import { Workflow } from '../types/workflow'
+
+const initialNodes: Node[] = [
+  {
+    id: '1',
+    type: 'input',
+    data: { label: 'Start' },
+    position: { x: 250, y: 5 },
+  },
+]
+
+const initialEdges: Edge[] = []
+
+interface NotificationState {
+  type: 'success' | 'error' | 'info'
+  message: string
+  show: boolean
+}
+
+const formatTimeAgo = (date: Date): string => {
+  const seconds = Math.floor((new Date().getTime() - date.getTime()) / 1000)
+  
+  if (seconds < 60) {
+    return 'just now'
+  } else if (seconds < 3600) {
+    const minutes = Math.floor(seconds / 60)
+    return `${minutes} minute${minutes === 1 ? '' : 's'} ago`
+  } else {
+    const hours = Math.floor(seconds / 3600)
+    return `${hours} hour${hours === 1 ? '' : 's'} ago`
+  }
+}
+
+const WorkflowEditorContent: React.FC = () => {
+  const { id } = useParams()
+  const navigate = useNavigate()
+  const location = useLocation()
+  
+  // Handle /workflow/new route where id is undefined
+  const workflowId = id || (location.pathname === '/workflow/new' ? 'new' : undefined)
+  const [nodes, , onNodesChange] = useNodesState(initialNodes)
+  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges)
+  const [workflow, setWorkflow] = useState<Workflow | null>(null)
+  const [workflowName, setWorkflowName] = useState('New Workflow')
+  const [isEditingName, setIsEditingName] = useState(false)
+  const [tempName, setTempName] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [notification, setNotification] = useState<NotificationState>({
+    type: 'info',
+    message: '',
+    show: false
+  })
+  const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null)
+  const [autoSaving, setAutoSaving] = useState(false)
+  const autoSaveIntervalRef = useRef<NodeJS.Timeout | null>(null)
+  const isNewWorkflowRef = useRef(false)
+  const hasInitialSaveRef = useRef(false)
+  const onSaveRef = useRef<(isAutoSave?: boolean) => Promise<void>>()
+
+  const showNotification = useCallback((type: 'success' | 'error' | 'info', message: string) => {
+    setNotification({ type, message, show: true })
+    setTimeout(() => {
+      setNotification(prev => ({ ...prev, show: false }))
+    }, 3000)
+  }, [])
+
+  const onConnect = useCallback(
+    (params: Connection) => setEdges((eds) => addEdge(params, eds)),
+    [setEdges]
+  )
+
+  const startEditingName = () => {
+    setTempName(workflowName)
+    setIsEditingName(true)
+  }
+
+  const saveName = () => {
+    if (tempName.trim()) {
+      setWorkflowName(tempName.trim())
+      setIsEditingName(false)
+    }
+  }
+
+  const cancelEditingName = () => {
+    setTempName(workflowName)
+    setIsEditingName(false)
+  }
+
+  const handleNameKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      saveName()
+    } else if (e.key === 'Escape') {
+      cancelEditingName()
+    }
+  }
+
+  const onSave = useCallback(async (isAutoSave = false) => {
+    if (saving || autoSaving) return
+    console.log('onSave called, isAutoSave:', isAutoSave)
+
+    try {
+      if (isAutoSave) {
+        setAutoSaving(true)
+      } else {
+        setSaving(true)
+      }
+      
+      // Convert React Flow nodes/edges to workflow format
+      const workflowNodes = nodes.map(node => ({
+        id: node.id,
+        type: node.type || 'default',
+        label: node.data?.label || '',
+        properties: node.data || {},
+        position_x: node.position?.x,
+        position_y: node.position?.y
+      }))
+
+      const workflowEdges = edges.map(edge => ({
+        id: edge.id,
+        source: edge.source,
+        target: edge.target,
+        label: edge.label || undefined
+      }))
+
+      if (workflowId === 'new' || !workflow) {
+        // Create new workflow
+        const newWorkflow = await workflowService.createWorkflow({
+          name: workflowName,
+          description: 'AI agent workflow',
+          nodes: workflowNodes,
+          edges: workflowEdges,
+          metadata: { created_in_editor: true }
+        })
+        setWorkflow(newWorkflow)
+        setLastSavedAt(new Date())
+        if (!isAutoSave) {
+          showNotification('success', 'Workflow created successfully!')
+        }
+        // Update URL to show the new workflow ID (handle both id and _id fields)
+        const workflowId = newWorkflow.id || (newWorkflow as any)._id
+        navigate(`/workflow/${workflowId}`, { replace: true })
+      } else {
+        // Update existing workflow
+        const updatedWorkflow = await workflowService.updateWorkflow(workflow.id, {
+          name: workflowName,
+          nodes: workflowNodes,
+          edges: workflowEdges
+        })
+        setWorkflow(updatedWorkflow)
+        setLastSavedAt(new Date())
+        if (!isAutoSave) {
+          showNotification('success', 'Workflow saved successfully!')
+        }
+      }
+    } catch (error) {
+      console.error('Save failed:', error)
+      if (!isAutoSave) {
+        showNotification('error', error instanceof Error ? error.message : 'Failed to save workflow')
+      }
+    } finally {
+      if (isAutoSave) {
+        setAutoSaving(false)
+      } else {
+        setSaving(false)
+      }
+    }
+  }, [nodes, edges, workflow, workflowName, workflowId, navigate, saving, autoSaving, showNotification])
+
+  // Store onSave in ref for auto-save timer
+  useEffect(() => {
+    onSaveRef.current = onSave
+  }, [onSave])
+
+  // Load existing workflow if editing
+  useEffect(() => {
+    const loadWorkflow = async () => {
+      if (workflowId && workflowId !== 'new') {
+        try {
+          setLoading(true)
+          const data = await workflowService.getWorkflow(workflowId)
+          setWorkflow(data)
+          setWorkflowName(data.name)
+          // TODO: Load nodes and edges from workflow data
+          isNewWorkflowRef.current = false
+        } catch (error) {
+          showNotification('error', 'Failed to load workflow')
+        } finally {
+          setLoading(false)
+        }
+      } else if (workflowId === 'new') {
+        isNewWorkflowRef.current = true
+      }
+    }
+
+    loadWorkflow()
+  }, [workflowId, showNotification])
+
+  // Auto-save for new workflows - separate effect to avoid dependency issues
+  useEffect(() => {
+    console.log('Auto-save useEffect triggered, workflowId:', workflowId, 'hasInitialSave:', hasInitialSaveRef.current)
+    if (workflowId === 'new' && !hasInitialSaveRef.current) {
+      hasInitialSaveRef.current = true
+      console.log('Setting auto-save timer for new workflow...')
+      // Save new workflow after component is mounted
+      const timer = setTimeout(() => {
+        console.log('Auto-save timer executing...')
+        if (onSaveRef.current) {
+          console.log('Calling onSave from ref...')
+          onSaveRef.current(true)
+        } else {
+          console.error('onSaveRef.current is not available!')
+        }
+      }, 1500)
+
+      return () => {
+        console.log('Clearing auto-save timer')
+        clearTimeout(timer)
+      }
+    }
+  }, [workflowId]) // Intentionally exclude onSave to avoid dependency cycle
+
+  // Set up 30-second auto-save interval
+  useEffect(() => {
+    if (!workflow) return
+
+    const interval = setInterval(() => {
+      if (!saving && !autoSaving && onSaveRef.current) {
+        console.log('30-second auto-save triggered...')
+        onSaveRef.current(true)
+      }
+    }, 30000)
+
+    return () => clearInterval(interval)
+  }, [workflow]) // Intentionally exclude onSave to avoid dependency cycle
+
+  // Update "last saved" display every minute
+  useEffect(() => {
+    if (!lastSavedAt) return
+
+    const updateInterval = setInterval(() => {
+      // Force re-render to update time ago display
+      setLastSavedAt(prev => prev ? new Date(prev) : null)
+    }, 60000) // Update every minute
+
+    return () => clearInterval(updateInterval)
+  }, [lastSavedAt])
+
+  const onExport = () => {
+    const workflow = { nodes, edges }
+    const dataStr = JSON.stringify(workflow, null, 2)
+    const dataBlob = new Blob([dataStr], { type: 'application/json' })
+    const url = URL.createObjectURL(dataBlob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = 'workflow.json'
+    link.click()
+  }
+
+  const onGoBack = () => {
+    navigate('/dashboard')
+  }
+
+  return (
+    <div className="h-screen flex flex-col">
+      {/* Notification */}
+      {notification.show && (
+        <div className={`fixed top-4 right-4 z-50 p-4 rounded-md shadow-lg flex items-center space-x-2 ${
+          notification.type === 'success' ? 'bg-green-50 text-green-800 border border-green-200' :
+          notification.type === 'error' ? 'bg-red-50 text-red-800 border border-red-200' :
+          'bg-blue-50 text-blue-800 border border-blue-200'
+        }`}>
+          <AlertCircle className="w-4 h-4" />
+          <span className="text-sm font-medium">{notification.message}</span>
+        </div>
+      )}
+
+      <header className="bg-white shadow-sm border-b px-4 py-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <button 
+              onClick={onGoBack}
+              className="p-2 text-gray-400 hover:text-gray-600"
+              title="대시보드로 돌아가기"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </button>
+            <div>
+              <div className="flex items-center space-x-2">
+                {isEditingName ? (
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="text"
+                      value={tempName}
+                      onChange={(e) => setTempName(e.target.value)}
+                      onKeyDown={handleNameKeyPress}
+                      className="text-lg font-semibold text-gray-900 bg-white border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-musashi-500"
+                      autoFocus
+                    />
+                    <button
+                      onClick={saveName}
+                      className="p-1 text-green-600 hover:text-green-700"
+                      title="저장"
+                    >
+                      <Check className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={cancelEditingName}
+                      className="p-1 text-gray-400 hover:text-gray-600"
+                      title="취소"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex items-center space-x-2">
+                    <h1 className="text-lg font-semibold text-gray-900">
+                      {workflowName}
+                    </h1>
+                    <button
+                      onClick={startEditingName}
+                      className="p-1 text-gray-400 hover:text-gray-600"
+                      title="이름 편집"
+                    >
+                      <Edit2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
+              </div>
+              <p className="text-sm text-gray-500">Design your AI agent workflow</p>
+            </div>
+          </div>
+          <div className="flex items-center space-x-4">
+            {/* Auto-save indicator */}
+            {lastSavedAt && (
+              <div className="flex items-center space-x-1 text-xs text-gray-500">
+                <Clock className="w-3 h-3" />
+                <span>
+                  {autoSaving ? 'Auto-saving...' : `Last saved ${formatTimeAgo(lastSavedAt)}`}
+                </span>
+              </div>
+            )}
+            <button
+              onClick={onExport}
+              className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+            >
+              <Download className="w-4 h-4 mr-2" />
+              Export
+            </button>
+            <button
+              onClick={() => onSave(false)}
+              disabled={saving || autoSaving}
+              className={`inline-flex items-center px-3 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${
+                saving || autoSaving
+                  ? 'bg-gray-400 cursor-not-allowed' 
+                  : 'bg-musashi-600 hover:bg-musashi-700'
+              }`}
+            >
+              {saving ? (
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+              ) : (
+                <Save className="w-4 h-4 mr-2" />
+              )}
+              {saving ? 'Saving...' : 'Save'}
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <div className="flex-1 relative">
+        <ReactFlow
+          nodes={nodes}
+          edges={edges}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          onConnect={onConnect}
+          className="bg-gray-50"
+        >
+          <Background />
+          <Controls />
+          <MiniMap />
+        </ReactFlow>
+      </div>
+    </div>
+  )
+}
+
+const WorkflowEditor: React.FC = () => {
+  return (
+    <ReactFlowProvider>
+      <WorkflowEditorContent />
+    </ReactFlowProvider>
+  )
+}
+
+export default WorkflowEditor

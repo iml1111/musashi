@@ -5,6 +5,9 @@ import Card from '../components/common/Card';
 import Input from '../components/common/Input';
 import Badge from '../components/common/Badge';
 import Carousel from '../components/common/Carousel';
+import Navbar from '../components/common/Navbar';
+import Footer from '../components/common/Footer';
+import Hero from '../components/common/Hero';
 import { theme } from '../utils/theme';
 
 const Components: React.FC = () => {
@@ -493,6 +496,191 @@ const Components: React.FC = () => {
               </div>
             </div>
           </Card>
+        </section>
+
+        {/* Navbar */}
+        <section className="mb-12">
+          <Typography variant="h2" className="mb-6">Navigation Bar</Typography>
+          <div className="space-y-8">
+            <div>
+              <Typography variant="h3" className="mb-4">Default Navbar</Typography>
+              <div className="border rounded-lg overflow-hidden" style={{ borderColor: theme.theme.colorBorder }}>
+                <Navbar />
+              </div>
+            </div>
+
+            <div>
+              <Typography variant="h3" className="mb-4">Transparent Navbar</Typography>
+              <div 
+                className="relative rounded-lg overflow-hidden"
+                style={{
+                  background: `linear-gradient(135deg, ${theme.palette.blue[100]} 0%, ${theme.palette.purple[100]} 100%)`,
+                  minHeight: '200px'
+                }}
+              >
+                <Navbar variant="transparent" />
+                <div className="flex items-center justify-center h-40">
+                  <Typography variant="body" color="medium">
+                    Background content visible through transparent navbar
+                  </Typography>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <Typography variant="h3" className="mb-4">Solid Navbar</Typography>
+              <div className="border rounded-lg overflow-hidden" style={{ borderColor: theme.theme.colorBorder }}>
+                <Navbar variant="solid" />
+              </div>
+            </div>
+
+            <div>
+              <Typography variant="h3" className="mb-4">Minimal Navbar</Typography>
+              <div className="border rounded-lg overflow-hidden" style={{ borderColor: theme.theme.colorBorder }}>
+                <Navbar showSearch={false} showAuth={false} />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Hero Sections */}
+        <section className="mb-12">
+          <Typography variant="h2" className="mb-6">Hero Sections</Typography>
+          <div className="space-y-8">
+            <div>
+              <Typography variant="h3" className="mb-4">Default Hero</Typography>
+              <div className="border rounded-lg overflow-hidden" style={{ borderColor: theme.theme.colorBorder }}>
+                <Hero
+                  showBadge
+                  badgeText="v2.0"
+                  subtitle="AI-Powered Workflow Design"
+                  title="Build Intelligent Agent Workflows Visually"
+                  description="Create, design, and manage complex AI agent workflows without writing code. Drag, drop, and connect components to build powerful automation systems."
+                  primaryAction={{
+                    text: "Get Started",
+                    onClick: () => alert("Primary action clicked!")
+                  }}
+                  secondaryAction={{
+                    text: "View Demo",
+                    onClick: () => alert("Secondary action clicked!")
+                  }}
+                  features={[
+                    "Visual workflow builder",
+                    "No-code automation",
+                    "Team collaboration"
+                  ]}
+                />
+              </div>
+            </div>
+
+            <div>
+              <Typography variant="h3" className="mb-4">Centered Hero</Typography>
+              <div className="border rounded-lg overflow-hidden" style={{ borderColor: theme.theme.colorBorder }}>
+                <Hero
+                  variant="centered"
+                  showBadge
+                  badgeText="New Feature"
+                  subtitle="Musashi v2.0"
+                  title="The Future of Workflow Design"
+                  description="Experience the next generation of visual workflow creation with enhanced AI capabilities and seamless team collaboration."
+                  primaryAction={{
+                    text: "Explore Features",
+                    onClick: () => alert("Explore features!")
+                  }}
+                  secondaryAction={{
+                    text: "Watch Video",
+                    onClick: () => alert("Watch video!")
+                  }}
+                  stats={[
+                    { value: "10K+", label: "Active Users" },
+                    { value: "50K+", label: "Workflows Created" },
+                    { value: "99.9%", label: "Uptime" }
+                  ]}
+                />
+              </div>
+            </div>
+
+            <div>
+              <Typography variant="h3" className="mb-4">Split Hero</Typography>
+              <div className="border rounded-lg overflow-hidden" style={{ borderColor: theme.theme.colorBorder }}>
+                <Hero
+                  variant="split"
+                  showBadge
+                  badgeText="Beta"
+                  subtitle="Workflow Design Tool"
+                  title="Cut the Code. Shape the Flow."
+                  description="Musashi empowers teams to create sophisticated AI agent workflows through intuitive visual design. No programming required."
+                  primaryAction={{
+                    text: "Start Building",
+                    onClick: () => alert("Start building!")
+                  }}
+                  secondaryAction={{
+                    text: "Learn More",
+                    onClick: () => alert("Learn more!")
+                  }}
+                  features={[
+                    "Drag & drop interface",
+                    "Real-time collaboration",
+                    "Version control integration",
+                    "Enterprise security"
+                  ]}
+                  stats={[
+                    { value: "5min", label: "Setup Time" },
+                    { value: "300%", label: "Faster Deployment" },
+                    { value: "24/7", label: "Support" }
+                  ]}
+                />
+              </div>
+            </div>
+
+            <div>
+              <Typography variant="h3" className="mb-4">Minimal Hero</Typography>
+              <div className="border rounded-lg overflow-hidden" style={{ borderColor: theme.theme.colorBorder }}>
+                <Hero
+                  variant="minimal"
+                  showBadge
+                  badgeText="Simple"
+                  title="Simple. Powerful. Beautiful."
+                  description="Sometimes less is more. Create beautiful workflows with our minimal design approach."
+                  primaryAction={{
+                    text: "Get Started",
+                    onClick: () => alert("Get started!")
+                  }}
+                  secondaryAction={{
+                    text: "Learn More",
+                    onClick: () => alert("Learn more!")
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Footer */}
+        <section className="mb-12">
+          <Typography variant="h2" className="mb-6">Footer</Typography>
+          <div className="space-y-8">
+            <div>
+              <Typography variant="h3" className="mb-4">Default Footer</Typography>
+              <div className="border rounded-lg overflow-hidden" style={{ borderColor: theme.theme.colorBorder }}>
+                <Footer />
+              </div>
+            </div>
+
+            <div>
+              <Typography variant="h3" className="mb-4">Detailed Footer</Typography>
+              <div className="border rounded-lg overflow-hidden" style={{ borderColor: theme.theme.colorBorder }}>
+                <Footer variant="detailed" />
+              </div>
+            </div>
+
+            <div>
+              <Typography variant="h3" className="mb-4">Minimal Footer</Typography>
+              <div className="border rounded-lg overflow-hidden" style={{ borderColor: theme.theme.colorBorder }}>
+                <Footer variant="minimal" />
+              </div>
+            </div>
+          </div>
         </section>
 
         {/* Border Radius */}

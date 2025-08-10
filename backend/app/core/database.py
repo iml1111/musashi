@@ -1,19 +1,26 @@
 from motor.motor_asyncio import AsyncIOMotorClient
 from app.core.config import settings
 
-class Database:
-    client: AsyncIOMotorClient = None
-    database = None
+# Global database instance
+client = None
+database = None
 
-database = Database()
-
-async def get_database():
-    return database.database
+def get_database():
+    """Get database instance for dependency injection"""
+    global client, database
+    if database is None:
+        client = AsyncIOMotorClient(settings.MONGODB_URL)
+        database = client[settings.DATABASE_NAME]
+    return database
 
 async def connect_to_database():
-    database.client = AsyncIOMotorClient(settings.MONGODB_URL)
-    database.database = database.client[settings.DATABASE_NAME]
+    """Initialize database connection"""
+    global client, database
+    client = AsyncIOMotorClient(settings.MONGODB_URL)
+    database = client[settings.DATABASE_NAME]
 
 async def close_database_connection():
-    if database.client:
-        database.client.close()
+    """Close database connection"""
+    global client
+    if client:
+        client.close()

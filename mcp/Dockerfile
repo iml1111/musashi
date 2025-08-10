@@ -1,4 +1,4 @@
-FROM node:18-alpine AS playwright-build
+FROM node:18 AS playwright-build
 
 WORKDIR /app/playwright
 COPY servers/playwright/package*.json ./
