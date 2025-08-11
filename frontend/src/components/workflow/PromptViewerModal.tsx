@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { X, AlertCircle, Copy, Check, Maximize2, Minimize2, FileText, User, Bot, Plus, Trash2, Edit2, ChevronUp, ChevronDown } from 'lucide-react'
 import { validateSystemPrompt, formatValidationWarning } from '../../utils/systemPromptValidator'
-import { PromptContext } from '../../types/node'
+import { PromptContext, ConnectedInput } from '../../types/node'
+import { getUnusedInputs } from '../../utils/inputUsageChecker'
 
 interface PromptViewerModalProps {
   isOpen: boolean
@@ -9,7 +10,7 @@ interface PromptViewerModalProps {
   developerMessage: string
   prompts: PromptContext[]
   onChange: (developerMessage: string, prompts: PromptContext[]) => void
-  inputs: Array<{ key: string; type: string }>
+  inputs: Array<{ key: string; type: string; example?: string }>
 }
 
 const PromptViewerModal: React.FC<PromptViewerModalProps> = ({
@@ -23,7 +24,7 @@ const PromptViewerModal: React.FC<PromptViewerModalProps> = ({
   const [tempDeveloperMessage, setTempDeveloperMessage] = useState(developerMessage)
   const [tempPrompts, setTempPrompts] = useState<PromptContext[]>(prompts || [])
   const [validation, setValidation] = useState(() => 
-    validateSystemPrompt(developerMessage, inputs)
+    validateSystemPrompt(developerMessage, inputs, prompts)
   )
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [copied, setCopied] = useState(false)
@@ -34,6 +35,7 @@ const PromptViewerModal: React.FC<PromptViewerModalProps> = ({
   const [newPromptType, setNewPromptType] = useState<'user' | 'agent'>('user')
   const [newPromptContent, setNewPromptContent] = useState('')
   const [expandedPrompts, setExpandedPrompts] = useState<Set<number>>(new Set())
+  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   useEffect(() => {
     setTempDeveloperMessage(developerMessage)
@@ -41,8 +43,8 @@ const PromptViewerModal: React.FC<PromptViewerModalProps> = ({
   }, [developerMessage, prompts])
 
   useEffect(() => {
-    setValidation(validateSystemPrompt(tempDeveloperMessage, inputs))
-  }, [tempDeveloperMessage, inputs])
+    setValidation(validateSystemPrompt(tempDeveloperMessage, inputs, tempPrompts))
+  }, [tempDeveloperMessage, inputs, tempPrompts])
 
   // Handle ESC key for fullscreen
   useEffect(() => {
@@ -57,6 +59,15 @@ const PromptViewerModal: React.FC<PromptViewerModalProps> = ({
       return () => window.removeEventListener('keydown', handleEsc)
     }
   }, [isOpen, isFullscreen])
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current)
+      }
+    }
+  }, [])
 
   if (!isOpen) return null
 
@@ -95,22 +106,30 @@ const PromptViewerModal: React.FC<PromptViewerModalProps> = ({
       return
     }
     if (newPromptContent.trim()) {
-      setTempPrompts([...tempPrompts, { type: newPromptType, content: newPromptContent.trim() }])
+      const newPrompts = [...tempPrompts, { type: newPromptType, content: newPromptContent.trim() }]
+      setTempPrompts(newPrompts)
       setNewPromptContent('')
       setNewPromptType('user')
       setIsAddingPrompt(false)
+      // Immediately save changes
+      onChange(tempDeveloperMessage, newPrompts)
     }
   }
 
   const handleDeletePrompt = (index: number) => {
-    setTempPrompts(tempPrompts.filter((_, i) => i !== index))
+    const newPrompts = tempPrompts.filter((_, i) => i !== index)
+    setTempPrompts(newPrompts)
     setEditingPromptIndex(null)
+    // Immediately save changes
+    onChange(tempDeveloperMessage, newPrompts)
   }
 
   const handleUpdatePrompt = (index: number, content: string) => {
     const updated = [...tempPrompts]
     updated[index] = { ...updated[index], content }
     setTempPrompts(updated)
+    // Immediately save changes
+    onChange(tempDeveloperMessage, updated)
   }
 
   const togglePromptExpanded = (index: number) => {
@@ -318,7 +337,18 @@ const PromptViewerModal: React.FC<PromptViewerModalProps> = ({
               </div>
               <textarea
                 value={tempDeveloperMessage}
-                onChange={(e) => setTempDeveloperMessage(e.target.value)}
+                onChange={(e) => {
+                  const newValue = e.target.value
+                  setTempDeveloperMessage(newValue)
+                  
+                  // Debounce auto-save
+                  if (saveTimeoutRef.current) {
+                    clearTimeout(saveTimeoutRef.current)
+                  }
+                  saveTimeoutRef.current = setTimeout(() => {
+                    onChange(newValue, tempPrompts)
+                  }, 500)
+                }}
                 className="flex-1 p-4 font-mono text-sm border border-gray-300 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="Enter your developer message here. Use $$input_key$$ to reference inputs.
 
@@ -332,9 +362,8 @@ Process the $$input$$ data and generate a summary.
 - Focus on key points
 - Use markdown formatting"
               />
-              <div className="mt-2 flex justify-between text-xs text-gray-500">
+              <div className="mt-2 text-xs text-gray-500">
                 <span>{tempDeveloperMessage.length} characters</span>
-                <span>Available inputs: {inputs.length > 0 ? inputs.map(input => `$$${input.key}$$`).join(', ') : 'none'}</span>
               </div>
             </div>
           )}

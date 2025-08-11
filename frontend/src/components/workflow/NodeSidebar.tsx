@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { Node, Edge } from '../../types/flow'
 import { 
   X, Plus, Trash2, Link2, Unlink, Edit2, AlertCircle, 
-  ChevronDown, ChevronUp, Globe, Plug, FolderSearch, 
+  ChevronDown, ChevronUp, Globe, 
   Terminal, Image, Check
 } from 'lucide-react'
 import { nodeDescriptions } from '../../constants/nodeDescriptions'
@@ -12,7 +12,9 @@ import ModelDropdown from './ModelDropdown'
 import PromptViewerModal from './PromptViewerModal'
 import { validateAgentConnections, validateUserInputToAgentConnections } from '../../utils/connectionValidator'
 import { validateSystemPrompt, formatValidationWarning } from '../../utils/systemPromptValidator'
-import { ConnectedInput } from '../../types/node'
+import { ConnectedInput, ConnectedOutput, isFinalOutputNode } from '../../types/node'
+import ConnectedOutputViewer from './ConnectedOutputViewer'
+import { getUnusedInputs, areAllInputsUsed } from '../../utils/inputUsageChecker'
 
 // OutputItem 컴포넌트
 interface OutputItemProps {
@@ -201,6 +203,7 @@ interface NodeSidebarProps {
   onAddConnection: (sourceId: string, targetId: string, sourceHandle?: string) => void
   onRemoveConnection: (edgeId: string) => void
   onUpdateEdgeDirection?: (edgeId: string, direction: 'unidirectional' | 'bidirectional') => void
+  onSaveWorkflow?: () => void
 }
 
 const NodeSidebar: React.FC<NodeSidebarProps> = ({
@@ -213,6 +216,7 @@ const NodeSidebar: React.FC<NodeSidebarProps> = ({
   onAddConnection,
   onRemoveConnection,
   onUpdateEdgeDirection,
+  onSaveWorkflow,
 }) => {
   const [isConnecting, setIsConnecting] = useState(false)
   const [selectedTarget, setSelectedTarget] = useState<string>('')
@@ -222,6 +226,7 @@ const NodeSidebar: React.FC<NodeSidebarProps> = ({
   const [newOutputExample, setNewOutputExample] = useState('')
   const [showAdvancedOptions, setShowAdvancedOptions] = useState(false)
   const [showPromptViewerModal, setShowPromptViewerModal] = useState(false)
+  const [showConnectedOutputViewer, setShowConnectedOutputViewer] = useState(false)
 
   if (!selectedNode) return null
 
@@ -320,33 +325,85 @@ const NodeSidebar: React.FC<NodeSidebarProps> = ({
           />
         </div>
 
-        {/* Outputs for all node types */}
+        {/* Outputs for all node types except MCP (MCP has its own Output Configuration) */}
+        {selectedNode.type !== 'mcp' && (
         <div className="border-t pt-4">
             <h3 className="text-sm font-medium text-gray-700 mb-2">Outputs</h3>
-            <div className="space-y-2">
-              {(currentNode.data?.outputs || []).map((output: any, index: number) => (
-                <OutputItem
-                  key={index}
-                  output={output}
-                  index={index}
-                  onUpdate={(updatedOutput) => {
-                    const newOutputs = [...(currentNode.data?.outputs || [])]
-                    newOutputs[index] = updatedOutput
-                    onUpdateNode(selectedNode.id, {
-                      data: { ...currentNode.data, outputs: newOutputs }
-                    })
-                  }}
-                  onDelete={selectedNode.type !== 'vectorstore' ? () => {
-                    const newOutputs = [...(currentNode.data?.outputs || [])]
-                    newOutputs.splice(index, 1)
-                    onUpdateNode(selectedNode.id, {
-                      data: { ...currentNode.data, outputs: newOutputs }
-                    })
-                  } : undefined}
-                />
-              ))}
-              
-              {selectedNode.type !== 'vectorstore' && (!currentNode.data?.outputs || currentNode.data.outputs.length < 30) && !isAddingOutput && (
+            
+            {/* Special handling for Final Output nodes */}
+            {selectedNode.type === 'finaloutput' ? (
+              <div className="space-y-3">
+                <div className="bg-gray-50 border border-gray-200 rounded-md p-3">
+                  <p className="text-xs text-gray-600">
+                    <span className="font-semibold">Auto-Generated Outputs</span><br />
+                    Final Output automatically includes all connected node outputs. Connect other nodes to populate outputs.
+                  </p>
+                </div>
+                
+                {isFinalOutputNode(currentNode.data) && currentNode.data.connected_outputs.length > 0 ? (
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs text-gray-500">
+                        {currentNode.data.connected_outputs.length} connected output{currentNode.data.connected_outputs.length !== 1 ? 's' : ''}
+                      </p>
+                      <button
+                        onClick={() => setShowConnectedOutputViewer(true)}
+                        className="text-xs text-musashi-600 hover:text-musashi-700"
+                      >
+                        View Details
+                      </button>
+                    </div>
+                    
+                    {/* Display connected outputs as read-only */}
+                    {currentNode.data.connected_outputs.map((output: ConnectedOutput, index: number) => (
+                      <div key={index} className="bg-white border border-gray-200 rounded-md p-2">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <span className="text-sm font-medium">{output.outputKey}</span>
+                            <span className="text-xs text-gray-500 ml-2">({output.outputType})</span>
+                          </div>
+                          <span className="text-xs text-gray-400">{output.nodeName}</span>
+                        </div>
+                        {output.outputExample && (
+                          <div className="mt-1 text-xs text-gray-500 font-mono truncate">
+                            {output.outputExample}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-xs text-gray-500 italic">
+                    No outputs connected yet. Connect other nodes to this Final Output node.
+                  </p>
+                )}
+              </div>
+            ) : (
+              /* Regular output handling for other nodes */
+              <div className="space-y-2">
+                {(currentNode.data?.outputs || []).map((output: any, index: number) => (
+                  <OutputItem
+                    key={index}
+                    output={output}
+                    index={index}
+                    onUpdate={(updatedOutput) => {
+                      const newOutputs = [...(currentNode.data?.outputs || [])]
+                      newOutputs[index] = updatedOutput
+                      onUpdateNode(selectedNode.id, {
+                        data: { ...currentNode.data, outputs: newOutputs }
+                      })
+                    }}
+                    onDelete={selectedNode.type !== 'vectorstore' ? () => {
+                      const newOutputs = [...(currentNode.data?.outputs || [])]
+                      newOutputs.splice(index, 1)
+                      onUpdateNode(selectedNode.id, {
+                        data: { ...currentNode.data, outputs: newOutputs }
+                      })
+                    } : undefined}
+                  />
+                ))}
+                
+                {selectedNode.type !== 'vectorstore' && (!currentNode.data?.outputs || currentNode.data.outputs.length < 30) && !isAddingOutput && (
                 <button
                   onClick={() => {
                     setIsAddingOutput(true)
@@ -434,8 +491,10 @@ const NodeSidebar: React.FC<NodeSidebarProps> = ({
               {currentNode.data?.outputs && currentNode.data.outputs.length >= 30 && (
                 <p className="text-xs text-gray-500 text-center">Maximum 30 outputs reached</p>
               )}
-            </div>
+              </div>
+            )}
           </div>
+        )}
 
         {/* Connections - Moved to right after Outputs */}
         <div className="border-t pt-4">
@@ -491,6 +550,28 @@ const NodeSidebar: React.FC<NodeSidebarProps> = ({
               ) : (
                 <p className="text-xs text-gray-500 italic">
                   No outputs defined. Add outputs above if you want to connect this Agent to other nodes.
+                </p>
+              )}
+            </div>
+          ) : selectedNode.type === 'mcp' ? (
+            // Special connections UI for MCP node (single output)
+            <div className="space-y-3">
+              <p className="text-xs text-gray-500">Connect MCP output to other nodes:</p>
+              {currentNode.data?.outputs && currentNode.data.outputs.length > 0 ? (
+                <OutputConnectionBox
+                  output={currentNode.data.outputs[0]}
+                  outputHandle={`output-${currentNode.data.outputs[0].key}`}
+                  selectedNodeId={selectedNode.id}
+                  edges={edges}
+                  nodes={nodes}
+                  availableNodes={availableNodes}
+                  onAddConnection={onAddConnection}
+                  onRemoveConnection={onRemoveConnection}
+                  onUpdateEdgeDirection={onUpdateEdgeDirection}
+                />
+              ) : (
+                <p className="text-xs text-gray-500 italic">
+                  No output configured for MCP node.
                 </p>
               )}
             </div>
@@ -708,8 +789,49 @@ const NodeSidebar: React.FC<NodeSidebarProps> = ({
                       return `${developerMessage.length} characters`
                     })()}
                   </div>
-                  <div className="text-xs text-gray-500">
-                    Available inputs: {(currentNode.data?.connected_inputs || []).map((input: ConnectedInput) => `$$${input.outputKey}$$`).join(', ') || 'none'}
+                  <div className={(() => {
+                    const connectedInputs = currentNode.data?.connected_inputs || []
+                    if (connectedInputs.length === 0) {
+                      return "text-xs text-gray-500"
+                    }
+                    
+                    const unusedInputs = getUnusedInputs(
+                      connectedInputs,
+                      currentNode.data.parameters.developer_message || currentNode.data.parameters.system_prompt,
+                      currentNode.data.parameters.prompts
+                    )
+                    
+                    if (unusedInputs.length > 0) {
+                      return "text-xs text-yellow-600 font-medium"
+                    }
+                    return "text-xs text-green-600"
+                  })()}>
+                    {(() => {
+                      const connectedInputs = currentNode.data?.connected_inputs || []
+                      if (connectedInputs.length === 0) {
+                        return "No connected inputs"
+                      }
+                      
+                      const unusedInputs = getUnusedInputs(
+                        connectedInputs,
+                        currentNode.data.parameters.developer_message || currentNode.data.parameters.system_prompt,
+                        currentNode.data.parameters.prompts
+                      )
+                      
+                      if (unusedInputs.length > 0) {
+                        return (
+                          <>
+                            ⚠️ Unused inputs: {unusedInputs.map(key => `$$${key}$$`).join(', ')}
+                          </>
+                        )
+                      }
+                      
+                      return (
+                        <>
+                          ✅ All inputs used
+                        </>
+                      )
+                    })()}
                   </div>
                 </div>
                 {(() => {
@@ -832,20 +954,6 @@ const NodeSidebar: React.FC<NodeSidebarProps> = ({
                       icon: Globe,
                       description: 'Search and fetch web data',
                       color: '#0ea5e9'
-                    },
-                    { 
-                      type: 'api_call', 
-                      label: 'API Call', 
-                      icon: Plug,
-                      description: 'Make external API requests',
-                      color: '#8b5cf6'
-                    },
-                    { 
-                      type: 'file_search', 
-                      label: 'File Search', 
-                      icon: FolderSearch,
-                      description: 'Search through files and documents',
-                      color: '#f59e0b'
                     },
                     { 
                       type: 'code_interpreter', 
@@ -994,6 +1102,117 @@ const NodeSidebar: React.FC<NodeSidebarProps> = ({
                 <p className="text-xs text-gray-500 mt-1">
                   Vector database for storing and searching embeddings
                 </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Parameters for MCP Node */}
+        {selectedNode.type === 'mcp' && (
+          <div className="border-t pt-4">
+            <h3 className="text-sm font-medium text-gray-700 mb-2">MCP Configuration</h3>
+            <div className="space-y-4">
+              
+              {/* Connected Inputs Section (Read-only) */}
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-2">
+                  Connected Inputs (Read-only)
+                </label>
+                {currentNode.data?.connected_inputs?.length > 0 ? (
+                  <div className="space-y-2 max-h-48 overflow-y-auto">
+                    {currentNode.data.connected_inputs.map((input: ConnectedInput, index: number) => (
+                      <div key={index} className="bg-gray-50 border border-gray-200 rounded p-2">
+                        <div className="flex items-center justify-between">
+                          <div className="text-xs">
+                            <div className="font-medium text-gray-700">{input.nodeName}</div>
+                            <div className="text-gray-500 mt-0.5">
+                              {input.outputKey} ({input.outputType})
+                            </div>
+                          </div>
+                          <div className="text-xs text-gray-400">
+                            #{index + 1}
+                          </div>
+                        </div>
+                        {input.outputExample && (
+                          <div className="mt-1 text-xs text-gray-500 font-mono bg-white p-1 rounded overflow-x-auto">
+                            {input.outputExample}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-xs text-gray-500 italic py-2">
+                    No inputs connected. Connect Agent nodes to provide inputs.
+                  </p>
+                )}
+              </div>
+
+              {/* Single Output Section (Editable but not deletable) */}
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-2">
+                  Output Configuration (Single)
+                </label>
+                {currentNode.data?.outputs?.length === 1 ? (
+                  <div className="bg-white border border-gray-200 rounded p-3">
+                    <OutputItem
+                      output={currentNode.data.outputs[0]}
+                      index={0}
+                      onUpdate={(updatedOutput) => {
+                        // Output modification only (no deletion)
+                        onUpdateNode(selectedNode.id, {
+                          data: {
+                            ...currentNode.data,
+                            outputs: [updatedOutput] // Always maintain exactly 1 output
+                          }
+                        })
+                      }}
+                      onDelete={undefined} // Disable delete functionality
+                    />
+                    <p className="text-xs text-gray-500 mt-2 italic">
+                      ⚠️ MCP nodes must have exactly one output (cannot be deleted)
+                    </p>
+                  </div>
+                ) : (
+                  // Auto-fix: Ensure MCP has exactly 1 output
+                  <div className="bg-yellow-50 border border-yellow-200 rounded p-2">
+                    <p className="text-xs text-yellow-700">
+                      Fixing output configuration...
+                    </p>
+                    {(() => {
+                      // Auto-fix to ensure exactly 1 output
+                      const fixedOutput = currentNode.data?.outputs?.length > 0 
+                        ? [currentNode.data.outputs[0]]  // Keep first output if multiple exist
+                        : [{  // Create default output if none exist
+                            key: 'mcp_result',
+                            type: 'object',
+                            example: '{"status": "success", "data": {}}'
+                          }]
+                      
+                      // Apply fix immediately
+                      setTimeout(() => {
+                        onUpdateNode(selectedNode.id, {
+                          data: {
+                            ...currentNode.data,
+                            outputs: fixedOutput
+                          }
+                        })
+                      }, 100)
+                      
+                      return null
+                    })()}
+                  </div>
+                )}
+              </div>
+
+              {/* Connection Info */}
+              <div className="mt-3 p-3 bg-pink-50 rounded-lg border border-pink-200">
+                <div className="text-xs text-gray-600 space-y-1">
+                  <p className="font-semibold">Connection Behavior:</p>
+                  <p>• ← Receives inputs from Agent nodes (unidirectional)</p>
+                  <p>• → Sends output to other nodes (unidirectional)</p>
+                  <p>• Unlike Vector Store, MCP uses standard connections</p>
+                </div>
               </div>
             </div>
           </div>
@@ -1149,12 +1368,24 @@ const NodeSidebar: React.FC<NodeSidebarProps> = ({
                 }
               }
             })
+            // Save workflow immediately after updating node
+            onSaveWorkflow?.()
           }}
           inputs={currentNode.data?.connected_inputs?.map((input: ConnectedInput) => ({
             key: input.outputKey,
             type: input.outputType,
             example: input.outputExample
           })) || []}
+        />
+      )}
+
+      {/* Connected Output Viewer Modal for Final Output nodes */}
+      {selectedNode?.type === 'finaloutput' && (
+        <ConnectedOutputViewer
+          isOpen={showConnectedOutputViewer}
+          onClose={() => setShowConnectedOutputViewer(false)}
+          connectedOutputs={isFinalOutputNode(currentNode.data) ? currentNode.data.connected_outputs : []}
+          nodeLabel={currentNode.data?.label || 'Final Output'}
         />
       )}
     </div>

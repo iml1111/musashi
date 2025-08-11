@@ -17,6 +17,26 @@ interface EdgeProps {
   target: string
 }
 
+// Helper function to truncate text with ellipsis
+const truncateText = (text: string, maxLength: number = 50): { display: string; isTruncated: boolean } => {
+  if (!text || text.length <= maxLength) {
+    return { display: text || '', isTruncated: false }
+  }
+  return { 
+    display: text.substring(0, maxLength - 3) + '...', 
+    isTruncated: true 
+  }
+}
+
+// Helper function to calculate dynamic width based on text length
+const calculateLabelWidth = (text: string, maxLength: number = 50): number => {
+  if (!text) return 80
+  const displayLength = Math.min(text.length, maxLength)
+  // Approximate width calculation: ~7px per character + padding
+  const calculatedWidth = Math.max(80, Math.min(200, displayLength * 7 + 20))
+  return calculatedWidth
+}
+
 // Simple custom edge component for Reaflow compatibility
 export const CustomEdge = ({
   id,
@@ -157,36 +177,63 @@ export const CustomEdge = ({
           </div>
         </foreignObject>
       )}
-      {data?.sourceOutput && !isToolConnection && (
-        <foreignObject
-          x={labelX - 40}
-          y={labelY - 15}
-          width={80}
-          height={30}
-        >
-          <div
-            style={{
-              background: '#ffffff',
-              border: '1px solid #374151',
-              borderRadius: '4px',
-              padding: '4px 8px',
-              fontSize: '11px',
-              fontWeight: 600,
-              textAlign: 'center',
-              cursor: 'pointer',
-              userSelect: 'none',
-            }}
-            onClick={(e) => {
-              e.stopPropagation()
-              if (data.onLabelClick) {
-                data.onLabelClick(e, id, data.sourceOutput)
-              }
-            }}
+      {(() => {
+        // Show label if sourceOutput exists and not a tool connection
+        if (data?.sourceOutput && !isToolConnection) {
+          const { display: displayText, isTruncated } = truncateText(data.sourceOutput, 50)
+          const labelWidth = calculateLabelWidth(data.sourceOutput, 50)
+        
+        return (
+          <foreignObject
+            x={labelX - labelWidth / 2}
+            y={labelY - 15}
+            width={labelWidth}
+            height={30}
           >
-            {data.sourceOutput}
-          </div>
-        </foreignObject>
-      )}
+            <div
+              style={{
+                background: 'rgba(255, 255, 255, 0.95)',
+                border: '1px solid #374151',
+                borderRadius: '4px',
+                padding: '4px 8px',
+                fontSize: isTruncated ? '10px' : '11px',
+                fontWeight: 600,
+                textAlign: 'center',
+                cursor: 'pointer',
+                userSelect: 'none',
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+                transition: 'all 0.2s ease',
+              }}
+              title={isTruncated ? data.sourceOutput : undefined}
+              onClick={(e) => {
+                e.stopPropagation()
+                if (data.onLabelClick) {
+                  data.onLabelClick(e, id, data.sourceOutput)
+                }
+              }}
+              onMouseEnter={(e) => {
+                const element = e.currentTarget as HTMLDivElement
+                element.style.zIndex = '1000'
+                element.style.boxShadow = '0 2px 6px rgba(0, 0, 0, 0.2)'
+                element.style.transform = 'scale(1.05)'
+              }}
+              onMouseLeave={(e) => {
+                const element = e.currentTarget as HTMLDivElement
+                element.style.zIndex = 'auto'
+                element.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.1)'
+                element.style.transform = 'scale(1)'
+              }}
+            >
+              {displayText}
+            </div>
+          </foreignObject>
+        )
+        }
+        return null
+      })()}
     </g>
   )
 }

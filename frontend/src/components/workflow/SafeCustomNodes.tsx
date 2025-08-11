@@ -639,8 +639,113 @@ const KnowledgeBaseNode = ({ data, id }: any) => {
   )
 }
 
+// Custom MCP Node - Can receive inputs from Agent nodes and send outputs
+const SafeMCPNode = ({ data, id }: any) => {
+  const connectedInputs = data?.connected_inputs || []
+  const outputs = data?.outputs || []
+  const inputCount = connectedInputs.length
+  const outputCount = outputs.length
+  
+  return (
+    <div
+      style={{
+        background: '#fce7f3',
+        border: '2px solid #ec4899',
+        color: '#db2777',
+        padding: '12px 20px',
+        borderRadius: '12px',
+        fontSize: '14px',
+        fontWeight: 500,
+        minWidth: '180px',
+        textAlign: 'center',
+        position: 'relative',
+        boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+      }}
+    >
+      {/* Target Handle - MCP can now receive connections from Agent nodes */}
+      <Handle
+        type="target"
+        position={Position.Top}
+        style={{
+          background: '#ec4899',
+          width: '10px',
+          height: '10px',
+          border: '2px solid white',
+          top: '-5px',
+        }}
+      />
+      
+      <div>
+        <div style={{ fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+          <Share2 size={16} />
+          <span>{data?.label || 'MCP'}</span>
+        </div>
+        {inputCount > 0 && (
+          <div style={{ fontSize: '10px', opacity: 0.6, marginTop: '2px' }}>
+            {inputCount} input{inputCount > 1 ? 's' : ''} connected
+          </div>
+        )}
+        {outputCount === 1 && (
+          <div style={{ fontSize: '10px', opacity: 0.6, marginTop: '2px' }}>
+            1 output configured
+          </div>
+        )}
+        {data?.memo && (
+          <div style={{ 
+            fontSize: '10px', 
+            color: '#6b7280',
+            marginTop: '4px',
+            fontStyle: 'italic',
+            maxWidth: '150px',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            display: '-webkit-box',
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: 'vertical',
+            lineHeight: '1.2'
+          }} title={data.memo}>
+            📝 {data.memo}
+          </div>
+        )}
+      </div>
+      
+      {/* Dynamic output-based handle (MCP has exactly 1 output) */}
+      {outputCount === 1 ? (
+        <Handle
+          id={`output-${outputs[0].key}`}
+          type="source"
+          position={Position.Bottom}
+          style={{
+            background: '#ec4899',
+            width: '10px',
+            height: '10px',
+            border: '2px solid white',
+            bottom: '-5px',
+          }}
+          title={`${outputs[0].key} (${outputs[0].type})`}
+        />
+      ) : (
+        // Fallback handle - also provide an id for consistency
+        <Handle
+          id="output-mcp_result"
+          type="source"
+          position={Position.Bottom}
+          style={{
+            background: '#ec4899',
+            width: '10px',
+            height: '10px',
+            border: '2px solid white',
+            bottom: '-5px',
+          }}
+          title="mcp_result (object)"
+        />
+      )}
+    </div>
+  )
+}
+
 const MCPNode = (props: any) => {
-  return <SimpleBaseNode {...props} type="mcp" />
+  return <SafeMCPNode {...props} />
 }
 
 const APICallNode = (props: any) => {
@@ -651,8 +756,85 @@ const RouterNode = (props: any) => {
   return <SimpleBaseNode {...props} type="router" />
 }
 
+// Custom Final Output Node
+const SafeFinalOutputNode = ({ data }: any) => {
+  const connectedOutputs = data?.connected_outputs || []
+  const outputCount = connectedOutputs.length
+  
+  return (
+    <div
+      style={{
+        background: '#f3f4f6',
+        border: '2px solid #6b7280',
+        color: '#374151',
+        padding: '12px 20px',
+        borderRadius: '12px',
+        fontSize: '14px',
+        fontWeight: 500,
+        minWidth: '180px',
+        textAlign: 'center',
+        position: 'relative',
+        boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+      }}
+    >
+      <Handle
+        type="target"
+        position={Position.Top}
+        style={{
+          background: 'transparent',
+          width: '10px',
+          height: '10px',
+          border: 'none',
+          top: '-5px',
+        }}
+      />
+      
+      <div>
+        <div style={{ fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+          <CheckCircle size={16} />
+          <span>{data?.label || 'Final Output'}</span>
+        </div>
+        {outputCount > 0 && (
+          <div style={{ fontSize: '10px', opacity: 0.6, marginTop: '2px' }}>
+            {outputCount} connected output{outputCount > 1 ? 's' : ''}
+          </div>
+        )}
+        {data?.memo && (
+          <div style={{ 
+            fontSize: '10px', 
+            color: '#6b7280',
+            marginTop: '4px',
+            fontStyle: 'italic',
+            maxWidth: '150px',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            display: '-webkit-box',
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: 'vertical',
+            lineHeight: '1.2'
+          }} title={data.memo}>
+            📝 {data.memo}
+          </div>
+        )}
+      </div>
+      
+      <Handle
+        type="source"
+        position={Position.Bottom}
+        style={{
+          background: 'transparent',
+          width: '10px',
+          height: '10px',
+          border: 'none',
+          bottom: '-5px',
+        }}
+      />
+    </div>
+  )
+}
+
 const FinalOutputNode = (props: any) => {
-  return <SimpleBaseNode {...props} type="finaloutput" />
+  return <SafeFinalOutputNode {...props} />
 }
 
 const DefaultNode = (props: any) => {

@@ -12,7 +12,7 @@ import { safeNodeTypes as nodeTypes } from '../components/workflow/SafeCustomNod
 import { edgeTypes } from '../components/workflow/CustomEdges'
 import { workflowService } from '../services/workflow'
 import { Workflow } from '../types/workflow'
-import { ConnectedInput } from '../types/node'
+import { ConnectedInput, isFinalOutputNode, ConnectedOutput } from '../types/node'
 import {
   calculateLayout,
   addNodeWithLayout,
@@ -543,8 +543,8 @@ const MusashiFlowEditor: React.FC = () => {
         if (removedEdge) {
           const targetNode = nodes.find(n => n.id === removedEdge.target)
           
-          // If target is an Agent node, remove the connected_input
-          if (targetNode?.type === 'agent') {
+          // If target is an Agent or MCP node, remove the connected_input
+          if (targetNode?.type === 'agent' || targetNode?.type === 'mcp') {
             const outputKey = removedEdge.sourceHandle?.replace('output-', '') || 'output'
             
             // Filter out the connected input for this source
@@ -589,12 +589,59 @@ const MusashiFlowEditor: React.FC = () => {
       return
     }
     
-    // Update connected_inputs for Agent nodes
+    // MCP nodes can now receive connections, but only from Agent nodes
+    if (targetNode.type === 'mcp' && sourceNode.type !== 'agent') {
+      showNotification('error', 'MCP nodes can only receive connections from Agent nodes.')
+      return
+    }
+    
+    // Knowledge Base still cannot receive connections
+    if (targetNode.type === 'knowledgebase') {
+      showNotification('error', 'Knowledge Base nodes cannot receive connections.')
+      return
+    }
+    
+    // Extract output key from sourceHandle (format: "output-{key}")
+    let outputKey = connection.sourceHandle?.replace('output-', '') || ''
+    
+    
+    // Special debug for MCP nodes
+    if (sourceNode.type === 'mcp') {
+      // MCP specific handling
+      const mcpDebugInfo = {
+        sourceHandle: connection.sourceHandle,
+        mcpOutputs: sourceNode.data?.outputs,
+        outputsLength: sourceNode.data?.outputs?.length,
+        firstOutputKey: sourceNode.data?.outputs?.[0]?.key,
+        expectedHandle: sourceNode.data?.outputs?.[0] ? `output-${sourceNode.data.outputs[0].key}` : 'none'
+      })
+    }
+    
+    // Handle missing sourceHandle for MCP nodes
+    if (!connection.sourceHandle && sourceNode.type === 'mcp') {
+      // Manually construct the expected sourceHandle
+      if (sourceNode.data?.outputs?.length > 0) {
+        connection.sourceHandle = `output-${sourceNode.data.outputs[0].key}`
+      } else {
+        connection.sourceHandle = 'output-mcp_result'
+      }
+      // Re-extract outputKey with the new sourceHandle
+      outputKey = connection.sourceHandle.replace('output-', '')
+    }
+    
+    // Fallback for MCP nodes if outputKey is still missing
+    if (!outputKey && sourceNode.type === 'mcp' && sourceNode.data?.outputs?.length > 0) {
+      outputKey = sourceNode.data.outputs[0].key
+    }
+    
+    // Default fallback for other cases
+    if (!outputKey) {
+      outputKey = 'output'
+    }
+    
+    // Update connected_inputs for Agent and MCP nodes
     let updatedNodes = [...nodes]
-    if (targetNode.type === 'agent') {
-      // Extract output key from sourceHandle (format: "output-{key}")
-      const outputKey = connection.sourceHandle?.replace('output-', '') || 'output'
-      
+    if (targetNode.type === 'agent' || targetNode.type === 'mcp') {
       // Find the output details from source node
       const sourceOutput = sourceNode.data?.outputs?.find((o: any) => o.key === outputKey)
       
@@ -627,14 +674,16 @@ const MusashiFlowEditor: React.FC = () => {
       }
     }
     
-    // Check if Vector Store is involved in the connection
+    // Check if Vector Store is involved in the connection (only Vector Store creates bidirectional connections)
     const isVectorStoreConnection = sourceNode.type === 'vectorstore' || targetNode.type === 'vectorstore'
+    const isBidirectionalConnection = isVectorStoreConnection  // Only Vector Store is bidirectional now
     
     // Find the output index for tracking renamed outputs
-    const outputKey = connection.sourceHandle ? connection.sourceHandle.replace('output-', '') : undefined
+    // outputKey is already declared above, so just calculate the index
     const outputIndex = outputKey && sourceNode.data?.outputs 
       ? sourceNode.data.outputs.findIndex((o: any) => o.key === outputKey)
       : undefined
+    
     
     const newEdge: Edge = {
       id: `${connection.source}-${connection.target}`,
@@ -648,13 +697,13 @@ const MusashiFlowEditor: React.FC = () => {
         sourceOutput: outputKey,
         outputIndex: outputIndex, // Store output index for tracking renames
         onLabelClick: handleEdgeLabelClick,
-        direction: isVectorStoreConnection ? 'bidirectional' : 'unidirectional'
+        direction: isBidirectionalConnection ? 'bidirectional' : 'unidirectional'
       },
       markerEnd: {
         type: 'arrowclosed',
       },
       // Add markerStart for bidirectional connections
-      ...(isVectorStoreConnection && {
+      ...(isBidirectionalConnection && {
         markerStart: {
           type: 'arrowclosed',
         }
@@ -727,8 +776,28 @@ const MusashiFlowEditor: React.FC = () => {
       }
     }
     
+    // Final Output 노드의 경우 connected_outputs 추가
+    if (type === 'finaloutput') {
+      nodeData.connected_outputs = []
+      nodeData.outputs = []  // 빈 배열로 시작, connected_outputs에서 자동 생성됨
+    }
+    
+    // MCP 노드의 경우 connected_inputs, parameters와 outputs 추가
+    if (type === 'mcp') {
+      nodeData.connected_inputs = []  // 빈 배열로 시작 (Agent로부터 받을 입력)
+      nodeData.outputs = [{
+        key: 'mcp_result',
+        type: 'object',
+        example: '{"status": "success", "data": {}}'
+      }]  // 정확히 1개의 output (고정)
+      nodeData.parameters = {
+        mode: 'query'  // servers 필드 제거
+      }
+    }
+    
     // Ensure all other node types have at least one output
-    if (type !== 'agent' && type !== 'userinput' && type !== 'vectorstore' && type !== 'knowledgebase') {
+    else if (type !== 'agent' && type !== 'userinput' && type !== 'vectorstore' && 
+             type !== 'knowledgebase' && type !== 'mcp') {
       nodeData.outputs = [{
         key: 'output',
         type: 'string',
@@ -850,7 +919,7 @@ const MusashiFlowEditor: React.FC = () => {
       return
     }
     
-    // Update connected_inputs for Agent nodes
+    // Update connected_inputs for Agent nodes or connected_outputs for Final Output nodes
     let updatedNodes = [...nodes]
     if (targetNode.type === 'agent') {
       // Extract output key from sourceHandle (format: "output-{key}")
@@ -886,10 +955,51 @@ const MusashiFlowEditor: React.FC = () => {
           return node
         })
       }
+    } else if (targetNode.type === 'finaloutput') {
+      // Handle Final Output node connections
+      const outputKey = sourceHandle?.replace('output-', '') || 'output'
+      const sourceOutput = sourceNode.data?.outputs?.find((o: any) => o.key === outputKey)
+      
+      if (sourceOutput) {
+        // Create new connected output
+        const newConnectedOutput: ConnectedOutput = {
+          nodeId: sourceNode.id,
+          nodeName: sourceNode.data?.name || sourceNode.data?.label || 'Unknown',
+          outputKey: sourceOutput.key,
+          outputType: sourceOutput.type || 'string',
+          outputExample: sourceOutput.example
+        }
+        
+        // Update target node's connected_outputs and outputs
+        updatedNodes = updatedNodes.map(node => {
+          if (node.id === targetNode.id) {
+            const currentConnectedOutputs = node.data?.connected_outputs || []
+            const newConnectedOutputs = [...currentConnectedOutputs, newConnectedOutput]
+            
+            // Auto-generate outputs from connected_outputs
+            const newOutputs = newConnectedOutputs.map(co => ({
+              key: co.outputKey,
+              type: co.outputType,
+              example: co.outputExample
+            }))
+            
+            return {
+              ...node,
+              data: {
+                ...node.data,
+                connected_outputs: newConnectedOutputs,
+                outputs: newOutputs
+              }
+            }
+          }
+          return node
+        })
+      }
     }
     
-    // Check if Vector Store is involved in the connection
+    // Check if Vector Store is involved in the connection (only Vector Store creates bidirectional connections)
     const isVectorStoreConnection = sourceNode.type === 'vectorstore' || targetNode.type === 'vectorstore'
+    const isBidirectionalConnection = isVectorStoreConnection  // Only Vector Store is bidirectional now
     
     // Find the output index for tracking renamed outputs
     const outputKey = sourceHandle ? sourceHandle.replace('output-', '') : undefined
@@ -946,7 +1056,7 @@ const MusashiFlowEditor: React.FC = () => {
     
     if (!edgeToRemove) return
     
-    // Update connected_inputs for Agent nodes
+    // Update connected_inputs for Agent nodes or connected_outputs for Final Output nodes
     let updatedNodes = [...nodes]
     const targetNode = nodes.find(n => n.id === edgeToRemove.target)
     
@@ -965,6 +1075,36 @@ const MusashiFlowEditor: React.FC = () => {
                 (input: ConnectedInput) => 
                   !(input.nodeId === edgeToRemove.source && input.outputKey === outputKey)
               )
+            }
+          }
+        }
+        return node
+      })
+    } else if (targetNode?.type === 'finaloutput' && isFinalOutputNode(targetNode.data)) {
+      // Handle Final Output node disconnections
+      const outputKey = edgeToRemove.sourceHandle?.replace('output-', '') || 'output'
+      
+      // Remove the connected output that matches this edge
+      updatedNodes = updatedNodes.map(node => {
+        if (node.id === targetNode.id) {
+          const newConnectedOutputs = (node.data?.connected_outputs || []).filter(
+            (output: ConnectedOutput) => 
+              !(output.nodeId === edgeToRemove.source && output.outputKey === outputKey)
+          )
+          
+          // Auto-generate outputs from connected_outputs
+          const newOutputs = newConnectedOutputs.map((co: ConnectedOutput) => ({
+            key: co.outputKey,
+            type: co.outputType,
+            example: co.outputExample
+          }))
+          
+          return {
+            ...node,
+            data: {
+              ...node.data,
+              connected_outputs: newConnectedOutputs,
+              outputs: newOutputs
             }
           }
         }
@@ -1293,6 +1433,7 @@ const MusashiFlowEditor: React.FC = () => {
             onAddConnection={handleAddConnection}
             onRemoveConnection={handleRemoveConnection}
             onUpdateEdgeDirection={handleUpdateEdgeDirection}
+            onSaveWorkflow={() => handleSave(false)}
           />
         )}
         

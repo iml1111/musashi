@@ -1,3 +1,5 @@
+import { PromptContext } from '../types/node'
+
 export interface SystemPromptValidationResult {
   isValid: boolean
   warnings: string[]
@@ -25,7 +27,8 @@ export function extractTokensFromPrompt(prompt: string): string[] {
  */
 export function validateSystemPrompt(
   prompt: string,
-  inputs: Array<{ key: string; type: string }>
+  inputs: Array<{ key: string; type: string }>,
+  prompts?: PromptContext[]
 ): SystemPromptValidationResult {
   const result: SystemPromptValidationResult = {
     isValid: true,
@@ -38,22 +41,29 @@ export function validateSystemPrompt(
     return result
   }
   
-  // Extract tokens from the prompt
+  // Extract tokens from the developer message
   const tokensInPrompt = extractTokensFromPrompt(prompt)
+  
+  // Extract tokens from prompt contexts if provided
+  const tokensInPromptContext = prompts ? 
+    prompts.flatMap(p => extractTokensFromPrompt(p.content)) : []
+  
+  // Combine all tokens from both developer message and prompt contexts
+  const allTokensUsed = [...new Set([...tokensInPrompt, ...tokensInPromptContext])]
   
   // Get all input keys
   const inputKeys = inputs.map(input => input.key)
   
   // Find invalid tokens (tokens that don't match any input)
-  const invalidTokens = tokensInPrompt.filter(token => !inputKeys.includes(token))
+  const invalidTokens = allTokensUsed.filter(token => !inputKeys.includes(token))
   if (invalidTokens.length > 0) {
     result.isValid = false
     result.invalidTokens = invalidTokens
     result.warnings.push(`Unknown tokens: ${invalidTokens.map(t => `$$${t}$$`).join(', ')}`)
   }
   
-  // Find unused inputs (inputs that aren't referenced in the prompt)
-  const unusedInputs = inputKeys.filter(key => !tokensInPrompt.includes(key))
+  // Find unused inputs (inputs that aren't referenced in either developer message or prompt contexts)
+  const unusedInputs = inputKeys.filter(key => !allTokensUsed.includes(key))
   if (unusedInputs.length > 0) {
     result.isValid = false
     result.unusedInputs = unusedInputs
