@@ -45,13 +45,13 @@ export const nodeConfig = {
       color: '#0c4a6e',
     }
   },
-  apicall: {
-    label: 'API Call',
-    icon: 'Globe',
+  function: {
+    label: 'Function',
+    icon: 'Zap',
     style: {
-      background: '#fef3c7',
-      border: '2px solid #fbbf24',
-      color: '#92400e',
+      background: '#ccfbf1',
+      border: '2px solid #14b8a6',
+      color: '#0f766e',
     }
   },
   router: {

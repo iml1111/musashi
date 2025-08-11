@@ -6,8 +6,7 @@ import {
   Database, 
   BookOpen, 
   Network, 
-  Globe, 
-  GitBranch, 
+  Zap, 
   CheckCircle 
 } from 'lucide-react'
 
@@ -17,8 +16,7 @@ export const nodeTypes = [
   { type: 'vectorstore', label: 'Vector Store', icon: Database, color: 'text-purple-600' },
   { type: 'knowledgebase', label: 'Knowledge Base', icon: BookOpen, color: 'text-indigo-600' },
   { type: 'mcp', label: 'MCP', icon: Network, color: 'text-pink-600' },
-  { type: 'apicall', label: 'API Call', icon: Globe, color: 'text-teal-600' },
-  { type: 'router', label: 'Router', icon: GitBranch, color: 'text-yellow-600' },
+  { type: 'function', label: 'Function', icon: Zap, color: 'text-teal-600' },
   { type: 'finaloutput', label: 'Final Output', icon: CheckCircle, color: 'text-gray-700' },
 ]
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback, useMemo } from 'react'
+import React, { useEffect, useCallback, useMemo, useImperativeHandle, forwardRef } from 'react'
 import ReactFlow, {
   Node,
   Edge,
@@ -21,19 +21,39 @@ import { edgeTypes } from './CustomEdges'
 interface FlowCanvasProps {
   nodes: Node[]
   edges: Edge[]
-  onNodeClick: (event: React.MouseEvent, node: Node) => void
-  onPaneClick: () => void
+  onNodeClick?: (event: React.MouseEvent, node: Node) => void
+  onPaneClick?: () => void
+  onNodesChange?: (changes: any[]) => void
+  onEdgesChange?: (changes: any[]) => void
+  onConnect?: (connection: any) => void
+  onEdgeClick?: (event: React.MouseEvent, edge: Edge) => void
+  nodeTypes?: any
+  edgeTypes?: any
+  fitView?: boolean
+  fitViewOptions?: any
   isSidebarOpen?: boolean
 }
 
+export interface FlowCanvasHandle {
+  fitView: () => void
+}
+
 // Inner component that has access to React Flow instance
-const FlowCanvasInner: React.FC<FlowCanvasProps> = ({
+const FlowCanvasInner = forwardRef<FlowCanvasHandle, FlowCanvasProps>(({
   nodes,
   edges,
   onNodeClick,
   onPaneClick,
+  onNodesChange,
+  onEdgesChange,
+  onConnect,
+  onEdgeClick,
+  nodeTypes: customNodeTypes,
+  edgeTypes: customEdgeTypes,
+  fitView: shouldFitView,
+  fitViewOptions,
   isSidebarOpen,
-}) => {
+}, ref) => {
   const { fitView, zoomIn, zoomOut, getViewport, setViewport, getNodes, project } = useReactFlow()
   const [isInteractive, setIsInteractive] = React.useState(true)
   const [isMounted, setIsMounted] = React.useState(false)
@@ -182,6 +202,11 @@ const FlowCanvasInner: React.FC<FlowCanvasProps> = ({
     }
   }, [fitView, isSidebarOpen, nodes, isMounted, getNodes, getViewport, setViewport])
 
+  // Expose fitView function to parent component
+  useImperativeHandle(ref, () => ({
+    fitView: handleFitView
+  }), [handleFitView])
+
   // DISABLED: Automatic fitView to prevent NaN errors
   // Only manual fitView through button is allowed
 
@@ -204,15 +229,20 @@ const FlowCanvasInner: React.FC<FlowCanvasProps> = ({
     <ReactFlow
       nodes={nodes}
       edges={edges}
-      nodeTypes={nodeTypes}
-      edgeTypes={edgeTypes}
+      nodeTypes={customNodeTypes || nodeTypes}
+      edgeTypes={customEdgeTypes || edgeTypes}
       onNodeClick={onNodeClick}
       onPaneClick={onPaneClick}
+      onNodesChange={onNodesChange}
+      onEdgesChange={onEdgesChange}
+      onConnect={onConnect}
+      onEdgeClick={onEdgeClick}
       nodesDraggable={false}
-      nodesConnectable={false}
+      nodesConnectable={true}  // Changed to true to enable connections
       elementsSelectable={true}
       defaultEdgeOptions={defaultEdgeOptions}
-      fitView={false}
+      fitView={shouldFitView || false}
+      fitViewOptions={fitViewOptions}
       defaultViewport={{ x: 0, y: 0, zoom: 0.8 }}
       zoomOnScroll={isInteractive}
       panOnScroll={isInteractive}
@@ -260,16 +290,18 @@ const FlowCanvasInner: React.FC<FlowCanvasProps> = ({
       <MiniMap />
     </ReactFlow>
   )
-}
+})
 
-const FlowCanvas: React.FC<FlowCanvasProps> = (props) => {
+FlowCanvasInner.displayName = 'FlowCanvasInner'
+
+const FlowCanvas = forwardRef<FlowCanvasHandle, FlowCanvasProps>((props, ref) => {
   return (
     <ReactFlowProvider>
       <div className="w-full h-full">
-        <FlowCanvasInner {...props} />
+        <FlowCanvasInner {...props} ref={ref} />
       </div>
     </ReactFlowProvider>
   )
-}
+})
 
 export default FlowCanvas

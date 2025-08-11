@@ -1,5 +1,5 @@
-import React from 'react'
-import FlowCanvas from './FlowCanvas'
+import React, { forwardRef } from 'react'
+import FlowCanvas, { FlowCanvasHandle } from './FlowCanvas'
 
 interface ReactFlowWrapperProps {
   nodes: any[]
@@ -19,16 +19,25 @@ interface ReactFlowWrapperProps {
 }
 
 // Wrapper component that uses FlowCanvas
-const ReactFlowWrapper: React.FC<ReactFlowWrapperProps> = (props) => {
+const ReactFlowWrapper = forwardRef<FlowCanvasHandle, ReactFlowWrapperProps>((props, ref) => {
   return (
     <FlowCanvas
+      ref={ref}
       nodes={props.nodes}
       edges={props.edges}
       onNodeClick={props.onNodeClick}
       onPaneClick={props.onPaneClick}
+      onNodesChange={props.onNodesChange}
+      onEdgesChange={props.onEdgesChange}
+      onConnect={props.onConnect}
+      onEdgeClick={props.onEdgeClick}
+      nodeTypes={props.nodeTypes}
+      edgeTypes={props.edgeTypes}
+      fitView={props.fitView}
+      fitViewOptions={props.fitViewOptions}
       isSidebarOpen={props.isSidebarOpen}
     />
   )
-}
+})
 
 export default ReactFlowWrapper

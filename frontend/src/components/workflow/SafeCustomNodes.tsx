@@ -6,8 +6,7 @@ import {
   Database, 
   BookOpen, 
   Share2, 
-  Globe, 
-  GitBranch, 
+  Zap, 
   CheckCircle,
   Box,
   FileText,
@@ -25,8 +24,7 @@ const nodeIcons: Record<string, React.ReactNode> = {
   vectorstore: <Database size={16} />,
   knowledgebase: <BookOpen size={16} />,
   mcp: <Share2 size={16} />,
-  apicall: <Globe size={16} />,
-  router: <GitBranch size={16} />,
+  function: <Zap size={16} />,
   finaloutput: <CheckCircle size={16} />,
   default: <Box size={16} />,
 }
@@ -59,15 +57,10 @@ const SimpleBaseNode = ({ data, type }: any) => {
       border: '2px solid #ec4899',
       color: '#db2777',
     },
-    apicall: {
+    function: {
       background: '#ccfbf1',
       border: '2px solid #14b8a6',
       color: '#0f766e',
-    },
-    router: {
-      background: '#fef3c7',
-      border: '2px solid #f59e0b',
-      color: '#d97706',
     },
     finaloutput: {
       background: '#f3f4f6',
@@ -245,6 +238,10 @@ const SafeAgentNode = ({ data, id }: any) => {
   const hasDeveloperMessage = (data?.parameters?.developer_message || data?.parameters?.system_prompt)?.trim()?.length > 0
   const hasPromptContexts = data?.parameters?.prompts?.length > 0
   
+  // Get outputs for dynamic handle generation
+  const outputs = data?.outputs || []
+  const outputCount = Math.min(outputs.length, 30)
+  
   // Get enabled tools
   const enabledTools = data?.parameters?.tools?.filter((tool: any) => tool.enabled) || []
   
@@ -403,17 +400,45 @@ const SafeAgentNode = ({ data, id }: any) => {
         )}
       </div>
       
-      <Handle
-        type="source"
-        position={Position.Bottom}
-        style={{
-          background: 'transparent',
-          width: '10px',
-          height: '10px',
-          border: 'none',
-          bottom: '-5px',
-        }}
-      />
+      {/* Dynamic bottom handles based on outputs */}
+      {outputCount > 0 ? (
+        outputs.slice(0, 30).map((output: any, index: number) => {
+          const handleSpacing = outputCount > 0 ? Math.min(20, 200 / (outputCount + 1)) : 0
+          const startOffset = outputCount > 0 ? -(outputCount - 1) * handleSpacing / 2 : 0
+          
+          return (
+            <Handle
+              key={`output-${index}`}
+              id={`output-${output.key}`}
+              type="source"
+              position={Position.Bottom}
+              style={{
+                background: 'transparent',
+                width: '8px',
+                height: '8px',
+                border: 'none',
+                bottom: '-5px',
+                left: `calc(50% + ${startOffset + index * handleSpacing}px)`,
+                transform: 'translateX(-50%)',
+              }}
+              title={`${output.key} (${output.type})`}
+            />
+          )
+        })
+      ) : (
+        // Fallback handle if no outputs defined
+        <Handle
+          type="source"
+          position={Position.Bottom}
+          style={{
+            background: 'transparent',
+            width: '10px',
+            height: '10px',
+            border: 'none',
+            bottom: '-5px',
+          }}
+        />
+      )}
     </div>
   )
 }
@@ -464,11 +489,6 @@ const VectorStoreNode = ({ data, id }: any) => {
         }}>
           {dbTypeNames[dbType]}
         </div>
-        {outputCount > 0 && (
-          <div style={{ fontSize: '10px', opacity: 0.6, marginTop: '2px' }}>
-            {outputCount} output{outputCount > 1 ? 's' : ''}
-          </div>
-        )}
         {data?.memo && (
           <div style={{ 
             fontSize: '10px', 
@@ -667,10 +687,10 @@ const SafeMCPNode = ({ data, id }: any) => {
         type="target"
         position={Position.Top}
         style={{
-          background: '#ec4899',
+          background: 'transparent',
           width: '10px',
           height: '10px',
-          border: '2px solid white',
+          border: 'none',
           top: '-5px',
         }}
       />
@@ -683,11 +703,6 @@ const SafeMCPNode = ({ data, id }: any) => {
         {inputCount > 0 && (
           <div style={{ fontSize: '10px', opacity: 0.6, marginTop: '2px' }}>
             {inputCount} input{inputCount > 1 ? 's' : ''} connected
-          </div>
-        )}
-        {outputCount === 1 && (
-          <div style={{ fontSize: '10px', opacity: 0.6, marginTop: '2px' }}>
-            1 output configured
           </div>
         )}
         {data?.memo && (
@@ -716,10 +731,10 @@ const SafeMCPNode = ({ data, id }: any) => {
           type="source"
           position={Position.Bottom}
           style={{
-            background: '#ec4899',
+            background: 'transparent',
             width: '10px',
             height: '10px',
-            border: '2px solid white',
+            border: 'none',
             bottom: '-5px',
           }}
           title={`${outputs[0].key} (${outputs[0].type})`}
@@ -731,10 +746,10 @@ const SafeMCPNode = ({ data, id }: any) => {
           type="source"
           position={Position.Bottom}
           style={{
-            background: '#ec4899',
+            background: 'transparent',
             width: '10px',
             height: '10px',
-            border: '2px solid white',
+            border: 'none',
             bottom: '-5px',
           }}
           title="mcp_result (object)"
@@ -748,12 +763,108 @@ const MCPNode = (props: any) => {
   return <SafeMCPNode {...props} />
 }
 
-const APICallNode = (props: any) => {
-  return <SimpleBaseNode {...props} type="apicall" />
+// Custom Function Node - Can receive inputs from other nodes and send outputs
+const SafeFunctionNode = ({ data, id }: any) => {
+  const connectedInputs = data?.connected_inputs || []
+  const outputs = data?.outputs || []
+  const inputCount = connectedInputs.length
+  const outputCount = outputs.length
+  
+  return (
+    <div
+      style={{
+        background: '#ccfbf1',
+        border: '2px solid #14b8a6',
+        color: '#0f766e',
+        padding: '12px 20px',
+        borderRadius: '12px',
+        fontSize: '14px',
+        fontWeight: 500,
+        minWidth: '180px',
+        textAlign: 'center',
+        position: 'relative',
+        boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+      }}
+    >
+      {/* Target Handle - Function can receive connections from various nodes */}
+      <Handle
+        type="target"
+        position={Position.Top}
+        style={{
+          background: 'transparent',
+          width: '10px',
+          height: '10px',
+          border: 'none',
+          top: '-5px',
+        }}
+      />
+      
+      <div>
+        <div style={{ fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+          <Zap size={16} />
+          <span>{data?.label || 'Function'}</span>
+        </div>
+        {inputCount > 0 && (
+          <div style={{ fontSize: '10px', opacity: 0.6, marginTop: '2px' }}>
+            {inputCount} input{inputCount > 1 ? 's' : ''} connected
+          </div>
+        )}
+        {data?.memo && (
+          <div style={{ 
+            fontSize: '10px', 
+            color: '#6b7280',
+            marginTop: '4px',
+            fontStyle: 'italic',
+            maxWidth: '150px',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            display: '-webkit-box',
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: 'vertical',
+            lineHeight: '1.2'
+          }} title={data.memo}>
+            📝 {data.memo}
+          </div>
+        )}
+      </div>
+      
+      {/* Dynamic output-based handle (Function has exactly 1 output) */}
+      {outputCount === 1 ? (
+        <Handle
+          id={`output-${outputs[0].key}`}
+          type="source"
+          position={Position.Bottom}
+          style={{
+            background: 'transparent',
+            width: '10px',
+            height: '10px',
+            border: 'none',
+            bottom: '-5px',
+          }}
+          title={`${outputs[0].key} (${outputs[0].type})`}
+        />
+      ) : (
+        // Fallback handle - also provide an id for consistency
+        <Handle
+          id="output-function_result"
+          type="source"
+          position={Position.Bottom}
+          style={{
+            background: 'transparent',
+            width: '10px',
+            height: '10px',
+            border: 'none',
+            bottom: '-5px',
+          }}
+          title="function_result (object)"
+        />
+      )}
+    </div>
+  )
 }
 
-const RouterNode = (props: any) => {
-  return <SimpleBaseNode {...props} type="router" />
+const FunctionNode = (props: any) => {
+  return <SafeFunctionNode {...props} />
 }
 
 // Custom Final Output Node
@@ -848,8 +959,7 @@ export const safeNodeTypes = {
   vectorstore: VectorStoreNode,
   knowledgebase: KnowledgeBaseNode,
   mcp: MCPNode,
-  apicall: APICallNode,
-  router: RouterNode,
+  function: FunctionNode,
   finaloutput: FinalOutputNode,
   default: DefaultNode,
 }

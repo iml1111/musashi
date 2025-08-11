@@ -231,7 +231,19 @@ const NodeSidebar: React.FC<NodeSidebarProps> = ({
   if (!selectedNode) return null
 
   // Find the current node from nodes array to get updated data
-  const currentNode = nodes.find(n => n.id === selectedNode.id) || selectedNode
+  const currentNode = nodes.find(n => n.id === selectedNode.id)
+  
+  // Debug: Log the current node data
+  console.log('NodeSidebar - selectedNode:', selectedNode)
+  console.log('NodeSidebar - currentNode:', currentNode)
+  console.log('NodeSidebar - currentNode.data:', currentNode?.data)
+  console.log('NodeSidebar - connected_inputs:', currentNode?.data?.connected_inputs)
+  
+  // If we can't find the node in the current nodes array, something went wrong
+  if (!currentNode) {
+    console.error('NodeSidebar: Current node not found in nodes array', selectedNode.id)
+    return null
+  }
 
   // Get connections for the selected node
   const outgoingConnections = edges.filter(edge => edge.source === selectedNode.id)
@@ -325,8 +337,8 @@ const NodeSidebar: React.FC<NodeSidebarProps> = ({
           />
         </div>
 
-        {/* Outputs for all node types except MCP (MCP has its own Output Configuration) */}
-        {selectedNode.type !== 'mcp' && (
+        {/* Outputs for all node types except MCP and Function (they have their own Output Configuration) */}
+        {selectedNode.type !== 'mcp' && selectedNode.type !== 'function' && (
         <div className="border-t pt-4">
             <h3 className="text-sm font-medium text-gray-700 mb-2">Outputs</h3>
             
@@ -572,6 +584,28 @@ const NodeSidebar: React.FC<NodeSidebarProps> = ({
               ) : (
                 <p className="text-xs text-gray-500 italic">
                   No output configured for MCP node.
+                </p>
+              )}
+            </div>
+          ) : selectedNode.type === 'function' ? (
+            // Special connections UI for Function node (single output)
+            <div className="space-y-3">
+              <p className="text-xs text-gray-500">Connect Function output to other nodes:</p>
+              {currentNode.data?.outputs && currentNode.data.outputs.length > 0 ? (
+                <OutputConnectionBox
+                  output={currentNode.data.outputs[0]}
+                  outputHandle={`output-${currentNode.data.outputs[0].key}`}
+                  selectedNodeId={selectedNode.id}
+                  edges={edges}
+                  nodes={nodes}
+                  availableNodes={availableNodes}
+                  onAddConnection={onAddConnection}
+                  onRemoveConnection={onRemoveConnection}
+                  onUpdateEdgeDirection={onUpdateEdgeDirection}
+                />
+              ) : (
+                <p className="text-xs text-gray-500 italic">
+                  No output configured for Function node.
                 </p>
               )}
             </div>
@@ -1113,41 +1147,6 @@ const NodeSidebar: React.FC<NodeSidebarProps> = ({
             <h3 className="text-sm font-medium text-gray-700 mb-2">MCP Configuration</h3>
             <div className="space-y-4">
               
-              {/* Connected Inputs Section (Read-only) */}
-              <div>
-                <label className="block text-xs font-medium text-gray-700 mb-2">
-                  Connected Inputs (Read-only)
-                </label>
-                {currentNode.data?.connected_inputs?.length > 0 ? (
-                  <div className="space-y-2 max-h-48 overflow-y-auto">
-                    {currentNode.data.connected_inputs.map((input: ConnectedInput, index: number) => (
-                      <div key={index} className="bg-gray-50 border border-gray-200 rounded p-2">
-                        <div className="flex items-center justify-between">
-                          <div className="text-xs">
-                            <div className="font-medium text-gray-700">{input.nodeName}</div>
-                            <div className="text-gray-500 mt-0.5">
-                              {input.outputKey} ({input.outputType})
-                            </div>
-                          </div>
-                          <div className="text-xs text-gray-400">
-                            #{index + 1}
-                          </div>
-                        </div>
-                        {input.outputExample && (
-                          <div className="mt-1 text-xs text-gray-500 font-mono bg-white p-1 rounded overflow-x-auto">
-                            {input.outputExample}
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-xs text-gray-500 italic py-2">
-                    No inputs connected. Connect Agent nodes to provide inputs.
-                  </p>
-                )}
-              </div>
-
               {/* Single Output Section (Editable but not deletable) */}
               <div>
                 <label className="block text-xs font-medium text-gray-700 mb-2">
@@ -1204,15 +1203,71 @@ const NodeSidebar: React.FC<NodeSidebarProps> = ({
                   </div>
                 )}
               </div>
+            </div>
+          </div>
+        )}
 
-              {/* Connection Info */}
-              <div className="mt-3 p-3 bg-pink-50 rounded-lg border border-pink-200">
-                <div className="text-xs text-gray-600 space-y-1">
-                  <p className="font-semibold">Connection Behavior:</p>
-                  <p>• ← Receives inputs from Agent nodes (unidirectional)</p>
-                  <p>• → Sends output to other nodes (unidirectional)</p>
-                  <p>• Unlike Vector Store, MCP uses standard connections</p>
-                </div>
+        {/* Parameters for Function Node */}
+        {selectedNode.type === 'function' && (
+          <div className="border-t pt-4">
+            <h3 className="text-sm font-medium text-gray-700 mb-2">Function Configuration</h3>
+            <div className="space-y-4">
+              
+              {/* Single Output Section (Editable but not deletable) */}
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-2">
+                  Output Configuration (Single)
+                </label>
+                {currentNode.data?.outputs?.length === 1 ? (
+                  <div className="bg-white border border-gray-200 rounded p-3">
+                    <OutputItem
+                      output={currentNode.data.outputs[0]}
+                      index={0}
+                      onUpdate={(updatedOutput) => {
+                        // Output modification only (no deletion)
+                        onUpdateNode(selectedNode.id, {
+                          data: {
+                            ...currentNode.data,
+                            outputs: [updatedOutput] // Always maintain exactly 1 output
+                          }
+                        })
+                      }}
+                      onDelete={undefined} // Disable delete functionality
+                    />
+                    <p className="text-xs text-gray-500 mt-2 italic">
+                      ⚠️ Function nodes must have exactly one output (cannot be deleted)
+                    </p>
+                  </div>
+                ) : (
+                  // Auto-fix: Ensure Function has exactly 1 output
+                  <div className="bg-yellow-50 border border-yellow-200 rounded p-2">
+                    <p className="text-xs text-yellow-700">
+                      Fixing output configuration...
+                    </p>
+                    {(() => {
+                      // Auto-fix to ensure exactly 1 output
+                      const fixedOutput = currentNode.data?.outputs?.length > 0 
+                        ? [currentNode.data.outputs[0]]  // Keep first output if multiple exist
+                        : [{  // Create default output if none exist
+                            key: 'function_result',
+                            type: 'object',
+                            example: '{"status": "success", "result": {}}'
+                          }]
+                      
+                      // Apply fix immediately
+                      setTimeout(() => {
+                        onUpdateNode(selectedNode.id, {
+                          data: {
+                            ...currentNode.data,
+                            outputs: fixedOutput
+                          }
+                        })
+                      }, 100)
+                      
+                      return null
+                    })()}
+                  </div>
+                )}
               </div>
             </div>
           </div>

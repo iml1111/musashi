@@ -75,6 +75,21 @@ const createInitialWorkflow = (): { nodes: Node[]; edges: Edge[] } => {
   return { nodes: [], edges: [] }
 }
 
+// Custom hook for debouncing
+const useDebounce = <T,>(value: T, delay: number): T => {
+  const [debouncedValue, setDebouncedValue] = useState<T>(value)
+  
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value)
+    }, delay)
+    
+    return () => clearTimeout(handler)
+  }, [value, delay])
+  
+  return debouncedValue
+}
+
 const MusashiFlowEditor: React.FC = () => {
   const { id } = useParams()
   const navigate = useNavigate()
@@ -86,6 +101,9 @@ const MusashiFlowEditor: React.FC = () => {
   const [workflowDescription, setWorkflowDescription] = useState('')
   const [nodes, setNodes] = useState<Node[]>([])
   const [edges, setEdges] = useState<Edge[]>([])
+  
+  // Layout version for triggering fitView
+  const [layoutVersion, setLayoutVersion] = useState(0)
   
   // UI state
   const [selectedNode, setSelectedNode] = useState<Node | null>(null)
@@ -114,6 +132,9 @@ const MusashiFlowEditor: React.FC = () => {
   const [historyIndex, setHistoryIndex] = useState(-1)
   const isInternalUpdate = useRef(false)
   const maxHistorySize = 50 // Maximum number of history states to keep
+  
+  // Flow instance ref for fitView
+  const flowRef = useRef<any>(null)
   
   // Edge label popover state
   const [edgeLabelPopover, setEdgeLabelPopover] = useState<{
@@ -189,6 +210,7 @@ const MusashiFlowEditor: React.FC = () => {
     setNodes(result.nodes)
     setEdges(result.edges)
     setSelectedNode(null)
+    setLayoutVersion(v => v + 1) // Trigger fitView
   }, [nodes, edges])
 
   // Export function (moved here to avoid hoisting issues)
@@ -264,7 +286,7 @@ const MusashiFlowEditor: React.FC = () => {
         let nodeType = node.type
         const validNodeTypes = [
           'userinput', 'agent', 'vectorstore', 
-          'knowledgebase', 'mcp', 'apicall', 'router', 'finaloutput'
+          'knowledgebase', 'mcp', 'function', 'finaloutput'
         ]
         
         if (!validNodeTypes.includes(nodeType)) {
@@ -522,6 +544,7 @@ const MusashiFlowEditor: React.FC = () => {
 
   const handleNodeClick = useCallback((event: React.MouseEvent, node: Node) => {
     setSelectedNode(node)
+    setLayoutVersion(v => v + 1) // Trigger fitView when sidebar opens
   }, [])
 
   const handlePaneClick = useCallback(() => {
@@ -575,11 +598,17 @@ const MusashiFlowEditor: React.FC = () => {
   }, [edges, nodes])
 
   const handleConnect = useCallback((connection: Connection) => {
+    console.log('=== handleConnect called ===')
+    console.log('Connection:', connection)
+    
     if (!connection.source || !connection.target) return
     
     // Get source and target nodes
     const sourceNode = nodes.find(n => n.id === connection.source)
     const targetNode = nodes.find(n => n.id === connection.target)
+    
+    console.log('Source node:', sourceNode)
+    console.log('Target node:', targetNode)
     
     if (!sourceNode || !targetNode) return
     
@@ -595,6 +624,9 @@ const MusashiFlowEditor: React.FC = () => {
       return
     }
     
+    // Function nodes can receive connections from any node type
+    // No specific restriction needed for Function nodes
+    
     // Knowledge Base still cannot receive connections
     if (targetNode.type === 'knowledgebase') {
       showNotification('error', 'Knowledge Base nodes cannot receive connections.')
@@ -604,29 +636,38 @@ const MusashiFlowEditor: React.FC = () => {
     // Extract output key from sourceHandle (format: "output-{key}")
     let outputKey = connection.sourceHandle?.replace('output-', '') || ''
     
+    // Debug logging for connection
+    console.log('Connection Debug:', {
+      source: sourceNode.type,
+      target: targetNode.type,
+      sourceHandle: connection.sourceHandle,
+      outputKey: outputKey,
+      sourceOutputs: sourceNode.data?.outputs,
+      targetType: targetNode.type
+    })
     
-    // Special debug for MCP nodes
-    if (sourceNode.type === 'mcp') {
-      // MCP specific handling
-      const mcpDebugInfo = {
-        sourceHandle: connection.sourceHandle,
-        mcpOutputs: sourceNode.data?.outputs,
-        outputsLength: sourceNode.data?.outputs?.length,
-        firstOutputKey: sourceNode.data?.outputs?.[0]?.key,
-        expectedHandle: sourceNode.data?.outputs?.[0] ? `output-${sourceNode.data.outputs[0].key}` : 'none'
-      })
-    }
-    
-    // Handle missing sourceHandle for MCP nodes
-    if (!connection.sourceHandle && sourceNode.type === 'mcp') {
-      // Manually construct the expected sourceHandle
-      if (sourceNode.data?.outputs?.length > 0) {
-        connection.sourceHandle = `output-${sourceNode.data.outputs[0].key}`
-      } else {
-        connection.sourceHandle = 'output-mcp_result'
+    // Handle missing sourceHandle for MCP and Agent nodes
+    if (!connection.sourceHandle) {
+      if (sourceNode.type === 'mcp') {
+        // Manually construct the expected sourceHandle for MCP
+        if (sourceNode.data?.outputs?.length > 0) {
+          connection.sourceHandle = `output-${sourceNode.data.outputs[0].key}`
+        } else {
+          connection.sourceHandle = 'output-mcp_result'
+        }
+        // Re-extract outputKey with the new sourceHandle
+        outputKey = connection.sourceHandle.replace('output-', '')
+      } else if (sourceNode.type === 'agent') {
+        // Agent nodes should have dynamic handles based on outputs
+        if (sourceNode.data?.outputs?.length > 0) {
+          connection.sourceHandle = `output-${sourceNode.data.outputs[0].key}`
+          outputKey = sourceNode.data.outputs[0].key
+        } else {
+          // Fallback for Agent nodes without outputs
+          connection.sourceHandle = 'output-output1'
+          outputKey = 'output1'
+        }
       }
-      // Re-extract outputKey with the new sourceHandle
-      outputKey = connection.sourceHandle.replace('output-', '')
     }
     
     // Fallback for MCP nodes if outputKey is still missing
@@ -639,11 +680,17 @@ const MusashiFlowEditor: React.FC = () => {
       outputKey = 'output'
     }
     
-    // Update connected_inputs for Agent and MCP nodes
+    // Update connected_inputs for Agent, MCP, and Function nodes
     let updatedNodes = [...nodes]
-    if (targetNode.type === 'agent' || targetNode.type === 'mcp') {
+    if (targetNode.type === 'agent' || targetNode.type === 'mcp' || targetNode.type === 'function') {
       // Find the output details from source node
       const sourceOutput = sourceNode.data?.outputs?.find((o: any) => o.key === outputKey)
+      
+      console.log('Looking for sourceOutput:', {
+        outputKey: outputKey,
+        sourceOutputs: sourceNode.data?.outputs,
+        foundOutput: sourceOutput
+      })
       
       if (sourceOutput) {
         // Create new connected input
@@ -655,10 +702,12 @@ const MusashiFlowEditor: React.FC = () => {
           outputExample: sourceOutput.example
         }
         
+        console.log('Creating connected input:', newConnectedInput)
+        
         // Update target node's connected_inputs
         updatedNodes = updatedNodes.map(node => {
           if (node.id === targetNode.id) {
-            return {
+            const updatedNode = {
               ...node,
               data: {
                 ...node.data,
@@ -668,9 +717,13 @@ const MusashiFlowEditor: React.FC = () => {
                 ]
               }
             }
+            console.log('Updated target node:', updatedNode)
+            return updatedNode
           }
           return node
         })
+      } else {
+        console.log('sourceOutput not found!')
       }
     }
     
@@ -710,13 +763,45 @@ const MusashiFlowEditor: React.FC = () => {
       })
     }
     
+    // Debug: Check if updatedNodes contains connected_inputs
+    console.log('Before layout - updatedNodes:', updatedNodes.map(n => ({
+      id: n.id,
+      type: n.type,
+      connected_inputs: n.data?.connected_inputs
+    })))
+    
     const { nodes: layoutedNodes, edges: layoutedEdges } = addEdgeWithLayout(
       updatedNodes,
       [...edges, newEdge]
     )
+    
+    // Debug: Check if layoutedNodes lost connected_inputs
+    console.log('After layout - layoutedNodes:', layoutedNodes.map(n => ({
+      id: n.id,
+      type: n.type,
+      connected_inputs: n.data?.connected_inputs
+    })))
+    
     setNodes(layoutedNodes)
     setEdges(layoutedEdges)
-  }, [nodes, edges])
+    
+    // Debug: Verify that the connected_inputs are in the final nodes
+    console.log('=== Final verification after setNodes ===')
+    const targetNodeFinal = layoutedNodes.find(n => n.id === targetNode.id)
+    console.log('Target node after layout:', targetNodeFinal)
+    console.log('Target node connected_inputs:', targetNodeFinal?.data?.connected_inputs)
+    
+    // Update selectedNode to reflect the latest data after connection
+    if (selectedNode) {
+      const updatedSelectedNode = layoutedNodes.find(n => n.id === selectedNode.id)
+      if (updatedSelectedNode) {
+        console.log('Updating selectedNode with:', updatedSelectedNode)
+        setSelectedNode(updatedSelectedNode)
+      }
+    }
+    
+    setLayoutVersion(v => v + 1) // Trigger fitView
+  }, [nodes, edges, selectedNode])
 
   const handleAddNode = useCallback((type: string, label: string) => {
     const nodeData: any = { 
@@ -795,9 +880,22 @@ const MusashiFlowEditor: React.FC = () => {
       }
     }
     
+    // Function 노드의 경우 connected_inputs와 outputs 추가
+    if (type === 'function') {
+      nodeData.connected_inputs = []  // 빈 배열로 시작 (다른 노드로부터 받을 입력)
+      nodeData.outputs = [{
+        key: 'function_result',
+        type: 'object',
+        example: '{"status": "success", "result": {}}'
+      }]  // 정확히 1개의 output (고정)
+      nodeData.parameters = {
+        function_type: 'custom'
+      }
+    }
+    
     // Ensure all other node types have at least one output
     else if (type !== 'agent' && type !== 'userinput' && type !== 'vectorstore' && 
-             type !== 'knowledgebase' && type !== 'mcp') {
+             type !== 'knowledgebase' && type !== 'mcp' && type !== 'function') {
       nodeData.outputs = [{
         key: 'output',
         type: 'string',
@@ -815,6 +913,7 @@ const MusashiFlowEditor: React.FC = () => {
     const result = addNodeWithLayout(nodes, edges, newNode)
     setNodes(result.nodes)
     setEdges(result.edges)
+    setLayoutVersion(v => v + 1) // Trigger fitView
   }, [nodes, edges])
 
   const handleUpdateNode = useCallback((nodeId: string, updates: Partial<Node>) => {
@@ -1115,6 +1214,7 @@ const MusashiFlowEditor: React.FC = () => {
     const result = removeEdgeWithLayout(updatedNodes, edges, edgeId)
     setNodes(result.nodes)
     setEdges(result.edges)
+    setLayoutVersion(v => v + 1) // Trigger fitView
   }, [nodes, edges])
 
   const handleUpdateEdgeDirection = useCallback((edgeId: string, direction: 'unidirectional' | 'bidirectional') => {
@@ -1277,6 +1377,16 @@ const MusashiFlowEditor: React.FC = () => {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [selectedNode, handleUndo, handleRedo, handleDeleteNode, handleExport, handleSave])
 
+  // Auto fit view when layout changes
+  const debouncedLayoutVersion = useDebounce(layoutVersion, 300) // 300ms debounce
+  
+  useEffect(() => {
+    if (nodes.length > 0 && flowRef.current?.fitView && debouncedLayoutVersion > 0) {
+      console.log('Auto fitting view after layout change')
+      flowRef.current.fitView()
+    }
+  }, [debouncedLayoutVersion, nodes.length])
+
   if (loading) {
     return (
       <div className="h-screen flex items-center justify-center">
@@ -1408,6 +1518,7 @@ const MusashiFlowEditor: React.FC = () => {
       {/* Main Content */}
       <div className="flex-1 relative">
         <ReactFlowWrapper
+          ref={flowRef}
           nodes={nodes}
           edges={edges}
           onNodeClick={handleNodeClick}

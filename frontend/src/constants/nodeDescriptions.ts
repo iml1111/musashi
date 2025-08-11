@@ -5,7 +5,6 @@ export const nodeDescriptions: Record<string, string> = {
   vectorstore: 'Stores and retrieves data using vector embeddings. Supports MongoDB, Qdrant, and Pinecone for similarity-based document search.',
   knowledgebase: 'Searches structured data (like databases) using queries to find information.',
   mcp: 'Requests and returns information in a standard format that AI can understand.',
-  apicall: 'Calls external APIs (REST/GraphQL) to get data or trigger remote actions.',
-  router: 'Decides which path to take based on input values, scores, or rules.',
+  function: 'Executes custom functions with inputs from other nodes and returns processed results.',
   finaloutput: 'Collects all results and returns them to the user or another system.',
 }

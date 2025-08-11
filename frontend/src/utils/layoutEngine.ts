@@ -58,6 +58,10 @@ export function calculateLayout(
 
   // Add edges to the graph
   edges.forEach((edge) => {
+    if (!edge || !edge.source || !edge.target) {
+      console.error('Invalid edge found:', edge);
+      return; // Skip invalid edges
+    }
     g.setEdge(edge.source, edge.target);
   });
 
@@ -72,8 +76,21 @@ export function calculateLayout(
       y: nodeWithPosition.y - nodeHeight / 2,
     };
 
+    // Debug log to check if data is preserved
+    console.log(`calculateLayout - node ${node.id}:`, {
+      before_data: node.data,
+      has_connected_inputs: !!node.data?.connected_inputs,
+      connected_inputs_count: node.data?.connected_inputs?.length || 0
+    });
+    
+    // Additional check: Make sure we're not losing data
+    if (node.data?.connected_inputs && node.data.connected_inputs.length > 0) {
+      console.log(`Node ${node.id} has connected_inputs:`, node.data.connected_inputs);
+    }
+
     return {
       ...node,
+      data: { ...node.data }, // Explicitly preserve data properties including connected_inputs
       position,
       // Disable dragging
       draggable: false,
@@ -97,6 +114,7 @@ export function calculateLayout(
 
   const adjustedNodes = layoutedNodes.map(node => ({
     ...node,
+    data: { ...node.data }, // Explicitly preserve data properties including connected_inputs
     position: {
       x: node.position.x + offsetX,
       y: node.position.y + offsetY,
@@ -119,6 +137,7 @@ export function addNodeWithLayout(
   // Add temporary position (will be recalculated)
   const nodeWithPosition: Node = {
     ...newNode,
+    data: { ...newNode.data }, // Preserve data properties
     position: { x: 0, y: 0 },
     draggable: false,
   };
@@ -149,8 +168,29 @@ export function addEdgeWithLayout(
   newEdge: Edge,
   options?: LayoutOptions
 ): { nodes: Node[]; edges: Edge[] } {
+  console.log('addEdgeWithLayout - input nodes:', nodes.map(n => ({
+    id: n.id,
+    type: n.type,
+    connected_inputs: n.data?.connected_inputs
+  })));
+  
   const allEdges = [...edges, newEdge];
-  return calculateLayout(nodes, allEdges, options);
+  
+  try {
+    const result = calculateLayout(nodes, allEdges, options);
+    
+    console.log('addEdgeWithLayout - output nodes:', result.nodes.map(n => ({
+      id: n.id,
+      type: n.type,
+      connected_inputs: n.data?.connected_inputs
+    })));
+    
+    return result;
+  } catch (error) {
+    console.error('Error in calculateLayout:', error);
+    // Return the original nodes and new edges if layout fails
+    return { nodes, edges: allEdges };
+  }
 }
 
 // Helper function to remove an edge and recalculate layout
