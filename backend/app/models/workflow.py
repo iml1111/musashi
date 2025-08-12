@@ -1,5 +1,5 @@
-from typing import List, Optional, Dict, Any, Annotated
-from pydantic import BaseModel, Field, GetCoreSchemaHandler
+from typing import List, Optional, Dict, Any
+from pydantic import BaseModel, Field, GetCoreSchemaHandler, ConfigDict
 from pydantic_core import CoreSchema, core_schema
 from datetime import datetime
 from bson import ObjectId
@@ -12,16 +12,18 @@ class PyObjectId(ObjectId):
     ) -> CoreSchema:
         return core_schema.json_or_python_schema(
             json_schema=core_schema.str_schema(),
-            python_schema=core_schema.union_schema([
-                core_schema.is_instance_schema(ObjectId),
-                core_schema.chain_schema([
-                    core_schema.str_schema(),
-                    core_schema.no_info_plain_validator_function(cls.validate),
-                ])
-            ]),
-            serialization=core_schema.plain_serializer_function_ser_schema(
-                lambda x: str(x)
+            python_schema=core_schema.union_schema(
+                [
+                    core_schema.is_instance_schema(ObjectId),
+                    core_schema.chain_schema(
+                        [
+                            core_schema.str_schema(),
+                            core_schema.no_info_plain_validator_function(cls.validate),
+                        ]
+                    ),
+                ]
             ),
+            serialization=core_schema.plain_serializer_function_ser_schema(lambda x: str(x)),
         )
 
     @classmethod
@@ -81,13 +83,14 @@ class WorkflowInDB(WorkflowBase):
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
-    model_config = {
-        "populate_by_name": True,
-        "arbitrary_types_allowed": True,
-        "json_encoders": {ObjectId: str},
-        "by_alias": False
-    }
+    model_config = ConfigDict(
+        populate_by_name=True,
+        arbitrary_types_allowed=True,
+        json_encoders={ObjectId: str},
+        use_alias_generator=False,
+    )
 
 
 class Workflow(WorkflowInDB):
     pass
+

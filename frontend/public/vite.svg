@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <!-- Musashi Logo - Katana inspired design -->
+  <!-- Background circle -->
+  <circle cx="128" cy="128" r="120" fill="#1a1a2e" stroke="#eee" stroke-width="2"/>
+  
+  <!-- Katana blade (diagonal) -->
+  <rect x="60" y="124" width="136" height="8" fill="#c0c0c0" transform="rotate(-35 128 128)">
+    <animate attributeName="fill" values="#c0c0c0;#ffffff;#c0c0c0" dur="3s" repeatCount="indefinite"/>
+  </rect>
+  
+  <!-- Katana edge highlight -->
+  <rect x="60" y="124" width="136" height="2" fill="#ffffff" transform="rotate(-35 128 128)" opacity="0.8"/>
+  
+  <!-- Tsuba (guard) -->
+  <circle cx="128" cy="128" r="20" fill="none" stroke="#d4af37" stroke-width="4"/>
+  <rect x="108" y="126" width="40" height="4" fill="#d4af37"/>
+  <rect x="126" y="108" width="4" height="40" fill="#d4af37"/>
+  
+  <!-- Center dot -->
+  <circle cx="128" cy="128" r="6" fill="#ff4757"/>
+  
+  <!-- Flow lines (representing workflow) -->
+  <path d="M 80 80 Q 128 100 176 80" stroke="#4a90e2" stroke-width="2" fill="none" opacity="0.6">
+    <animate attributeName="opacity" values="0.3;0.8;0.3" dur="2s" repeatCount="indefinite"/>
+  </path>
+  <path d="M 80 176 Q 128 156 176 176" stroke="#4a90e2" stroke-width="2" fill="none" opacity="0.6">
+    <animate attributeName="opacity" values="0.3;0.8;0.3" dur="2s" begin="0.5s" repeatCount="indefinite"/>
+  </path>
+  
+  <!-- Text: M -->
+  <text x="128" y="210" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#eee" text-anchor="middle">MUSASHI</text>
+</svg>

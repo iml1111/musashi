@@ -1,0 +1,224 @@
+# ====================================
+# OPTIMIZED .dockerignore for Musashi
+# ====================================
+
+# Development and Build Artifacts
+**/.next
+**/build
+**/dist
+**/out
+**/coverage
+**/.nyc_output
+
+# Dependencies (will be reinstalled during build)
+**/node_modules
+**/bower_components
+**/.pnp
+**/.pnp.js
+
+# Python
+**/__pycache__
+**/*.pyc
+**/*.pyo
+**/*.pyd
+**/.Python
+**/*.so
+**/*.egg
+**/*.egg-info
+**/dist
+**/build
+**/.pytest_cache
+**/.coverage
+**/htmlcov
+**/.tox
+**/.hypothesis
+**/venv
+**/env
+**/ENV
+**/.venv
+**/.env*
+!.env.example
+**/*.whl
+
+# Node.js
+**/npm-debug.log*
+**/yarn-debug.log*
+**/yarn-error.log*
+**/lerna-debug.log*
+**/.npm
+**/.node_repl_history
+**/.yarn-integrity
+
+# IDE and Editor files
+**/.vscode
+**/.idea
+**/.*project
+**/.settings
+**/.project
+**/.classpath
+**/*.swp
+**/*.swo
+**/*.tmp
+*~
+**/.DS_Store
+**/Thumbs.db
+
+# Version Control
+**/.git
+**/.gitignore
+**/.gitattributes
+**/.svn
+**/.hg
+
+# Docker
+.dockerignore
+**/Dockerfile*
+**/docker-compose*
+**/.dockerignore
+
+# CI/CD and Deployment
+**/.github
+**/.gitlab-ci.yml
+**/.travis.yml
+**/.circleci
+**/azure-pipelines.yml
+**/Jenkinsfile
+**/.gitpod.yml
+
+# Documentation and README files
+**/docs
+**/documentation
+**/*.md
+!SECURITY.md
+**/*.txt
+!requirements.txt
+**/LICENSE
+**/CHANGELOG*
+**/CONTRIBUTING*
+**/CODE_OF_CONDUCT*
+
+# Test files and reports
+**/test
+**/tests
+**/__tests__
+**/*.test.*
+**/*.spec.*
+**/test_*
+**/test-*
+**/playwright-report
+**/test-screenshots
+**/test-results
+**/cypress
+**/.playwright
+**/e2e
+**/integration
+**/unit
+
+# Logs and temporary files
+**/*.log
+**/logs
+**/*.pid
+**/*.seed
+**/*.pid.lock
+**/*.lock
+**/tmp
+**/temp
+**/.tmp
+**/.temp
+
+# Package manager files (keep package.json, requirements.txt)
+**/package-lock.json
+**/yarn.lock
+**/pnpm-lock.yaml
+**/Pipfile.lock
+**/poetry.lock
+**/uv.lock
+
+# Runtime and cache directories
+**/.cache
+**/.parcel-cache
+**/.next/cache
+**/.turbo
+**/.nuxt
+**/.output
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Backup files
+*~
+*.bak
+*.backup
+*.swp
+*.swo
+
+# Certificate files (security)
+**/*.pem
+**/*.key
+**/*.crt
+**/*.p12
+**/*.pfx
+
+# Database files
+**/*.db
+**/*.sqlite*
+**/*.dump
+
+# Large media files that shouldn't be in Docker context
+**/*.mp4
+**/*.avi
+**/*.mkv
+**/*.mov
+**/*.wmv
+**/*.flv
+**/*.webm
+**/*.ogv
+**/*.3gp
+
+# Archive files
+**/*.zip
+**/*.tar
+**/*.tar.gz
+**/*.tar.bz2
+**/*.rar
+**/*.7z
+
+# Sensitive configuration (be extra careful)
+**/secrets
+**/credentials
+**/.aws
+**/.gcp
+**/.azure
+
+# Project specific exclusions
+**/frontend/public/uploads
+**/backend/uploads
+**/static/uploads
+**/media/uploads
+
+# Docker Compose specific files (don't include in single container)
+docker-compose*.yml
+.env*
+!.env.example
+mongodb/
+scripts/docker-*
+DOCKER_*.md
+**/backups
+
+# MCP development files (not needed in production container)
+mcp/
+playwright-report/
+
+# Keep essential files for build
+!frontend/package.json
+!backend/requirements.txt
+!backend/app
+!frontend/src
+!frontend/public
+!.env.example

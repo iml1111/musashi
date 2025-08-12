@@ -6,10 +6,9 @@ from app.core.database import get_database
 
 router = APIRouter()
 
+
 @router.post("/login", response_model=Token)
-async def login(
-    login_data: LoginRequest
-):
+async def login(login_data: LoginRequest):
     """Login and get access token"""
     db = get_database()
     service = AuthService(db)
@@ -22,10 +21,9 @@ async def login(
         )
     return token
 
+
 @router.post("/login/form", response_model=Token)
-async def login_form(
-    form_data: OAuth2PasswordRequestForm = Depends()
-):
+async def login_form(form_data: OAuth2PasswordRequestForm = Depends()):
     """Login with form data (OAuth2 compatible)"""
     db = get_database()
     service = AuthService(db)
@@ -38,10 +36,12 @@ async def login_form(
         )
     return token
 
+
 @router.get("/me", response_model=User)
 async def read_users_me(current_user: User = Depends(get_current_active_user_dependency)):
     """Get current user info"""
     return current_user
+
 
 @router.post("/logout")
 async def logout():

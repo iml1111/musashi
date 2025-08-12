@@ -30,7 +30,6 @@ class AuthService {
   }
 
   async login(credentials: LoginRequest): Promise<LoginResponse> {
-    console.log('Login attempt:', { username: credentials.username, password: credentials.password ? '***' : 'empty' })
     
     const response = await fetch(`${API_BASE_URL}/auth/login`, {
       method: 'POST',
@@ -40,16 +39,13 @@ class AuthService {
       body: JSON.stringify(credentials)
     })
 
-    console.log('Login response status:', response.status)
 
     if (!response.ok) {
       const error = await response.json().catch(() => ({ detail: 'Login failed' }))
-      console.error('Login error:', error)
       throw new Error(error.detail || 'Login failed')
     }
 
     const data: LoginResponse = await response.json()
-    console.log('Login successful:', { user: data.user.username, role: data.user.role })
     this.token = data.access_token
     localStorage.setItem('access_token', data.access_token)
     
@@ -63,7 +59,7 @@ class AuthService {
         headers: this.getHeaders()
       })
     } catch (error) {
-      console.warn('Logout request failed:', error)
+      // Silently handle logout failures
     } finally {
       this.token = null
       localStorage.removeItem('access_token')
@@ -103,8 +99,6 @@ class AuthService {
 
     if (!response.ok) {
       const error = await response.json().catch(() => ({ detail: 'User creation failed' }))
-      console.error('User creation error:', error)
-      
       // Handle validation errors (422)
       if (response.status === 422 && error.detail) {
         // If detail is an array (validation errors), format it nicely

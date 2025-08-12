@@ -1,0 +1,306 @@
+# Multi-stage build for maximum optimization and security
+ARG PYTHON_VERSION=3.12
+ARG NODE_VERSION=20
+ARG NGINX_VERSION=1.24-alpine
+
+# Stage 1: Frontend Dependencies Cache
+FROM node:${NODE_VERSION}-alpine AS frontend-deps
+WORKDIR /app/frontend
+
+# Install dumb-init for proper signal handling
+RUN apk add --no-cache dumb-init
+
+# Copy package files for better layer caching
+COPY frontend/package*.json ./
+RUN npm ci --only=production && \
+    npm cache clean --force
+
+# Stage 2: Frontend Builder
+FROM node:${NODE_VERSION}-alpine AS frontend-builder
+WORKDIR /app/frontend
+
+# Install all dependencies including dev dependencies for build
+COPY frontend/package*.json ./
+RUN npm ci && \
+    apk add --no-cache dumb-init
+
+# Copy source and build (separate layer for cache optimization)
+COPY frontend/ ./
+RUN npm run build
+
+# Stage 3: Python Dependencies Cache
+FROM python:${PYTHON_VERSION}-alpine AS python-deps
+
+# Install build dependencies
+RUN apk add --no-cache --virtual .build-deps \
+    gcc \
+    musl-dev \
+    libffi-dev \
+    openssl-dev \
+    && apk add --no-cache \
+    dumb-init \
+    curl
+
+# Install Python dependencies
+COPY backend/requirements.txt /tmp/requirements.txt
+RUN pip install --no-cache-dir --user --force-reinstall -r /tmp/requirements.txt && \
+    apk del .build-deps && \
+    find /root/.local -name "*.pyc" -delete && \
+    find /root/.local -name "__pycache__" -type d -delete
+
+# Stage 4: Production Runtime (Distroless-style Alpine)
+FROM nginx:${NGINX_VERSION} AS runtime
+
+# Install Python and required packages
+RUN apk add --no-cache \
+    python3 \
+    py3-pip \
+    dumb-init \
+    curl \
+    shadow \
+    net-tools \
+    && rm -rf /var/cache/apk/*
+
+# Create non-root user with specific UID/GID for better security
+RUN addgroup -g 1001 musashi && \
+    adduser -D -u 1001 -G musashi musashi
+
+WORKDIR /app
+
+# Install Python dependencies directly in runtime stage
+RUN apk add --no-cache --virtual .build-deps \
+    gcc \
+    musl-dev \
+    libffi-dev \
+    openssl-dev \
+    && pip install --no-cache-dir \
+    fastapi>=0.104.0 \
+    uvicorn[standard]>=0.24.0 \
+    pydantic[email]>=2.5.0 \
+    pydantic-settings>=2.0.0 \
+    email-validator>=2.0.0 \
+    motor>=3.3.0 \
+    pymongo>=4.6.0 \
+    python-jose[cryptography]>=3.3.0 \
+    passlib[bcrypt]>=1.7.4 \
+    python-multipart>=0.0.6 \
+    aiofiles>=23.2.1 \
+    python-dotenv>=1.0.0 \
+    pytest>=7.4.0 \
+    pytest-asyncio>=0.21.0 \
+    httpx>=0.25.0 \
+    && apk del .build-deps \
+    && rm -rf /var/cache/apk/*
+
+# Copy backend application
+COPY --chown=musashi:musashi backend/app ./app
+
+# Copy built frontend from builder stage
+COPY --from=frontend-builder /app/frontend/build /usr/share/nginx/html
+
+# Create optimized nginx configuration
+COPY --chown=musashi:musashi <<EOF /etc/nginx/nginx.conf
+user musashi;
+worker_processes auto;
+error_log /var/log/nginx/error.log warn;
+pid /tmp/nginx.pid;
+
+events {
+    worker_connections 1024;
+    use epoll;
+    multi_accept on;
+}
+
+http {
+    include /etc/nginx/mime.types;
+    default_type application/octet-stream;
+
+    log_format main '\$remote_addr - \$remote_user [\$time_local] "\$request" '
+                    '\$status \$body_bytes_sent "\$http_referer" '
+                    '"\$http_user_agent" "\$http_x_forwarded_for"';
+
+    access_log /var/log/nginx/access.log main;
+    error_log /var/log/nginx/error.log warn;
+
+    sendfile on;
+    tcp_nopush on;
+    tcp_nodelay on;
+    keepalive_timeout 65;
+    types_hash_max_size 2048;
+    client_max_body_size 16M;
+
+    # Gzip compression
+    gzip on;
+    gzip_vary on;
+    gzip_min_length 1024;
+    gzip_proxied any;
+    gzip_comp_level 6;
+    gzip_types
+        application/json
+        application/javascript
+        application/xml+rss
+        application/atom+xml
+        image/svg+xml
+        text/css
+        text/javascript
+        text/plain
+        text/xml;
+
+    # Security headers
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-XSS-Protection "1; mode=block" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header Referrer-Policy "no-referrer-when-downgrade" always;
+    add_header Content-Security-Policy "default-src 'self' http: https: data: blob: 'unsafe-inline'" always;
+
+    server {
+        listen 80;
+        server_name _;
+        root /usr/share/nginx/html;
+        index index.html;
+
+        # Static assets with caching
+        location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {
+            expires 1y;
+            add_header Cache-Control "public, immutable";
+            try_files \$uri =404;
+        }
+
+        # SPA routing
+        location / {
+            try_files \$uri \$uri/ /index.html;
+            add_header Cache-Control "no-cache, no-store, must-revalidate";
+        }
+
+        # API proxy with optimizations
+        location /api/ {
+            proxy_pass http://127.0.0.1:8000/api/;
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade \$http_upgrade;
+            proxy_set_header Connection "upgrade";
+            proxy_set_header Host \$host;
+            proxy_set_header X-Real-IP \$remote_addr;
+            proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto \$scheme;
+            
+            # Performance optimizations
+            proxy_buffering on;
+            proxy_buffer_size 128k;
+            proxy_buffers 4 256k;
+            proxy_busy_buffers_size 256k;
+            proxy_connect_timeout 5s;
+            proxy_send_timeout 10s;
+            proxy_read_timeout 30s;
+        }
+
+        # Health check endpoint
+        location /health {
+            access_log off;
+            return 200 "healthy\n";
+            add_header Content-Type text/plain;
+        }
+    }
+}
+EOF
+
+# Create optimized startup script with proper process management
+COPY --chown=musashi:musashi <<'EOF' /app/start.sh
+#!/bin/sh
+set -e
+
+# Set PATH and PYTHONPATH for runtime
+export PATH=/usr/local/bin:$PATH
+export PYTHONPATH=/app:$PYTHONPATH
+
+# Signal handler for graceful shutdown
+term_handler() {
+    echo "Received SIGTERM, shutting down gracefully..."
+    kill -TERM "$backend_pid" 2>/dev/null || true
+    kill -TERM "$nginx_pid" 2>/dev/null || true
+    wait "$backend_pid" "$nginx_pid"
+    exit 0
+}
+
+trap 'term_handler' TERM INT
+
+# Start FastAPI backend
+echo "Starting FastAPI backend..."
+uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 2 &
+backend_pid=$!
+
+# Wait for backend to start
+echo "Waiting for backend to start..."
+timeout=60
+while [ $timeout -gt 0 ]; do
+    # Check if uvicorn is listening on port 8000
+    if netstat -ln | grep ":8000" > /dev/null 2>&1; then
+        echo "Port 8000 is open, testing API endpoint..."
+        if curl -f http://127.0.0.1:8000/api/v1/health >/dev/null 2>&1; then
+            echo "Backend is healthy"
+            break
+        fi
+    fi
+    echo "Waiting... ($timeout seconds left)"
+    sleep 2
+    timeout=$((timeout - 2))
+done
+
+if [ $timeout -le 0 ]; then
+    echo "Backend failed to start within 60 seconds"
+    echo "Current processes:"
+    ps aux | grep -E "(uvicorn|python)"
+    echo "Port status:"
+    netstat -ln | grep ":8000" || echo "Port 8000 is not listening"
+    # Don't exit, let nginx start anyway
+fi
+
+# Start nginx
+echo "Starting nginx..."
+nginx &
+nginx_pid=$!
+
+echo "Application started successfully"
+echo "Backend PID: $backend_pid"
+echo "Nginx PID: $nginx_pid"
+
+# Wait for any process to exit
+wait
+EOF
+
+RUN chmod +x /app/start.sh
+
+# Set proper permissions for nginx with non-root user
+RUN mkdir -p /var/cache/nginx /var/log/nginx /var/run && \
+    touch /var/run/nginx.pid && \
+    chown -R musashi:musashi \
+        /var/cache/nginx \
+        /var/log/nginx \
+        /var/run \
+        /usr/share/nginx/html \
+        /app \
+        /etc/nginx/nginx.conf
+
+# Switch to non-root user
+USER musashi
+
+# Expose ports for frontend and backend
+EXPOSE 80 8000
+
+# Enhanced health check with better diagnostics
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+    CMD curl -f http://localhost/health && \
+        curl -f http://localhost:8000/api/v1/health || exit 1
+
+# Use dumb-init for proper signal handling
+ENTRYPOINT ["dumb-init", "--"]
+CMD ["/app/start.sh"]
+
+# Metadata labels for better image management
+LABEL maintainer="Musashi Team" \
+      version="1.0.0" \
+      description="Musashi AI Workflow Designer - Production Optimized" \
+      org.opencontainers.image.title="musashi" \
+      org.opencontainers.image.description="AI Agent Workflow Design Tool" \
+      org.opencontainers.image.vendor="Musashi" \
+      org.opencontainers.image.version="1.0.0" \
+      org.opencontainers.image.source="https://github.com/user/musashi"

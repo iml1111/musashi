@@ -1,10 +1,51 @@
 .PHONY: help dev build run stop logs clean install test test-e2e lint
+.PHONY: docker-build docker-run docker-stop docker-restart docker-logs docker-clean
 
 help: ## Show this help message
 	@echo 'Usage: make [target]'
 	@echo ''
-	@echo 'Targets:'
-	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  %-15s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
+	@echo 'Single Container Targets:'
+	@awk 'BEGIN {FS = ":.*?## "} /^docker-[a-zA-Z_-]+:.*?## / {printf "  %-20s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
+	@echo ''
+	@echo 'Legacy Targets:'
+	@awk 'BEGIN {FS = ":.*?## "} /^[^d][a-zA-Z_-]+:.*?## / {printf "  %-20s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
+
+# ========================================
+# Single Container Targets (Recommended)
+# ========================================
+
+docker-build: ## Build Docker image for single container
+	@echo "🔨 Building Musashi Docker image..."
+	docker build -t musashi:latest -f Dockerfile.optimized .
+	@echo "✅ Build complete!"
+
+docker-run: ## Run Musashi as single container (Frontend:80, API:8080)
+	@echo "🚀 Starting Musashi container..."
+	@./run-musashi.sh
+
+docker-stop: ## Stop Musashi container
+	@echo "⏹️  Stopping Musashi container..."
+	@docker stop musashi 2>/dev/null || true
+	@docker rm musashi 2>/dev/null || true
+	@echo "✅ Container stopped and removed"
+
+docker-restart: ## Restart Musashi container
+	@echo "🔄 Restarting Musashi container..."
+	@docker restart musashi || (echo "Container not running, starting new one..." && make docker-run)
+
+docker-logs: ## Show logs from Musashi container
+	@docker logs -f musashi
+
+docker-clean: ## Remove Musashi container and image
+	@echo "🧹 Cleaning up Musashi container and image..."
+	@docker stop musashi 2>/dev/null || true
+	@docker rm musashi 2>/dev/null || true
+	@docker rmi musashi:latest 2>/dev/null || true
+	@echo "✅ Cleanup complete"
+
+# ========================================
+# Legacy Targets (Docker Compose)
+# ========================================
 
 dev: ## Start development mode (frontend and backend separately)
 	@echo "Starting backend..."
@@ -56,7 +97,7 @@ lint-backend: ## Lint backend code
 	cd backend && ruff check .
 
 setup: ## Initial setup
-	cp .env.example .env
+	cp .env.sample .env
 	@echo "Created .env file. Please update it with your configuration."
 
 

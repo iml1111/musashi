@@ -1,0 +1,156 @@
+# Production Docker Compose for Musashi - Single Container Web App
+
+services:
+  # Musashi web application (frontend + backend + nginx in single container)
+  musashi:
+    build:
+      context: .
+      dockerfile: Dockerfile.optimized
+      args:
+        PYTHON_VERSION: "3.12"
+        NODE_VERSION: "20"
+        NGINX_VERSION: "1.24-alpine"
+    image: musashi:latest
+    container_name: musashi-app
+    restart: unless-stopped
+    ports:
+      - "${MUSASHI_PORT:-8080}:8080"
+    environment:
+      # Database configuration
+      - MONGODB_URL=${MONGODB_URL:-mongodb://mongo:27017}
+      - DATABASE_NAME=${DATABASE_NAME:-musashi}
+      
+      # Security configuration
+      - SECRET_KEY=${SECRET_KEY}
+      
+      # Application configuration  
+      - ENVIRONMENT=${ENVIRONMENT:-production}
+      - DEBUG=${DEBUG:-false}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      
+      # CORS configuration
+      - BACKEND_CORS_ORIGINS=${BACKEND_CORS_ORIGINS:-http://localhost:8080}
+    volumes:
+      # Optional: Mount logs directory for persistent logging
+      - musashi_logs:/var/log/nginx
+      - musashi_logs:/app/logs
+    networks:
+      - musashi-network
+    depends_on:
+      mongo:
+        condition: service_healthy
+    healthcheck:
+      test: 
+        - "CMD"
+        - "curl"
+        - "-f"
+        - "http://localhost:8080/health"
+        - "&&"
+        - "curl"
+        - "-f" 
+        - "http://localhost:8080/api/v1/health"
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '1.0'
+        reservations:
+          memory: 256M
+          cpus: '0.5'
+
+  # MongoDB database
+  mongo:
+    image: mongo:7-jammy
+    container_name: musashi-mongo
+    restart: unless-stopped
+    ports:
+      # Only expose MongoDB port in development
+      - "${MONGO_PORT:-127.0.0.1:27017}:27017"
+    environment:
+      - MONGO_INITDB_DATABASE=${DATABASE_NAME:-musashi}
+      # Optional: Enable authentication in production
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_ROOT_USERNAME:-}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_ROOT_PASSWORD:-}
+    volumes:
+      - mongo_data:/data/db
+      - mongo_config:/data/configdb
+      # Optional: Custom MongoDB configuration
+      - ./mongodb/init:/docker-entrypoint-initdb.d:ro
+    networks:
+      - musashi-network
+    healthcheck:
+      test: 
+        - "CMD"
+        - "mongosh"
+        - "--quiet" 
+        - "--eval"
+        - "db.adminCommand('ping')"
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1.0'
+        reservations:
+          memory: 512M
+          cpus: '0.5'
+    # Security: Run as non-root user
+    user: "999:999"
+    command: >
+      mongod 
+      --auth
+      --bind_ip_all
+      --logpath /var/log/mongodb/mongod.log
+      --logappend
+
+  # Optional: Redis for caching (uncomment if needed)
+  # redis:
+  #   image: redis:7-alpine
+  #   container_name: musashi-redis
+  #   restart: unless-stopped
+  #   ports:
+  #     - "127.0.0.1:6379:6379"
+  #   volumes:
+  #     - redis_data:/data
+  #   networks:
+  #     - musashi-network
+  #   healthcheck:
+  #     test: ["CMD", "redis-cli", "ping"]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 3
+  #   command: >
+  #     redis-server
+  #     --appendonly yes
+  #     --requirepass ${REDIS_PASSWORD:-}
+
+# Persistent volumes
+volumes:
+  mongo_data:
+    name: musashi_mongo_data
+    driver: local
+  mongo_config:
+    name: musashi_mongo_config  
+    driver: local
+  musashi_logs:
+    name: musashi_logs
+    driver: local
+  # redis_data:
+  #   name: musashi_redis_data
+  #   driver: local
+
+# Network configuration
+networks:
+  musashi-network:
+    name: musashi-network
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

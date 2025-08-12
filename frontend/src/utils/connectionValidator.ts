@@ -55,7 +55,7 @@ export function validateAgentConnections(
     if (!hasEdge) {
       result.isValid = false
       result.warnings.push(`Connected input "${input.outputKey}" from "${input.nodeName}" has no actual edge`)
-      result.unconnectedInputs.push(input.outputKey)
+      result.unconnectedInputs.push(`${input.nodeId}.${input.outputKey}`)
     }
   })
 
@@ -118,6 +118,73 @@ export function needsConnectionWarning(
   if (node.type === 'userinput') {
     const validation = validateUserInputToAgentConnections(node, nodes, edges)
     return !validation.isValid
+  }
+  
+  return false
+}
+
+/**
+ * Validates all workflow connections
+ */
+export function validateWorkflowConnections(
+  nodes: Node[],
+  edges: Edge[]
+): ConnectionValidationResult[] {
+  const results: ConnectionValidationResult[] = []
+  
+  nodes.forEach(node => {
+    if (node.type === 'agent') {
+      results.push(validateAgentConnections(node, edges))
+    }
+  })
+  
+  return results
+}
+
+/**
+ * Check for circular dependencies in workflow
+ */
+export function checkForCircularDependencies(edges: Edge[]): boolean {
+  // Build adjacency list
+  const graph: { [key: string]: string[] } = {}
+  
+  edges.forEach(edge => {
+    if (!graph[edge.source]) {
+      graph[edge.source] = []
+    }
+    graph[edge.source].push(edge.target)
+  })
+  
+  // DFS to detect cycle
+  const visited = new Set<string>()
+  const recursionStack = new Set<string>()
+  
+  function hasCycle(node: string): boolean {
+    visited.add(node)
+    recursionStack.add(node)
+    
+    const neighbors = graph[node] || []
+    for (const neighbor of neighbors) {
+      if (!visited.has(neighbor)) {
+        if (hasCycle(neighbor)) {
+          return true
+        }
+      } else if (recursionStack.has(neighbor)) {
+        return true
+      }
+    }
+    
+    recursionStack.delete(node)
+    return false
+  }
+  
+  // Check all nodes
+  for (const node in graph) {
+    if (!visited.has(node)) {
+      if (hasCycle(node)) {
+        return true
+      }
+    }
   }
   
   return false

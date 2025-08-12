@@ -51,8 +51,8 @@ export function calculateLayout(
   // Add nodes to the graph
   nodes.forEach((node) => {
     g.setNode(node.id, {
-      width: nodeWidth,
-      height: nodeHeight,
+      width: nodeWidth || 150,
+      height: nodeHeight || 50,
     });
   });
 
@@ -76,17 +76,7 @@ export function calculateLayout(
       y: nodeWithPosition.y - nodeHeight / 2,
     };
 
-    // Debug log to check if data is preserved
-    console.log(`calculateLayout - node ${node.id}:`, {
-      before_data: node.data,
-      has_connected_inputs: !!node.data?.connected_inputs,
-      connected_inputs_count: node.data?.connected_inputs?.length || 0
-    });
     
-    // Additional check: Make sure we're not losing data
-    if (node.data?.connected_inputs && node.data.connected_inputs.length > 0) {
-      console.log(`Node ${node.id} has connected_inputs:`, node.data.connected_inputs);
-    }
 
     return {
       ...node,
@@ -102,8 +92,8 @@ export function calculateLayout(
     return {
       minX: Math.min(acc.minX, node.position.x),
       minY: Math.min(acc.minY, node.position.y),
-      maxX: Math.max(acc.maxX, node.position.x + nodeWidth),
-      maxY: Math.max(acc.maxY, node.position.y + nodeHeight),
+      maxX: Math.max(acc.maxX, node.position.x + (nodeWidth || 150)),
+      maxY: Math.max(acc.maxY, node.position.y + (nodeHeight || 50)),
     };
   }, { minX: Infinity, minY: Infinity, maxX: -Infinity, maxY: -Infinity });
 
@@ -168,22 +158,12 @@ export function addEdgeWithLayout(
   newEdge: Edge,
   options?: LayoutOptions
 ): { nodes: Node[]; edges: Edge[] } {
-  console.log('addEdgeWithLayout - input nodes:', nodes.map(n => ({
-    id: n.id,
-    type: n.type,
-    connected_inputs: n.data?.connected_inputs
-  })));
   
   const allEdges = [...edges, newEdge];
   
   try {
     const result = calculateLayout(nodes, allEdges, options);
     
-    console.log('addEdgeWithLayout - output nodes:', result.nodes.map(n => ({
-      id: n.id,
-      type: n.type,
-      connected_inputs: n.data?.connected_inputs
-    })));
     
     return result;
   } catch (error) {

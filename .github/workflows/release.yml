@@ -1,0 +1,272 @@
+name: Release and Publish
+
+# Trigger on version tags (v1.0.0, v2.1.3, etc.)
+on:
+  push:
+    tags:
+      - 'v*'
+
+# Required permissions for various actions
+permissions:
+  contents: read        # Read repository content
+  packages: write       # Push to GitHub Container Registry
+  id-token: write      # Required for cosign keyless signing
+  security-events: write # Upload security scan results
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: musashi
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout repository
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for better metadata
+
+      # Step 2: Set up QEMU for multi-platform builds
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: linux/amd64,linux/arm64
+
+      # Step 3: Set up Docker Buildx
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          install: true
+          driver-opts: |
+            network=host
+            image=moby/buildkit:master
+
+      # Step 4: Log in to GitHub Container Registry
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Step 5: Extract metadata
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=tag
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=raw,value=latest,enable={{is_default_branch}}
+          labels: |
+            org.opencontainers.image.title=Musashi
+            org.opencontainers.image.description=AI Agent Workflow Design Tool
+            org.opencontainers.image.vendor=Musashi Team
+            org.opencontainers.image.license=MIT
+
+      # Step 6: Build and push Docker images for multiple platforms
+      - name: Build and push Docker image
+        id: build
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile.optimized
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            VERSION=${{ github.ref_name }}
+            BUILD_DATE=${{ steps.meta.outputs.created }}
+            VCS_REF=${{ github.sha }}
+          provenance: true
+          sbom: true
+
+      # Step 7: Install Cosign
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@v3
+        with:
+          cosign-release: 'v2.2.2'
+
+      # Step 8: Sign container images with Cosign (keyless)
+      - name: Sign container images
+        env:
+          COSIGN_EXPERIMENTAL: 1
+        run: |
+          # Sign the multi-platform image by digest
+          IMAGE_DIGEST="${{ steps.build.outputs.digest }}"
+          IMAGE_NAME="${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}"
+          
+          echo "Signing image: ${IMAGE_NAME}@${IMAGE_DIGEST}"
+          cosign sign --yes "${IMAGE_NAME}@${IMAGE_DIGEST}"
+          
+          # Also sign the version tag
+          cosign sign --yes "${IMAGE_NAME}:${{ github.ref_name }}"
+
+      # Step 9: Run Trivy vulnerability scanner
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          severity: 'HIGH,CRITICAL'
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          scanners: 'vuln,secret,config'
+
+      # Step 10: Upload Trivy results to GitHub Security tab
+      - name: Upload Trivy results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
+          category: 'container-security'
+
+      # Step 11: Install Syft for SBOM generation
+      - name: Install Syft
+        uses: anchore/sbom-action/download-syft@v0
+        with:
+          syft-version: 'v0.99.0'
+
+      # Step 12: Generate SBOM using Syft
+      - name: Generate SBOM
+        run: |
+          # Generate SBOM in SPDX JSON format
+          IMAGE_NAME="${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}"
+          
+          echo "Generating SBOM for: ${IMAGE_NAME}"
+          syft "${IMAGE_NAME}" \
+            --output spdx-json \
+            --file musashi-sbom.spdx.json \
+            --name "musashi" \
+            --catalogers all
+
+          # Also generate in CycloneDX format for broader compatibility
+          syft "${IMAGE_NAME}" \
+            --output cyclonedx-json \
+            --file musashi-sbom.cyclonedx.json \
+            --name "musashi" \
+            --catalogers all
+
+      # Step 13: Upload SBOM as release artifact
+      - name: Upload SBOM artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom-${{ github.ref_name }}
+          path: |
+            musashi-sbom.spdx.json
+            musashi-sbom.cyclonedx.json
+          retention-days: 90
+
+      # Step 14: Attach SBOM to the container image
+      - name: Attach SBOM to container image
+        env:
+          COSIGN_EXPERIMENTAL: 1
+        run: |
+          IMAGE_NAME="${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}"
+          
+          # Attach SBOM as attestation
+          cosign attach sbom --sbom musashi-sbom.spdx.json "${IMAGE_NAME}:${{ github.ref_name }}"
+          
+          # Sign the SBOM attestation
+          cosign sign --yes --attachment sbom "${IMAGE_NAME}:${{ github.ref_name }}"
+
+      # Step 15: Create release summary
+      - name: Create release summary
+        run: |
+          echo "## Release Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📦 Published Images" >> $GITHUB_STEP_SUMMARY
+          echo "- \`${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- \`${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:latest\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🔐 Security" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Container images signed with Cosign (keyless)" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Vulnerability scan completed with Trivy" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ SBOM generated and attached" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🏗️ Platforms" >> $GITHUB_STEP_SUMMARY
+          echo "- \`linux/amd64\`" >> $GITHUB_STEP_SUMMARY
+          echo "- \`linux/arm64\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📝 Verification" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
+          echo "# Verify signature" >> $GITHUB_STEP_SUMMARY
+          echo "cosign verify ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }} \\" >> $GITHUB_STEP_SUMMARY
+          echo "  --certificate-identity-regexp=https://github.com/${{ github.repository_owner }} \\" >> $GITHUB_STEP_SUMMARY
+          echo "  --certificate-oidc-issuer=https://token.actions.githubusercontent.com" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "# Download SBOM" >> $GITHUB_STEP_SUMMARY
+          echo "cosign download sbom ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+
+  # Optional: Create GitHub Release with artifacts
+  create-release:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download SBOM artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: sbom-${{ github.ref_name }}
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
+          draft: false
+          prerelease: ${{ contains(github.ref_name, 'rc') || contains(github.ref_name, 'beta') || contains(github.ref_name, 'alpha') }}
+          generate_release_notes: true
+          files: |
+            musashi-sbom.spdx.json
+            musashi-sbom.cyclonedx.json
+          body: |
+            ## 🚀 Docker Images
+            
+            Pull the image:
+            ```bash
+            docker pull ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}
+            ```
+            
+            ### Supported Platforms
+            - `linux/amd64`
+            - `linux/arm64`
+            
+            ### Security
+            - ✅ Signed with Cosign (keyless signing)
+            - ✅ Security scanned with Trivy
+            - ✅ SBOM included (SPDX and CycloneDX formats)
+            
+            ### Verification
+            
+            Verify image signature:
+            ```bash
+            cosign verify ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }} \
+              --certificate-identity-regexp=https://github.com/${{ github.repository_owner }} \
+              --certificate-oidc-issuer=https://token.actions.githubusercontent.com
+            ```
+            
+            Download SBOM:
+            ```bash
+            cosign download sbom ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}
+            ```
+            
+            ## 📦 Artifacts
+            - `musashi-sbom.spdx.json` - Software Bill of Materials (SPDX format)
+            - `musashi-sbom.cyclonedx.json` - Software Bill of Materials (CycloneDX format)

@@ -220,6 +220,23 @@ data/
 # Docker
 .dockerignore
 
+# Docker Compose 관련 파일들
+# 실제 환경 변수 (보안상 중요)
+.env
+
+# 로컬 개발자 커스터마이징 (개인 설정용)
+docker-compose.override.yml
+
+# Docker 볼륨 및 로그 데이터
+mongodb/data/
+mongodb/logs/
+logs/
+backups/
+
+# Docker 빌드 캐시 및 임시 파일
+.docker/
+docker-tmp/
+
 # IDE
 .vscode/
 .idea/

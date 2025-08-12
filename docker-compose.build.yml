@@ -1,0 +1,80 @@
+# Docker Compose for optimized building with cache layers
+version: '3.8'
+
+services:
+  # Build cache service for development
+  musashi-build-cache:
+    build:
+      context: .
+      dockerfile: Dockerfile.optimized
+      target: python-deps
+      cache_from:
+        - musashi:python-deps
+        - musashi:frontend-deps
+    image: musashi:python-deps
+
+  # Frontend build cache
+  musashi-frontend-cache:
+    build:
+      context: .
+      dockerfile: Dockerfile.optimized
+      target: frontend-builder
+      cache_from:
+        - musashi:frontend-deps
+        - musashi:frontend-builder
+    image: musashi:frontend-builder
+
+  # Production build
+  musashi-prod:
+    build:
+      context: .
+      dockerfile: Dockerfile.optimized
+      cache_from:
+        - musashi:python-deps
+        - musashi:frontend-deps
+        - musashi:frontend-builder
+        - musashi:latest
+      args:
+        PYTHON_VERSION: "3.12"
+        NODE_VERSION: "20"
+        NGINX_VERSION: "1.24-alpine"
+    image: musashi:latest
+    ports:
+      - "8080:8080"
+    environment:
+      - MONGODB_URL=${MONGODB_URL:-mongodb://mongo:27017}
+      - DATABASE_NAME=${DATABASE_NAME:-musashi}
+      - SECRET_KEY=${SECRET_KEY:-dev-secret-key}
+    depends_on:
+      - mongo
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # MongoDB for testing
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_DATABASE: musashi
+    volumes:
+      - mongo_data:/data/db
+    ports:
+      - "27017:27017"
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  mongo_data:
+
+networks:
+  default:
+    name: musashi-network

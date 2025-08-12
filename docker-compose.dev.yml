@@ -1,0 +1,140 @@
+# Development Docker Compose for Musashi
+
+services:
+  # Musashi web application - Development mode
+  musashi-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.optimized
+      target: runtime
+      args:
+        PYTHON_VERSION: "3.12"
+        NODE_VERSION: "20"
+    image: musashi:dev
+    container_name: musashi-dev
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+      - "8000:8000"  # Direct backend access for development
+    environment:
+      # Development specific settings
+      - ENVIRONMENT=development
+      - DEBUG=true
+      - LOG_LEVEL=debug
+      - MONGODB_URL=mongodb://host.docker.internal:27017
+      - DATABASE_NAME=musashi_dev
+      - SECRET_KEY=dev-secret-key-change-in-production
+      - BACKEND_CORS_ORIGINS=http://localhost:3000,http://localhost:8080
+      
+      # Hot reload settings
+      - PYTHONPATH=/app
+      - PYTHONUNBUFFERED=1
+      - PATH=/home/musashi/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+    volumes:
+      # Mount source code for development hot reload
+      - ./backend/app:/app/app:ro
+      - ./frontend/build:/usr/share/nginx/html:ro
+      
+      # Development logs
+      - musashi_dev_logs:/var/log/nginx
+      - musashi_dev_logs:/app/logs
+      
+      # Development data that persists between container restarts
+      - musashi_dev_data:/app/data
+    networks:
+      - musashi-dev-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    # Development resource limits (more lenient)
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '2.0'
+
+  # Development frontend server (optional, for separate frontend development)
+  frontend-dev:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: musashi-frontend-dev
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - VITE_API_URL=http://localhost:8000
+      - CHOKIDAR_USEPOLLING=true
+    volumes:
+      # Mount source code for hot reload
+      - ./frontend/src:/app/src
+      - ./frontend/public:/app/public
+      - ./frontend/index.html:/app/index.html
+      - ./frontend/package.json:/app/package.json
+      
+      # Exclude node_modules to use container's version
+      - /app/node_modules
+    networks:
+      - musashi-dev-network
+    profiles:
+      - "frontend-dev"  # Only start when explicitly requested
+
+  # Redis for development caching/sessions (optional)
+  redis-dev:
+    image: redis:7-alpine
+    container_name: musashi-redis-dev
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_dev_data:/data
+    networks:
+      - musashi-dev-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    profiles:
+      - "redis"  # Only start when explicitly requested
+
+  # Development database admin (optional)
+  mongo-express:
+    image: mongo-express:latest
+    container_name: musashi-mongo-express
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    environment:
+      - ME_CONFIG_MONGODB_SERVER=host.docker.internal
+      - ME_CONFIG_MONGODB_PORT=27017
+      - ME_CONFIG_MONGODB_ENABLE_ADMIN=true
+      - ME_CONFIG_BASICAUTH_USERNAME=admin
+      - ME_CONFIG_BASICAUTH_PASSWORD=admin123
+    networks:
+      - musashi-dev-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    profiles:
+      - "mongo-admin"  # Only start when explicitly requested
+
+# Development volumes
+volumes:
+  musashi_dev_logs:
+    name: musashi_dev_logs
+  musashi_dev_data:
+    name: musashi_dev_data
+  redis_dev_data:
+    name: musashi_redis_dev_data
+
+# Development network
+networks:
+  musashi-dev-network:
+    name: musashi-dev-network
+    driver: bridge

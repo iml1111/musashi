@@ -9,7 +9,6 @@ import AdminDashboard from './pages/AdminDashboard'
 import Components from './pages/Components'
 // Temporarily disable SharedWorkflow to avoid initialization issues
 // import SharedWorkflow from './pages/SharedWorkflow'
-import React from 'react'
 
 // Test component for React Flow testing
 const SharedWorkflow = () => (
