@@ -21,75 +21,75 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### 🎉 Initial Release
 
 **Musashi** - AI Agent Workflow Design Tool  
-*"Cut the code. Shape the flow."* - 코드를 줄이고, 플로우를 만드세요.
+*"Cut the code. Shape the flow."*
 
-첫 번째 공식 릴리스입니다. 실행 기능 없이 순수한 디자인에 집중하는 AI 에이전트 워크플로우 디자인 도구입니다.
+First official release. An AI agent workflow design tool focused purely on design without execution capabilities.
 
 ### ✨ Added
 
 #### Core Features
 - **Visual Workflow Editor** 
-  - React Flow 기반 드래그 앤 드롭 인터페이스
-  - Dagre 자동 레이아웃 알고리즘
-  - 노드 자동 정렬 및 최적 배치
-  - 실시간 뷰포트 조정
+  - React Flow-based drag-and-drop interface
+  - Dagre automatic layout algorithm
+  - Automatic node alignment and optimal placement
+  - Real-time viewport adjustment
 
 - **Node System**
-  - **Agent Node**: AI 에이전트 구성 (Model, Temperature, Max Tokens)
-  - **Function Node**: 커스텀 함수 정의 및 파라미터 설정
-  - **MCP Node**: Model Context Protocol 서버 통합
-  - **User Input Node**: 사용자 입력 수집
-  - **Final Output Node**: 워크플로우 최종 결과 출력
-  - **Connected Inputs**: 노드 간 입력 연결 관리
+  - **Agent Node**: AI agent configuration (Model, Temperature, Max Tokens)
+  - **Function Node**: Custom function definition and parameter settings
+  - **MCP Node**: Model Context Protocol server integration
+  - **User Input Node**: User input collection
+  - **Final Output Node**: Workflow final result output
+  - **Connected Inputs**: Inter-node input connection management
 
 - **Advanced Prompt Engineering**
-  - System prompt 템플릿 지원
-  - 변수 바인딩 (`{{variable}}` 형식)
-  - Multi-line prompt 편집기
-  - Prompt 유효성 검증
+  - System prompt template support
+  - Variable binding (`{{variable}}` format)
+  - Multi-line prompt editor
+  - Prompt validation
 
 - **Workflow Management**
-  - 워크플로우 생성/수정/삭제
-  - JSON 형식 내보내기/가져오기
-  - 버전 관리 시스템 호환
-  - 워크플로우 복제 기능
+  - Workflow create/update/delete
+  - JSON format export/import
+  - Version control system compatible
+  - Workflow cloning functionality
 
 #### Collaboration Features
 - **Team Management**
-  - 팀 기반 워크플로우 격리
-  - 팀 멤버 초대 및 관리
-  - 팀별 리소스 할당
+  - Team-based workflow isolation
+  - Team member invitation and management
+  - Per-team resource allocation
 
 - **RBAC (Role-Based Access Control)**
-  - **Admin**: 전체 시스템 관리
-  - **Editor**: 워크플로우 생성/수정
-  - **Viewer**: 읽기 전용 접근
-  - 세분화된 권한 설정
+  - **Admin**: Full system management
+  - **Editor**: Workflow create/edit
+  - **Viewer**: Read-only access
+  - Granular permission settings
 
 - **Sharing & Export**
-  - 공개 공유 링크 생성
-  - 읽기 전용 share token
-  - PDF/PNG 내보내기 (예정)
+  - Public share link generation
+  - Read-only share token
+  - PDF/PNG export (planned)
 
 #### User Experience
 - **UI/UX Enhancements**
-  - 다크 모드 지원
-  - 반응형 디자인
-  - 키보드 단축키
-  - 실행 취소/다시 실행
-  - 자동 저장 (5초 간격)
+  - Dark mode support
+  - Responsive design
+  - Keyboard shortcuts
+  - Undo/redo
+  - Auto-save (5-second interval)
 
 - **Workflow Visualization**
-  - 미니맵 네비게이션
-  - 줌 인/아웃 컨트롤
-  - 그리드 스냅 정렬
-  - 연결선 애니메이션
+  - Minimap navigation
+  - Zoom in/out controls
+  - Grid snap alignment
+  - Connection line animations
 
 - **Node Sidebar**
-  - 노드 속성 실시간 편집
-  - 입력 유효성 검증
-  - 도움말 툴팁
-  - 접기/펼치기 섹션
+  - Real-time node property editing
+  - Input validation
+  - Help tooltips
+  - Collapsible/expandable sections
 
 #### Technical Implementation
 - **Frontend Stack**
@@ -254,7 +254,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-*For upgrade instructions, see [INSTALL.md](./INSTALL.md#버전-업그레이드)*  
+*For upgrade instructions, see [INSTALL.md](./INSTALL.md#version-upgrade)*  
 *For security information, see [SECURITY.md](./SECURITY.md)*  
 *For contribution guidelines, see [CONTRIBUTING.md](./CONTRIBUTING.md)*
 

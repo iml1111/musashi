@@ -1,199 +1,199 @@
-# 🤝 Musashi 기여 가이드
+# 🤝 Musashi Contributing Guide
 
-Musashi 프로젝트에 기여해 주셔서 감사합니다! 우리는 커뮤니티의 모든 기여를 환영하며, 여러분의 도움에 감사드립니다.
+Thank you for contributing to the Musashi project! We welcome all contributions from the community and appreciate your help.
 
-## 📋 목차
+## 📋 Table of Contents
 
-- [행동 강령](#행동-강령)
-- [개발 환경 설정](#개발-환경-설정)
-- [코드 기여 방법](#코드-기여-방법)
+- [Code of Conduct](#code-of-conduct)
+- [Development Environment Setup](#development-environment-setup)
+- [How to Contribute Code](#how-to-contribute-code)
 - [Conventional Commits](#conventional-commits)
-- [테스트 및 린트](#테스트-및-린트)
-- [Pull Request 프로세스](#pull-request-프로세스)
-- [개발 가이드라인](#개발-가이드라인)
-- [문서화](#문서화)
-- [도움 받기](#도움-받기)
+- [Testing and Linting](#testing-and-linting)
+- [Pull Request Process](#pull-request-process)
+- [Development Guidelines](#development-guidelines)
+- [Documentation](#documentation)
+- [Getting Help](#getting-help)
 
-## 행동 강령
+## Code of Conduct
 
-이 프로젝트에 참여함으로써 다음 행동 강령에 동의하는 것으로 간주됩니다:
+By participating in this project, you are considered to agree to the following code of conduct:
 
-- 🤝 **존중과 포용**: 모든 참여자를 존중하고 포용적인 환경 조성
-- 👋 **신규 기여자 환영**: 새로운 참여자를 따뜻하게 맞이하고 도움 제공
-- 💬 **건설적인 비판**: 개인 공격이 아닌 코드와 아이디어에 집중
-- ✨ **피드백 수용**: 비판과 제안을 겸허히 받아들이기
+- 🤝 **Respect and Inclusion**: Respect all participants and create an inclusive environment
+- 👋 **Welcome New Contributors**: Warmly welcome new participants and provide help
+- 💬 **Constructive Criticism**: Focus on code and ideas, not personal attacks
+- ✨ **Accept Feedback**: Humbly accept criticism and suggestions
 
-## 개발 환경 설정
+## Development Environment Setup
 
-### 🔧 사전 요구사항
+### 🔧 Prerequisites
 
 ```bash
-# 필수 도구 확인
-node --version  # v20.0.0 이상
-python --version  # 3.12 이상
-docker --version  # 20.10.0 이상
-git --version  # 2.0.0 이상
-mongodb --version  # 7.0 이상 (로컬 개발 시)
+# Check required tools
+node --version  # v20.0.0 or higher
+python --version  # 3.12 or higher
+docker --version  # 20.10.0 or higher
+git --version  # 2.0.0 or higher
+mongodb --version  # 7.0 or higher (for local development)
 ```
 
-### 🏗️ 빠른 시작 (Docker 권장)
+### 🏗️ Quick Start (Docker Recommended)
 
 ```bash
-# 전체 개발 환경 한 번에 설정
+# Set up entire development environment at once
 git clone https://github.com/imiml/musashi.git
 cd musashi
-make dev  # Docker로 전체 스택 실행
+make dev  # Run entire stack with Docker
 
-# 브라우저에서 확인
+# Check in browser
 open http://localhost:3000  # Frontend
 open http://localhost:8000/docs  # Backend API Docs
 ```
 
-### 📦 프로젝트 설정
+### 📦 Project Setup
 
-#### 1. 저장소 Fork 및 Clone
+#### 1. Fork and Clone Repository
 
 ```bash
-# 1. GitHub에서 Fork 버튼 클릭
+# 1. Click Fork button on GitHub
 
-# 2. Fork한 저장소 Clone
+# 2. Clone forked repository
 git clone https://github.com/YOUR_USERNAME/musashi.git
 cd musashi
 
-# 3. Upstream 저장소 추가
+# 3. Add upstream repository
 git remote add upstream https://github.com/imiml/musashi.git
 git fetch upstream
 
-# 4. 메인 브랜치 동기화
+# 4. Sync main branch
 git checkout main
 git merge upstream/main
 ```
 
-#### 2. 브랜치 전략
+#### 2. Branch Strategy
 
-##### 브랜치 이름 규칙
+##### Branch Naming Rules
 
 ```bash
-# 기능 개발
+# Feature development
 git checkout -b feat/workflow-export
-git checkout -b feat/123-add-node-copy  # 이슈 번호 포함
+git checkout -b feat/123-add-node-copy  # Include issue number
 
-# 버그 수정
+# Bug fixes
 git checkout -b fix/auth-token-expiry
 git checkout -b fix/456-cors-error
 
-# 문서 작업
+# Documentation work
 git checkout -b docs/api-guide
 git checkout -b docs/789-update-readme
 
-# 긴급 수정 (hotfix)
+# Emergency fixes (hotfix)
 git checkout -b hotfix/security-patch
 
-# 리팩토링
+# Refactoring
 git checkout -b refactor/api-structure
 
-# 성능 개선
+# Performance improvements
 git checkout -b perf/query-optimization
 ```
 
-##### 브랜치 보호 규칙
+##### Branch Protection Rules
 
-- `main`: 프로덕션 배포 브랜치 (직접 푸시 금지)
-- `develop`: 개발 통합 브랜치 (PR만 허용)
-- 기능 브랜치는 `develop`에서 분기
-- 핫픽스는 `main`에서 분기 후 `main`과 `develop` 모두에 머지
+- `main`: Production deployment branch (direct push forbidden)
+- `develop`: Development integration branch (PR only)
+- Feature branches branch from `develop`
+- Hotfixes branch from `main` and merge to both `main` and `develop`
 
-### 🛠️ 개발 환경 구성
+### 🛠️ Development Environment Configuration
 
-#### Backend 설정 (Python/FastAPI)
+#### Backend Setup (Python/FastAPI)
 
 ```bash
 cd backend
 
-# 가상 환경 생성 및 활성화
+# Create and activate virtual environment
 python -m venv venv
 source venv/bin/activate  # Windows: venv\Scripts\activate
 
-# 의존성 설치
+# Install dependencies
 pip install -r requirements.txt
-pip install -r requirements-dev.txt  # 개발 도구
+pip install -r requirements-dev.txt  # Development tools
 
-# 환경 변수 설정
+# Set environment variables
 cp .env.example .env
-# .env 파일 편집하여 필요한 값 설정
+# Edit .env file to set required values
 
-# 개발 서버 실행
+# Run development server
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-#### Frontend 설정 (React/TypeScript)
+#### Frontend Setup (React/TypeScript)
 
 ```bash
 cd frontend
 
-# 의존성 설치
+# Install dependencies
 npm install
-npm install --save-dev @types/node  # TypeScript 정의
+npm install --save-dev @types/node  # TypeScript definitions
 
-# 환경 변수 설정
+# Set environment variables
 cp .env.example .env.local
-# VITE_API_URL 등 설정
+# Set VITE_API_URL etc.
 
-# 개발 서버 실행
+# Run development server
 npm run dev  # http://localhost:3000
 ```
 
-#### Docker 환경
+#### Docker Environment
 
 ```bash
-# 전체 스택 실행 (개발 모드)
+# Run entire stack (development mode)
 docker-compose -f docker-compose.dev.yml up
 
-# 또는 Make 명령어 사용
+# Or use Make command
 make dev
 ```
 
-### 🔨 개발 도구 설정
+### 🔨 Development Tools Setup
 
-#### Pre-commit Hooks 설치
+#### Install Pre-commit Hooks
 
 ```bash
-# pre-commit 설치
+# Install pre-commit
 pip install pre-commit
 
-# Git hooks 설정
+# Set up Git hooks
 pre-commit install
 pre-commit install --hook-type commit-msg
 
-# 수동 실행 (모든 파일 검사)
+# Manual run (check all files)
 pre-commit run --all-files
 ```
 
-`.pre-commit-config.yaml` 예시:
+`.pre-commit-config.yaml` example:
 ```yaml
 repos:
-  # Python 포맷터
+  # Python formatter
   - repo: https://github.com/psf/black
     rev: 23.3.0
     hooks:
       - id: black
         language_version: python3.12
 
-  # Python 린터
+  # Python linter
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.1.5
     hooks:
       - id: ruff
         args: [--fix]
 
-  # JavaScript/TypeScript 포맷터
+  # JavaScript/TypeScript formatter
   - repo: https://github.com/pre-commit/mirrors-prettier
     rev: v3.0.3
     hooks:
       - id: prettier
         files: \.(js|jsx|ts|tsx|css|md|json)$
 
-  # Commit 메시지 검증
+  # Commit message validation
   - repo: https://github.com/commitizen-tools/commitizen
     rev: v3.12.0
     hooks:
@@ -201,7 +201,7 @@ repos:
         stages: [commit-msg]
 ```
 
-#### VS Code 설정 (권장)
+#### VS Code Settings (Recommended)
 
 `.vscode/settings.json`:
 ```json
@@ -226,27 +226,27 @@ repos:
 }
 ```
 
-## 코드 기여 방법
+## How to Contribute Code
 
-### 📝 이슈 생성
+### 📝 Create Issues
 
-기여를 시작하기 전에:
+Before starting to contribute:
 
-1. **기존 이슈 확인**: 중복 방지를 위해 기존 이슈 검색
-2. **이슈 템플릿 사용**: 적절한 템플릿 선택
-3. **명확한 설명**: 재현 단계, 예상/실제 동작 설명
-4. **환경 정보**: OS, 브라우저, Node/Python 버전 등
+1. **Check existing issues**: Search existing issues to avoid duplicates
+2. **Use issue templates**: Select appropriate template
+3. **Clear description**: Describe reproduction steps, expected/actual behavior
+4. **Environment info**: OS, browser, Node/Python versions, etc.
 
-### 💡 기능 제안
+### 💡 Feature Suggestions
 
-1. **Discussion 먼저**: GitHub Discussions에서 논의 시작
-2. **문제 정의**: 해결하려는 문제 명확히 설명
-3. **사용 사례**: 구체적인 예시와 시나리오 제공
-4. **구현 복잡도**: 예상 작업량과 영향 범위 고려
+1. **Discussion first**: Start discussion in GitHub Discussions
+2. **Define problem**: Clearly explain the problem to solve
+3. **Use cases**: Provide specific examples and scenarios
+4. **Implementation complexity**: Consider expected workload and impact scope
 
 ## Conventional Commits
 
-### 📐 커밋 메시지 형식
+### 📐 Commit Message Format
 
 ```
 <type>(<scope>): <subject>
@@ -256,115 +256,115 @@ repos:
 <footer>
 ```
 
-### 🏷️ Type (필수)
+### 🏷️ Type (Required)
 
-| Type | 설명 | 예시 |
+| Type | Description | Example |
 |------|------|------|
-| `feat` | 새로운 기능 추가 | `feat(workflow): 노드 복제 기능 추가` |
-| `fix` | 버그 수정 | `fix(auth): JWT 토큰 만료 문제 해결` |
-| `docs` | 문서 수정 | `docs(readme): 설치 가이드 업데이트` |
-| `style` | 코드 포맷팅 (기능 변경 X) | `style(frontend): prettier 적용` |
-| `refactor` | 코드 리팩토링 | `refactor(api): 라우터 구조 개선` |
-| `perf` | 성능 개선 | `perf(db): 쿼리 최적화` |
-| `test` | 테스트 추가/수정 | `test(workflow): 단위 테스트 추가` |
-| `build` | 빌드 시스템/의존성 | `build(docker): 이미지 크기 최적화` |
-| `ci` | CI/CD 설정 | `ci(github): release workflow 추가` |
-| `chore` | 기타 작업 | `chore(deps): 패키지 업데이트` |
-| `revert` | 커밋 되돌리기 | `revert: feat(workflow) 노드 복제 기능` |
+| `feat` | Add new feature | `feat(workflow): add node duplication feature` |
+| `fix` | Bug fix | `fix(auth): resolve JWT token expiration issue` |
+| `docs` | Documentation update | `docs(readme): update installation guide` |
+| `style` | Code formatting (no functional changes) | `style(frontend): apply prettier` |
+| `refactor` | Code refactoring | `refactor(api): improve router structure` |
+| `perf` | Performance improvement | `perf(db): optimize queries` |
+| `test` | Add/update tests | `test(workflow): add unit tests` |
+| `build` | Build system/dependencies | `build(docker): optimize image size` |
+| `ci` | CI/CD configuration | `ci(github): add release workflow` |
+| `chore` | Other tasks | `chore(deps): update packages` |
+| `revert` | Revert commit | `revert: feat(workflow) node duplication feature` |
 
-### 📍 Scope (선택)
+### 📍 Scope (Optional)
 
-프로젝트의 영향 범위:
-- `frontend`: React 애플리케이션
-- `backend`: FastAPI 서버
-- `workflow`: 워크플로우 기능
-- `auth`: 인증/인가
-- `db`: 데이터베이스
-- `docker`: Docker 설정
-- `docs`: 문서
+Project impact scope:
+- `frontend`: React application
+- `backend`: FastAPI server
+- `workflow`: Workflow functionality
+- `auth`: Authentication/authorization
+- `db`: Database
+- `docker`: Docker configuration
+- `docs`: Documentation
 
-### ✍️ Subject (필수)
+### ✍️ Subject (Required)
 
-- 50자 이내
-- 현재 시제 사용
-- 명령문으로 작성
-- 마침표 없음
-- 한글 가능
+- Within 50 characters
+- Use present tense
+- Write in imperative mood
+- No period
+- Korean acceptable
 
-### 📄 Body (선택)
+### 📄 Body (Optional)
 
-- 72자에서 줄바꿈
-- "무엇을" 보다 "왜" 설명
-- 이전 동작과 비교 설명
+- Line break at 72 characters
+- Explain "why" rather than "what"
+- Compare with previous behavior
 
-### 🔗 Footer (선택)
+### 🔗 Footer (Optional)
 
-- **Breaking Changes**: `BREAKING CHANGE: 설명`
-- **이슈 참조**: `Fixes #123`, `Closes #456`
-- **관련 PR**: `Related to #789`
+- **Breaking Changes**: `BREAKING CHANGE: description`
+- **Issue References**: `Fixes #123`, `Closes #456`
+- **Related PR**: `Related to #789`
 
-### 📌 커밋 예시
+### 📌 Commit Examples
 
 ```bash
-# 좋은 예시 ✅
-feat(workflow): 워크플로우 내보내기 기능 추가
+# Good example ✅
+feat(workflow): add workflow export feature
 
-사용자가 워크플로우를 JSON 형식으로 내보낼 수 있도록 구현.
-Git 버전 관리와의 통합을 위해 필요한 기능.
+Implemented functionality for users to export workflows in JSON format.
+Required feature for integration with Git version control.
 
-- JSON 형식으로 워크플로우 직렬화
-- 다운로드 버튼 UI 추가
-- 내보내기 시 검증 로직 포함
+- Serialize workflows to JSON format
+- Add download button UI
+- Include validation logic on export
 
 Closes #123
 
-# 나쁜 예시 ❌
-update code  # 너무 모호함
-Fixed bug  # 어떤 버그인지 불명확
-WIP  # 작업 중인 커밋은 푸시하지 말 것
+# Bad example ❌
+update code  # Too vague
+Fixed bug  # Unclear which bug
+WIP  # Don't push work-in-progress commits
 ```
 
-### 🔧 Commitizen 사용 (권장)
+### 🔧 Using Commitizen (Recommended)
 
 ```bash
-# Commitizen 설치
+# Install Commitizen
 npm install -g commitizen
 npm install -g cz-conventional-changelog
 
-# .czrc 파일 생성
+# Create .czrc file
 echo '{"path": "cz-conventional-changelog"}' > ~/.czrc
 
-# 대화형 커밋
+# Interactive commit
 git add .
-git cz  # 또는 cz
+git cz  # or cz
 ```
 
-## 테스트 및 린트
+## Testing and Linting
 
-### 🧪 테스트 실행
+### 🧪 Running Tests
 
-#### Backend 테스트
+#### Backend Tests
 
 ```bash
 cd backend
 
-# 모든 테스트 실행
+# Run all tests
 pytest
 
-# 커버리지 포함
+# Include coverage
 pytest --cov=app --cov-report=html --cov-report=term
 
-# 특정 테스트만
+# Specific tests only
 pytest tests/test_auth.py::TestAuth::test_login
 
-# 병렬 실행 (빠름)
+# Parallel execution (faster)
 pytest -n auto
 
-# 실패한 테스트만 재실행
+# Re-run failed tests only
 pytest --lf
 ```
 
-테스트 작성 예시:
+Test Writing Example:
 ```python
 # tests/test_workflow.py
 import pytest
@@ -382,28 +382,28 @@ async def test_create_workflow():
         assert response.json()["name"] == "Test Workflow"
 ```
 
-#### Frontend 테스트
+#### Frontend Tests
 
 ```bash
 cd frontend
 
-# 단위 테스트
+# Unit tests
 npm test
 
-# 커버리지 리포트
+# Coverage report
 npm run test:coverage
 
-# Watch 모드
+# Watch mode
 npm run test:watch
 
-# E2E 테스트 (Playwright)
+# E2E tests (Playwright)
 npm run test:e2e
 
-# 특정 테스트만
+# Specific tests only
 npm test -- --testNamePattern="WorkflowEditor"
 ```
 
-테스트 작성 예시:
+Test Writing Example:
 ```typescript
 // src/components/WorkflowEditor.test.tsx
 import { render, screen, fireEvent } from '@testing-library/react';
@@ -421,30 +421,30 @@ describe('WorkflowEditor', () => {
 });
 ```
 
-### 🎨 린트 및 포맷팅
+### 🎨 Linting and Formatting
 
 #### Python (Backend)
 
 ```bash
 cd backend
 
-# Ruff 린터 실행
+# Run Ruff linter
 ruff check .
 
-# 자동 수정
+# Auto fix
 ruff check --fix .
 
-# Black 포맷터
+# Black formatter
 black .
 
-# 타입 체크 (mypy)
+# Type check (mypy)
 mypy app/
 
-# 모든 검사 한 번에
-make lint  # Makefile이 있는 경우
+# All checks at once
+make lint  # If Makefile exists
 ```
 
-`.ruff.toml` 설정:
+`.ruff.toml` configuration:
 ```toml
 [tool.ruff]
 line-length = 88
@@ -469,23 +469,23 @@ ignore = ["E501"]  # Line too long
 ```bash
 cd frontend
 
-# ESLint 실행
+# Run ESLint
 npm run lint
 
-# 자동 수정
+# Auto fix
 npm run lint:fix
 
-# Prettier 포맷팅
+# Prettier formatting
 npm run format
 
-# TypeScript 타입 체크
+# TypeScript type check
 npm run typecheck
 
-# 모든 검사
-npm run check  # package.json에 정의된 경우
+# All checks
+npm run check  # If defined in package.json
 ```
 
-`.eslintrc.json` 설정:
+`.eslintrc.json` configuration:
 ```json
 {
   "extends": [
@@ -503,147 +503,147 @@ npm run check  # package.json에 정의된 경우
 }
 ```
 
-### ✅ 테스트 커버리지 요구사항
+### ✅ Test Coverage Requirements
 
-| 영역 | 최소 커버리지 | 목표 커버리지 |
-|------|--------------|--------------|
+| Area | Minimum Coverage | Target Coverage |
+|------|-----------------|-----------------|
 | Backend (Python) | 80% | 90% |
 | Frontend (React) | 70% | 85% |
-| E2E Tests | 주요 시나리오 | 모든 사용자 경로 |
+| E2E Tests | Major scenarios | All user paths |
 
-## Pull Request 프로세스
+## Pull Request Process
 
-### 📋 PR 체크리스트
+### 📋 PR Checklist
 
-PR을 제출하기 전에:
+Before submitting a PR:
 
-- [ ] upstream/main과 동기화
-- [ ] 모든 테스트 통과 (단위 테스트 + E2E)
-- [ ] 린트 에러 없음 (`make lint` 통과)
-- [ ] 타입 체크 통과 (`npm run typecheck`, `mypy`)
-- [ ] 문서 업데이트 (API 변경 시 필수)
-- [ ] 데이터베이스 스키마 변경 시 README.md 업데이트
-- [ ] CHANGELOG.md 업데이트 (주요 변경사항)
-- [ ] 커밋 메시지 Conventional Commits 준수
-- [ ] UI 변경사항 스크린샷 첨부 (Before/After)
-- [ ] Breaking Change 여부 명시
-- [ ] 성능 영향 검토 (필요시 벤치마크 결과)
+- [ ] Sync with upstream/main
+- [ ] All tests pass (unit tests + E2E)
+- [ ] No lint errors (`make lint` passes)
+- [ ] Type check passes (`npm run typecheck`, `mypy`)
+- [ ] Documentation updated (required for API changes)
+- [ ] README.md updated for database schema changes
+- [ ] CHANGELOG.md updated (major changes)
+- [ ] Commit messages follow Conventional Commits
+- [ ] UI changes include screenshots (Before/After)
+- [ ] Breaking changes specified
+- [ ] Performance impact reviewed (benchmark results if needed)
 
-### 📝 PR 템플릿
+### 📝 PR Template
 
 `.github/pull_request_template.md`:
 ```markdown
-## 📋 설명
-<!-- 변경사항에 대한 간단한 설명 -->
+## 📋 Description
+<!-- Brief description of the changes -->
 
-## 🎯 변경 유형
-<!-- 해당하는 항목에 체크 -->
-- [ ] 🐛 버그 수정 (Bug fix)
-- [ ] ✨ 새 기능 (New feature)
+## 🎯 Change Type
+<!-- Check applicable items -->
+- [ ] 🐛 Bug fix
+- [ ] ✨ New feature
 - [ ] 💥 Breaking change
-- [ ] 📝 문서 업데이트 (Documentation)
-- [ ] ♻️ 리팩토링 (Refactoring)
-- [ ] ⚡ 성능 개선 (Performance)
-- [ ] 🎨 UI/UX 개선
+- [ ] 📝 Documentation update
+- [ ] ♻️ Refactoring
+- [ ] ⚡ Performance improvement
+- [ ] 🎨 UI/UX improvement
 
-## 🔗 관련 이슈
-<!-- Closes #123 형식으로 이슈 연결 -->
+## 🔗 Related Issues
+<!-- Link issues with Closes #123 format -->
 Closes #
 
-## 📸 스크린샷 (UI 변경사항)
-<!-- UI 변경이 있다면 전/후 스크린샷 -->
+## 📸 Screenshots (UI changes)
+<!-- Before/After screenshots if UI changes exist -->
 | Before | After |
 |--------|-------|
-| 이전 스크린샷 | 변경 후 스크린샷 |
+| Previous screenshot | Changed screenshot |
 
-## ✅ 테스트
-<!-- 수행한 테스트 설명 -->
-- [ ] 단위 테스트 추가/수정
-- [ ] 통합 테스트 통과
-- [ ] E2E 테스트 통과
-- [ ] 수동 테스트 시나리오:
+## ✅ Testing
+<!-- Describe tests performed -->
+- [ ] Unit tests added/updated
+- [ ] Integration tests pass
+- [ ] E2E tests pass
+- [ ] Manual testing scenarios:
   ```
-  1. 로그인
-  2. 워크플로우 생성
-  3. 노드 추가 확인
+  1. Login
+  2. Create workflow
+  3. Verify node addition
   ```
 
-## 📊 성능 영향
-<!-- 성능에 영향이 있다면 설명 -->
-- [ ] 성능 영향 없음
-- [ ] 성능 개선: [벤치마크 결과]
-- [ ] 성능 저하 가능성: [완화 방안]
+## 📊 Performance Impact
+<!-- Describe performance impact if any -->
+- [ ] No performance impact
+- [ ] Performance improvement: [benchmark results]
+- [ ] Potential performance degradation: [mitigation plan]
 
-## 📝 체크리스트
-- [ ] 코드가 프로젝트 스타일 가이드를 따름
-- [ ] 셀프 리뷰 완료
-- [ ] 주석 추가 (복잡한 로직)
-- [ ] 문서 업데이트 (README, API Docs)
-- [ ] DB 스키마 문서 업데이트 (변경 시)
-- [ ] 환경 변수 문서화 (추가 시)
-- [ ] Breaking change 없음 (있다면 BREAKING CHANGE 섹션 추가)
+## 📝 Checklist
+- [ ] Code follows project style guide
+- [ ] Self-review completed
+- [ ] Comments added (complex logic)
+- [ ] Documentation updated (README, API Docs)
+- [ ] DB schema documentation updated (if changed)
+- [ ] Environment variables documented (if added)
+- [ ] No breaking changes (add BREAKING CHANGE section if present)
 
 ## 💔 BREAKING CHANGE
-<!-- Breaking change가 있다면 마이그레이션 가이드 제공 -->
+<!-- Provide migration guide if breaking changes exist -->
 
-## 🔄 마이그레이션 가이드
-<!-- Breaking change 시 필수 -->
+## 🔄 Migration Guide
+<!-- Required for breaking changes -->
 
-## 💬 리뷰어를 위한 노트
-<!-- 리뷰어가 특별히 주의 깊게 봐야 할 부분 -->
+## 💬 Notes for Reviewers
+<!-- Areas that reviewers should pay special attention to -->
 ```
 
-### 🔄 PR 워크플로우
+### 🔄 PR Workflow
 
 ```bash
-# 1. 최신 변경사항 가져오기
+# 1. Fetch latest changes
 git fetch upstream
 git checkout main
 git merge upstream/main
 
-# 2. 기능 브랜치 rebase
+# 2. Rebase feature branch
 git checkout feat/your-feature
 git rebase main
 
-# 3. 충돌 해결 (있는 경우)
+# 3. Resolve conflicts (if any)
 git status
-# 충돌 파일 수정
+# Fix conflict files
 git add .
 git rebase --continue
 
-# 4. 푸시
+# 4. Push
 git push origin feat/your-feature
 
-# 5. GitHub에서 PR 생성
+# 5. Create PR on GitHub
 ```
 
-### 👀 코드 리뷰 가이드
+### 👀 Code Review Guide
 
-#### 리뷰어를 위한 가이드
+#### Guide for Reviewers
 
-- **긍정적인 피드백 먼저**: 좋은 점을 먼저 언급
-- **구체적인 제안**: 모호한 표현 대신 구체적인 개선안 제시
-- **질문 형식 활용**: "~하는 것은 어떨까요?"
-- **중요도 표시**: 
-  - 🔴 **필수**: 반드시 수정 필요
-  - 🟡 **제안**: 개선하면 좋음
-  - 🟢 **참고**: 선택사항
+- **Positive feedback first**: Mention good points first
+- **Specific suggestions**: Provide concrete improvement suggestions instead of vague expressions
+- **Use question format**: "How about ~?"
+- **Indicate importance**: 
+  - 🔴 **Required**: Must be fixed
+  - 🟡 **Suggestion**: Good to improve
+  - 🟢 **Reference**: Optional
 
-#### 작성자를 위한 가이드
+#### Guide for Authors
 
-- **리뷰 댓글에 답변**: 모든 댓글에 응답
-- **수정사항 명시**: 어떻게 수정했는지 설명
-- **의견 차이 논의**: 건설적으로 토론
-- **감사 표현**: 리뷰어의 시간과 노력에 감사
+- **Reply to review comments**: Respond to all comments
+- **Specify changes made**: Explain how you fixed issues
+- **Discuss disagreements**: Have constructive discussions
+- **Express gratitude**: Thank reviewers for their time and effort
 
-## 개발 가이드라인
+## Development Guidelines
 
-### 🎨 Frontend 가이드라인
+### 🎨 Frontend Guidelines
 
-#### React 베스트 프랙티스
+#### React Best Practices
 
 ```typescript
-// ✅ 좋은 예: 함수형 컴포넌트 + Hooks
+// ✅ Good example: Functional components + Hooks
 const WorkflowEditor: React.FC = () => {
   const [nodes, setNodes] = useState<Node[]>([]);
   
@@ -658,39 +658,39 @@ const WorkflowEditor: React.FC = () => {
   );
 };
 
-// ❌ 나쁜 예: 클래스 컴포넌트 (레거시)
+// ❌ Bad example: Class components (legacy)
 class WorkflowEditor extends React.Component {
-  // 새 코드에서는 사용하지 않음
+  // Don't use in new code
 }
 ```
 
-#### 컴포넌트 구조
+#### Component Structure
 
 ```
 src/
 ├── components/
-│   ├── common/        # 재사용 가능한 공통 컴포넌트
+│   ├── common/        # Reusable common components
 │   │   ├── Button.tsx
 │   │   └── Card.tsx
-│   ├── workflow/      # 워크플로우 관련 컴포넌트
+│   ├── workflow/      # Workflow-related components
 │   │   ├── WorkflowEditor.tsx
 │   │   └── NodePanel.tsx
-│   └── layout/        # 레이아웃 컴포넌트
+│   └── layout/        # Layout components
 │       ├── Header.tsx
 │       └── Sidebar.tsx
-├── hooks/            # 커스텀 훅
-├── services/         # API 통신
-├── store/           # 상태 관리 (Zustand)
-├── types/           # TypeScript 타입 정의
-└── utils/           # 유틸리티 함수
+├── hooks/            # Custom hooks
+├── services/         # API communication
+├── store/           # State management (Zustand)
+├── types/           # TypeScript type definitions
+└── utils/           # Utility functions
 ```
 
-### 🔧 Backend 가이드라인
+### 🔧 Backend Guidelines
 
-#### FastAPI 베스트 프랙티스
+#### FastAPI Best Practices
 
 ```python
-# ✅ 좋은 예: 의존성 주입, 타입 힌트
+# ✅ Good example: Dependency injection, type hints
 from fastapi import APIRouter, Depends, HTTPException
 from typing import List
 
@@ -704,10 +704,10 @@ async def get_workflows(
     db: AsyncIOMotorDatabase = Depends(get_database)
 ):
     """
-    워크플로우 목록 조회
+    Retrieve workflow list
     
-    - **skip**: 건너뛸 항목 수
-    - **limit**: 반환할 최대 항목 수
+    - **skip**: Number of items to skip
+    - **limit**: Maximum number of items to return
     """
     workflows = await WorkflowService(db).get_workflows(
         user_id=current_user.id,
@@ -717,7 +717,7 @@ async def get_workflows(
     return workflows
 ```
 
-#### 프로젝트 구조
+#### Project Structure
 
 ```
 backend/
@@ -729,42 +729,42 @@ backend/
 │   │       │   └── workflows.py
 │   │       └── router.py
 │   ├── core/
-│   │   ├── config.py      # 설정
-│   │   ├── security.py    # 보안
-│   │   └── database.py    # DB 연결
+│   │   ├── config.py      # Configuration
+│   │   ├── security.py    # Security
+│   │   └── database.py    # DB connection
 │   ├── models/
-│   │   ├── user.py        # Pydantic 모델
+│   │   ├── user.py        # Pydantic models
 │   │   └── workflow.py
 │   ├── services/
-│   │   ├── auth.py        # 비즈니스 로직
+│   │   ├── auth.py        # Business logic
 │   │   └── workflow.py
-│   └── main.py           # 앱 엔트리포인트
+│   └── main.py           # App entry point
 ├── tests/
-├── alembic/              # DB 마이그레이션
+├── alembic/              # DB migrations
 └── requirements.txt
 ```
 
-## 문서화
+## Documentation
 
-### 📚 코드 문서화
+### 📚 Code Documentation
 
 #### Python Docstring
 
 ```python
 def calculate_workflow_complexity(workflow: Workflow) -> float:
     """
-    워크플로우의 복잡도를 계산합니다.
+    Calculate workflow complexity.
     
-    복잡도는 노드 수, 엣지 수, 분기 수를 기반으로 계산됩니다.
+    Complexity is calculated based on number of nodes, edges, and branches.
     
     Args:
-        workflow: 분석할 워크플로우 객체
+        workflow: Workflow object to analyze
         
     Returns:
-        float: 0.0 ~ 1.0 사이의 복잡도 점수
+        float: Complexity score between 0.0 and 1.0
         
     Raises:
-        ValueError: 워크플로우가 비어있는 경우
+        ValueError: When workflow is empty
         
     Example:
         >>> workflow = Workflow(nodes=[...], edges=[...])
@@ -772,9 +772,9 @@ def calculate_workflow_complexity(workflow: Workflow) -> float:
         >>> print(f"Complexity: {complexity:.2f}")
     """
     if not workflow.nodes:
-        raise ValueError("워크플로우에 노드가 없습니다")
+        raise ValueError("No nodes in workflow")
         
-    # 복잡도 계산 로직
+    # Complexity calculation logic
     return complexity
 ```
 
@@ -782,11 +782,11 @@ def calculate_workflow_complexity(workflow: Workflow) -> float:
 
 ```typescript
 /**
- * 워크플로우 노드를 생성합니다.
+ * Create workflow node.
  * 
- * @param {string} type - 노드 타입 (input, process, output)
- * @param {Partial<Node>} properties - 추가 속성
- * @returns {Node} 생성된 노드 객체
+ * @param {string} type - Node type (input, process, output)
+ * @param {Partial<Node>} properties - Additional properties
+ * @returns {Node} Created node object
  * 
  * @example
  * const node = createNode('process', { label: 'Process Data' });
@@ -805,9 +805,9 @@ export function createNode(
 }
 ```
 
-### 📖 README 업데이트
+### 📖 README Updates
 
-데이터베이스 스키마나 API 변경 시 반드시 README.md 업데이트:
+Always update README.md when database schema or API changes:
 
 ```markdown
 ## 📊 Database Schema
@@ -833,34 +833,34 @@ export function createNode(
 ```
 ```
 
-## 도움 받기
+## Getting Help
 
-### 💬 커뮤니케이션 채널
+### 💬 Communication Channels
 
-- **GitHub Discussions**: 질문과 토론
-- **GitHub Issues**: 버그 리포트와 기능 요청
+- **GitHub Discussions**: Questions and discussions
+- **GitHub Issues**: Bug reports and feature requests
 - **Discord**: [Musashi Community](https://discord.gg/musashi)
 - **Email**: maintainers@musashi.dev
 
-### 🎓 학습 리소스
+### 🎓 Learning Resources
 
-- [프로젝트 문서](https://docs.musashi.dev)
-- [API 문서](http://localhost:8000/docs)
-- [컴포넌트 스토리북](http://localhost:6006)
-- [비디오 튜토리얼](https://youtube.com/musashi)
+- [Project Documentation](https://docs.musashi.dev)
+- [API Documentation](http://localhost:8000/docs)
+- [Component Storybook](http://localhost:6006)
+- [Video Tutorials](https://youtube.com/musashi)
 
-### 🏆 기여자 인정
+### 🏆 Contributor Recognition
 
-기여자는 다음에서 인정받습니다:
-- CHANGELOG.md의 기여자 섹션
-- README.md의 Contributors 섹션
-- GitHub Contributors 페이지
-- 주요 기여자는 Core Team으로 초대
+Contributors are recognized in:
+- Contributors section in CHANGELOG.md
+- Contributors section in README.md
+- GitHub Contributors page
+- Major contributors are invited to Core Team
 
-## 라이선스
+## License
 
-기여함으로써 귀하의 기여가 프로젝트와 동일한 라이선스(MIT)로 라이선스됨에 동의합니다.
+By contributing, you agree that your contributions will be licensed under the same license as the project (MIT).
 
 ---
 
-**감사합니다!** 여러분의 기여가 Musashi를 더 나은 프로젝트로 만듭니다. 🚀
+**Thank you!** Your contributions make Musashi a better project. 🚀
