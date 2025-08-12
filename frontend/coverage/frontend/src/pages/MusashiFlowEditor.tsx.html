@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/1188</span>
+                <span class='fraction'>0/1177</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/1188</span>
+                <span class='fraction'>0/1177</span>
             </div>
         
             
@@ -1633,17 +1633,7 @@
 <a name='L1568'></a><a href='#L1568'>1568</a>
 <a name='L1569'></a><a href='#L1569'>1569</a>
 <a name='L1570'></a><a href='#L1570'>1570</a>
-<a name='L1571'></a><a href='#L1571'>1571</a>
-<a name='L1572'></a><a href='#L1572'>1572</a>
-<a name='L1573'></a><a href='#L1573'>1573</a>
-<a name='L1574'></a><a href='#L1574'>1574</a>
-<a name='L1575'></a><a href='#L1575'>1575</a>
-<a name='L1576'></a><a href='#L1576'>1576</a>
-<a name='L1577'></a><a href='#L1577'>1577</a>
-<a name='L1578'></a><a href='#L1578'>1578</a>
-<a name='L1579'></a><a href='#L1579'>1579</a>
-<a name='L1580'></a><a href='#L1580'>1580</a>
-<a name='L1581'></a><a href='#L1581'>1581</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<a name='L1571'></a><a href='#L1571'>1571</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -2097,18 +2087,9 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -2373,7 +2354,6 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -2419,6 +2399,7 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -2742,7 +2723,6 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -3261,7 +3241,7 @@ type Edge = {
   target: string
   sourceHandle?: string
   targetHandle?: string
-  label?: string
+  label?: string | undefined
   type?: string
   animated?: boolean
   data?: any
@@ -3581,7 +3561,7 @@ interface NotificationState {
 <span class="cstat-no" title="statement not covered" >      })</span>
       
 <span class="cstat-no" title="statement not covered" >      const flowEdges: Edge[] = data.edges.map(edge =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >        const direction = edge.data?.direction || 'unidirectional'</span>
+<span class="cstat-no" title="statement not covered" >        const direction = (edge as any).data?.direction || 'unidirectional'</span>
 <span class="cstat-no" title="statement not covered" >        const edgeConfig: Edge = {</span>
 <span class="cstat-no" title="statement not covered" >          id: edge.id,</span>
 <span class="cstat-no" title="statement not covered" >          source: edge.source,</span>
@@ -3677,16 +3657,7 @@ interface NotificationState {
 <span class="cstat-no" title="statement not covered" >    }</span>
 <span class="cstat-no" title="statement not covered" >  }, [workflowId, handleEdgeLabelClick])</span>
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  const saveToLocalStorage = useCallback((nodes: Node[], edges: Edge[]) =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >    const data = {</span>
-<span class="cstat-no" title="statement not covered" >      name: workflowName,</span>
-<span class="cstat-no" title="statement not covered" >      description: workflowDescription,</span>
-<span class="cstat-no" title="statement not covered" >      nodes,</span>
-<span class="cstat-no" title="statement not covered" >      edges,</span>
-<span class="cstat-no" title="statement not covered" >      timestamp: new Date().toISOString(),</span>
-<span class="cstat-no" title="statement not covered" >    }</span>
-<span class="cstat-no" title="statement not covered" >    localStorage.setItem(`workflow_${workflowId}`, JSON.stringify(data))</span>
-<span class="cstat-no" title="statement not covered" >  }, [workflowId, workflowName, workflowDescription])</span>
+  // Removed unused saveToLocalStorage function
   
   // Initialize workflow
 <span class="cstat-no" title="statement not covered" >  useEffect(() =&gt; {</span>
@@ -3767,7 +3738,7 @@ interface NotificationState {
 <span class="cstat-no" title="statement not covered" >    }</span>
 <span class="cstat-no" title="statement not covered" >  }, [])</span>
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  const handleNodeClick = useCallback((event: React.MouseEvent, node: Node) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >  const handleNodeClick = useCallback((_event: React.MouseEvent, node: Node) =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >    setSelectedNode(node)</span>
 <span class="cstat-no" title="statement not covered" >    setLayoutVersion(v =&gt; v + 1) // Trigger fitView when sidebar opens</span>
 <span class="cstat-no" title="statement not covered" >  }, [])</span>
@@ -3778,7 +3749,7 @@ interface NotificationState {
 <span class="cstat-no" title="statement not covered" >  }, [])</span>
 &nbsp;
   // React Flow handlers
-<span class="cstat-no" title="statement not covered" >  const handleNodesChange = useCallback((changes: NodeChange[]) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >  const handleNodesChange = useCallback((_changes: NodeChange[]) =&gt; {</span>
     // Handle node changes if needed
     // For now, we don't allow manual node dragging
 <span class="cstat-no" title="statement not covered" >  }, [])</span>
@@ -3954,7 +3925,6 @@ interface NotificationState {
     
     // Check if Vector Store is involved in the connection (only Vector Store creates bidirectional connections)
 <span class="cstat-no" title="statement not covered" >    const isVectorStoreConnection = sourceNode.type === 'vectorstore' || targetNode.type === 'vectorstore'</span>
-<span class="cstat-no" title="statement not covered" >    const isBidirectionalConnection = isVectorStoreConnection  // Only Vector Store is bidirectional now</span>
     
     // Find the output index for tracking renamed outputs
     // outputKey is already declared above, so just calculate the index
@@ -3975,13 +3945,13 @@ interface NotificationState {
 <span class="cstat-no" title="statement not covered" >        sourceOutput: outputKey,</span>
 <span class="cstat-no" title="statement not covered" >        outputIndex: outputIndex, // Store output index for tracking renames</span>
 <span class="cstat-no" title="statement not covered" >        onLabelClick: handleEdgeLabelClick,</span>
-<span class="cstat-no" title="statement not covered" >        direction: isBidirectionalConnection ? 'bidirectional' : 'unidirectional'</span>
+<span class="cstat-no" title="statement not covered" >        direction: isVectorStoreConnection ? 'bidirectional' : 'unidirectional'</span>
 <span class="cstat-no" title="statement not covered" >      },</span>
 <span class="cstat-no" title="statement not covered" >      markerEnd: {</span>
 <span class="cstat-no" title="statement not covered" >        type: 'arrowclosed',</span>
 <span class="cstat-no" title="statement not covered" >      },</span>
       // Add markerStart for bidirectional connections
-<span class="cstat-no" title="statement not covered" >      ...(isBidirectionalConnection &amp;&amp; {</span>
+<span class="cstat-no" title="statement not covered" >      ...(isVectorStoreConnection &amp;&amp; {</span>
 <span class="cstat-no" title="statement not covered" >        markerStart: {</span>
 <span class="cstat-no" title="statement not covered" >          type: 'arrowclosed',</span>
 <span class="cstat-no" title="statement not covered" >        }</span>
@@ -3997,7 +3967,8 @@ interface NotificationState {
     
 <span class="cstat-no" title="statement not covered" >    const { nodes: layoutedNodes, edges: layoutedEdges } = addEdgeWithLayout(</span>
 <span class="cstat-no" title="statement not covered" >      updatedNodes,</span>
-<span class="cstat-no" title="statement not covered" >      [...edges, newEdge]</span>
+<span class="cstat-no" title="statement not covered" >      edges,</span>
+<span class="cstat-no" title="statement not covered" >      newEdge</span>
 <span class="cstat-no" title="statement not covered" >    )</span>
     
     // Debug: Check if layoutedNodes lost connected_inputs
@@ -4323,7 +4294,6 @@ interface NotificationState {
     
     // Check if Vector Store is involved in the connection (only Vector Store creates bidirectional connections)
 <span class="cstat-no" title="statement not covered" >    const isVectorStoreConnection = sourceNode.type === 'vectorstore' || targetNode.type === 'vectorstore'</span>
-<span class="cstat-no" title="statement not covered" >    const isBidirectionalConnection = isVectorStoreConnection  // Only Vector Store is bidirectional now</span>
     
     // Find the output index for tracking renamed outputs
 <span class="cstat-no" title="statement not covered" >    const outputKey = sourceHandle ? sourceHandle.replace('output-', '') : undefined</span>
@@ -4810,7 +4780,7 @@ interface NotificationState {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-08-11T19:37:19.471Z
+                at 2025-08-12T19:05:34.966Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

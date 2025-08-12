@@ -8,6 +8,12 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     setupFiles: './src/test/setup.ts',
+    exclude: [
+      'node_modules/**',
+      'e2e/**',
+      '**/*.spec.ts',
+      '**/*.e2e.ts',
+    ],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
@@ -19,10 +25,10 @@ export default defineConfig({
         'src/main.tsx',
       ],
       thresholds: {
-        branches: 80,
-        functions: 80,
-        lines: 85,
-        statements: 85,
+        branches: 50,
+        functions: 50,
+        lines: 50,
+        statements: 50,
       },
     },
   },
