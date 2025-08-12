@@ -8,7 +8,7 @@ interface InputItemProps {
   onDelete: () => void
 }
 
-const InputItem: React.FC<InputItemProps> = ({ input, index, onUpdate, onDelete }) => {
+const InputItem: React.FC<InputItemProps> = ({ input, onUpdate, onDelete }) => {
   const [isEditing, setIsEditing] = useState(false)
   const [editKey, setEditKey] = useState(input.key)
   const [editType, setEditType] = useState(input.type)
@@ -55,7 +55,7 @@ const InputItem: React.FC<InputItemProps> = ({ input, index, onUpdate, onDelete 
             cls = 'null'
           }
           
-          const colors = {
+          const colors: Record<string, string> = {
             key: '#0550ae',     // 진한 파란색
             string: '#0a7ea4',  // 파란색
             number: '#0550ae',  // 진한 파란색
@@ -63,7 +63,7 @@ const InputItem: React.FC<InputItemProps> = ({ input, index, onUpdate, onDelete 
             null: '#6e7781'     // 회색
           }
           
-          return `<span style="color: ${colors[cls]}">${match}</span>`
+          return `<span style="color: ${colors[cls] || '#000'}">${match}</span>`
         })
     } catch (e) {
       // JSON이 아닌 경우 원본 반환

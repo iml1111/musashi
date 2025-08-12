@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { X, AlertCircle, Copy, Check, Maximize2, Minimize2, FileText, User, Bot, Plus, Trash2, Edit2, ChevronUp, ChevronDown } from 'lucide-react'
 import { validateSystemPrompt, formatValidationWarning } from '../../utils/systemPromptValidator'
-import { PromptContext, ConnectedInput } from '../../types/node'
-import { getUnusedInputs } from '../../utils/inputUsageChecker'
+import { PromptContext } from '../../types/node'
+// getUnusedInputs is no longer used
 
 interface PromptViewerModalProps {
   isOpen: boolean
@@ -28,7 +28,7 @@ const PromptViewerModal: React.FC<PromptViewerModalProps> = ({
   )
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [copied, setCopied] = useState(false)
-  const [showMarkdownPreview, setShowMarkdownPreview] = useState(true)
+  // Removed unused showMarkdownPreview state
   const [activeTab, setActiveTab] = useState<'developer' | 'prompts' | 'preview'>('developer')
   const [editingPromptIndex, setEditingPromptIndex] = useState<number | null>(null)
   const [isAddingPrompt, setIsAddingPrompt] = useState(false)

@@ -120,7 +120,7 @@ class AuthService {
     return response.json()
   }
 
-  async updateUser(userId: string, userData: UpdateUserRequest): Promise<User> {
+  async updateUser(_userId: string, userData: UpdateUserRequest): Promise<User> {
     const response = await fetch(`${API_BASE_URL}/users/me`, {
       method: 'PUT',
       headers: this.getHeaders(),

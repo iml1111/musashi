@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback, useMemo, useImperativeHandle, forwardRef } from 'react'
+import React, { useEffect, useCallback, useImperativeHandle, forwardRef } from 'react'
 import ReactFlow, {
   Node,
   Edge,
@@ -54,7 +54,7 @@ const FlowCanvasInner = forwardRef<FlowCanvasHandle, FlowCanvasProps>(({
   fitViewOptions,
   isSidebarOpen,
 }, ref) => {
-  const { fitView, zoomIn, zoomOut, getViewport, setViewport, getNodes, project } = useReactFlow()
+  const { fitView, zoomIn, zoomOut, getViewport, setViewport, getNodes } = useReactFlow()
   const [isInteractive, setIsInteractive] = React.useState(true)
   const [isMounted, setIsMounted] = React.useState(false)
 
@@ -124,8 +124,7 @@ const FlowCanvasInner = forwardRef<FlowCanvasHandle, FlowCanvasProps>(({
         return
       }
 
-      // Get viewport dimensions
-      const viewport = getViewport()
+      // Get container for measurements
       const container = document.querySelector('.react-flow') as HTMLElement
       
       if (!container) {
@@ -186,7 +185,7 @@ const FlowCanvasInner = forwardRef<FlowCanvasHandle, FlowCanvasProps>(({
       // As last resort, try the native fitView with error suppression
       try {
         const padding = isSidebarOpen 
-          ? { top: 0.1, right: 0.35, bottom: 0.1, left: 0.1 }
+          ? 0.35  // Use number for sidebar case too
           : 0.1
         
         fitView({

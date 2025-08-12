@@ -62,7 +62,6 @@ export const CustomEdge = ({
   
   // Check if this is a locked tool connection
   const isToolConnection = data?.locked === true
-  const isBidirectional = data?.direction === 'bidirectional'
   
   let edgePath: string
   

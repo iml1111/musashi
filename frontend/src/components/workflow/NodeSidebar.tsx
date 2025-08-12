@@ -7,14 +7,14 @@ import {
 } from 'lucide-react'
 import { nodeDescriptions } from '../../constants/nodeDescriptions'
 import OutputConnectionBox from './OutputConnectionBox'
-import InputItem from './InputItem'
+// InputItem component is no longer used directly
 import ModelDropdown from './ModelDropdown'
 import PromptViewerModal from './PromptViewerModal'
 import { validateAgentConnections, validateUserInputToAgentConnections } from '../../utils/connectionValidator'
 import { validateSystemPrompt, formatValidationWarning } from '../../utils/systemPromptValidator'
 import { ConnectedInput, ConnectedOutput, isFinalOutputNode } from '../../types/node'
 import ConnectedOutputViewer from './ConnectedOutputViewer'
-import { getUnusedInputs, areAllInputsUsed } from '../../utils/inputUsageChecker'
+import { getUnusedInputs } from '../../utils/inputUsageChecker'
 
 // OutputItem 컴포넌트
 interface OutputItemProps {
@@ -24,7 +24,7 @@ interface OutputItemProps {
   onDelete?: () => void
 }
 
-const OutputItem: React.FC<OutputItemProps> = ({ output, index, onUpdate, onDelete }) => {
+const OutputItem: React.FC<OutputItemProps> = ({ output, onUpdate, onDelete }) => {
   const [isEditing, setIsEditing] = useState(false)
   const [editKey, setEditKey] = useState(output.key)
   const [editType, setEditType] = useState(output.type)
@@ -71,7 +71,7 @@ const OutputItem: React.FC<OutputItemProps> = ({ output, index, onUpdate, onDele
             cls = 'null'
           }
           
-          const colors = {
+          const colors: Record<string, string> = {
             key: '#0550ae',     // 진한 파란색
             string: '#0a7ea4',  // 파란색
             number: '#0550ae',  // 진한 파란색
@@ -79,7 +79,7 @@ const OutputItem: React.FC<OutputItemProps> = ({ output, index, onUpdate, onDele
             null: '#6e7781'     // 회색
           }
           
-          return `<span style="color: ${colors[cls]}">${match}</span>`
+          return `<span style="color: ${colors[cls] || '#000'}">${match}</span>`
         })
     } catch (e) {
       // JSON이 아닌 경우 원본 반환

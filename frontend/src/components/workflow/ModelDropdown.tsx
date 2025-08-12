@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { ChevronDown } from 'lucide-react'
-import { MODEL_LIST, MODELS_BY_PROVIDER } from '../../constants/modelList'
+import { MODEL_LIST } from '../../constants/modelList'
 
 interface ModelDropdownProps {
   value: string

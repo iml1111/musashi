@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Node, Edge } from '../../types/flow'
-import { Plus, Unlink, ArrowRight, ArrowLeftRight } from 'lucide-react'
+import { Plus, Unlink } from 'lucide-react'
 import { getNodeIcon, getNodeIconClass } from '../../utils/nodeIcons'
 import NodeDropdown from './NodeDropdown'
 import EdgeDirectionSelector from './EdgeDirectionSelector'

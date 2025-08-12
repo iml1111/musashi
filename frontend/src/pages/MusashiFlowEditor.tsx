@@ -452,16 +452,7 @@ const MusashiFlowEditor: React.FC = () => {
     }
   }, [workflowId, handleEdgeLabelClick])
 
-  const saveToLocalStorage = useCallback((nodes: Node[], edges: Edge[]) => {
-    const data = {
-      name: workflowName,
-      description: workflowDescription,
-      nodes,
-      edges,
-      timestamp: new Date().toISOString(),
-    }
-    localStorage.setItem(`workflow_${workflowId}`, JSON.stringify(data))
-  }, [workflowId, workflowName, workflowDescription])
+  // Removed unused saveToLocalStorage function
   
   // Initialize workflow
   useEffect(() => {
@@ -542,7 +533,7 @@ const MusashiFlowEditor: React.FC = () => {
     }
   }, [])
 
-  const handleNodeClick = useCallback((event: React.MouseEvent, node: Node) => {
+  const handleNodeClick = useCallback((_event: React.MouseEvent, node: Node) => {
     setSelectedNode(node)
     setLayoutVersion(v => v + 1) // Trigger fitView when sidebar opens
   }, [])
@@ -553,7 +544,7 @@ const MusashiFlowEditor: React.FC = () => {
   }, [])
 
   // React Flow handlers
-  const handleNodesChange = useCallback((changes: NodeChange[]) => {
+  const handleNodesChange = useCallback((_changes: NodeChange[]) => {
     // Handle node changes if needed
     // For now, we don't allow manual node dragging
   }, [])
@@ -729,7 +720,6 @@ const MusashiFlowEditor: React.FC = () => {
     
     // Check if Vector Store is involved in the connection (only Vector Store creates bidirectional connections)
     const isVectorStoreConnection = sourceNode.type === 'vectorstore' || targetNode.type === 'vectorstore'
-    const isBidirectionalConnection = isVectorStoreConnection  // Only Vector Store is bidirectional now
     
     // Find the output index for tracking renamed outputs
     // outputKey is already declared above, so just calculate the index
@@ -750,13 +740,13 @@ const MusashiFlowEditor: React.FC = () => {
         sourceOutput: outputKey,
         outputIndex: outputIndex, // Store output index for tracking renames
         onLabelClick: handleEdgeLabelClick,
-        direction: isBidirectionalConnection ? 'bidirectional' : 'unidirectional'
+        direction: isVectorStoreConnection ? 'bidirectional' : 'unidirectional'
       },
       markerEnd: {
         type: 'arrowclosed',
       },
       // Add markerStart for bidirectional connections
-      ...(isBidirectionalConnection && {
+      ...(isVectorStoreConnection && {
         markerStart: {
           type: 'arrowclosed',
         }
@@ -772,7 +762,8 @@ const MusashiFlowEditor: React.FC = () => {
     
     const { nodes: layoutedNodes, edges: layoutedEdges } = addEdgeWithLayout(
       updatedNodes,
-      [...edges, newEdge]
+      edges,
+      newEdge
     )
     
     // Debug: Check if layoutedNodes lost connected_inputs
@@ -1098,7 +1089,6 @@ const MusashiFlowEditor: React.FC = () => {
     
     // Check if Vector Store is involved in the connection (only Vector Store creates bidirectional connections)
     const isVectorStoreConnection = sourceNode.type === 'vectorstore' || targetNode.type === 'vectorstore'
-    const isBidirectionalConnection = isVectorStoreConnection  // Only Vector Store is bidirectional now
     
     // Find the output index for tracking renamed outputs
     const outputKey = sourceHandle ? sourceHandle.replace('output-', '') : undefined
