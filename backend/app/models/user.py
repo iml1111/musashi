@@ -13,7 +13,7 @@ class UserRole(str, Enum):
 
 class UserBase(BaseModel):
     username: str = Field(
-        ..., min_length=1, max_length=50, description="Username must be 1-50 characters"
+        ..., min_length=3, max_length=50, description="Username must be 3-50 characters"
     )
     email: Optional[EmailStr] = None
     full_name: Optional[str] = None
@@ -25,8 +25,8 @@ class UserBase(BaseModel):
     def validate_username_length(cls, v: str) -> str:
         if len(v) > 50:
             raise ValueError("Username must be 50 characters or less")
-        if len(v) < 1:
-            raise ValueError("Username must be at least 1 character")
+        if len(v) < 3:
+            raise ValueError("Username must be at least 3 characters")
         return v
 
     @field_validator("email", mode="before")
