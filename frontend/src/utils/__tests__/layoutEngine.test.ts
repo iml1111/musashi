@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { calculateLayout, addNodeWithLayout, removeNodeWithLayout } from '../layoutEngine'
 import { Node, Edge } from '../../types/flow'
 
@@ -84,8 +84,8 @@ describe('layoutEngine', () => {
       
       expect(result.nodes).toHaveLength(3)
       result.nodes.forEach(node => {
-        expect(node.position.x).toBeTypeOf('number')
-        expect(node.position.y).toBeTypeOf('number')
+        expect(node.position?.x).toBeTypeOf('number')
+        expect(node.position?.y).toBeTypeOf('number')
       })
     })
 
@@ -119,8 +119,8 @@ describe('layoutEngine', () => {
       const result = calculateLayout(nodes, edges)
       
       expect(result.nodes).toHaveLength(2)
-      expect(result.nodes[0].position.x).not.toBeNaN()
-      expect(result.nodes[0].position.y).not.toBeNaN()
+      expect(result.nodes[0].position?.x).not.toBeNaN()
+      expect(result.nodes[0].position?.y).not.toBeNaN()
     })
   })
 

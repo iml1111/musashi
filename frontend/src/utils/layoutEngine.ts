@@ -72,8 +72,8 @@ export function calculateLayout(
   const layoutedNodes = nodes.map((node) => {
     const nodeWithPosition = g.node(node.id);
     const position: XYPosition = {
-      x: nodeWithPosition.x - nodeWidth / 2,
-      y: nodeWithPosition.y - nodeHeight / 2,
+      x: nodeWithPosition.x - (nodeWidth || 200) / 2,
+      y: nodeWithPosition.y - (nodeHeight || 80) / 2,
     };
 
     

@@ -9,12 +9,7 @@ import {
   Zap, 
   CheckCircle,
   Box,
-  FileText,
-  MessageSquare,
-  Plug,
-  FolderSearch,
-  Terminal,
-  Image
+  FileText
 } from 'lucide-react'
 
 // Icon mapping for each node type
@@ -445,7 +440,7 @@ const SafeAgentNode = ({ data, id }: any) => {
 
 // Create individual node components
 
-const VectorStoreNode = ({ data, id }: any) => {
+const VectorStoreNode = ({ data, id: _id }: any) => {
   const dbType = data?.parameters?.type || 'mongodb'
   const outputs = data?.outputs || []
   const outputCount = Math.min(outputs.length, 30)
@@ -550,7 +545,7 @@ const VectorStoreNode = ({ data, id }: any) => {
   )
 }
 
-const KnowledgeBaseNode = ({ data, id }: any) => {
+const KnowledgeBaseNode = ({ data, id: _id }: any) => {
   const dbType = data?.parameters?.type || 'postgresql'
   const outputs = data?.outputs || []
   const outputCount = Math.min(outputs.length, 30)
@@ -660,7 +655,7 @@ const KnowledgeBaseNode = ({ data, id }: any) => {
 }
 
 // Custom MCP Node - Can receive inputs from Agent nodes and send outputs
-const SafeMCPNode = ({ data, id }: any) => {
+const SafeMCPNode = ({ data, id: _id }: any) => {
   const connectedInputs = data?.connected_inputs || []
   const outputs = data?.outputs || []
   const inputCount = connectedInputs.length
@@ -764,7 +759,7 @@ const MCPNode = (props: any) => {
 }
 
 // Custom Function Node - Can receive inputs from other nodes and send outputs
-const SafeFunctionNode = ({ data, id }: any) => {
+const SafeFunctionNode = ({ data, id: _id }: any) => {
   const connectedInputs = data?.connected_inputs || []
   const outputs = data?.outputs || []
   const inputCount = connectedInputs.length

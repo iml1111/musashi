@@ -89,7 +89,7 @@ const AdminDashboard: React.FC = () => {
       // Clean up empty strings and undefined values
       const cleanedForm = Object.entries(editForm).reduce((acc, [key, value]) => {
         if (value !== undefined && value !== '') {
-          acc[key] = value
+          (acc as any)[key] = value
         }
         return acc
       }, {} as AdminUpdateUserRequest)

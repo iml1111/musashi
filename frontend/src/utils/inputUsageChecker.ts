@@ -1,17 +1,5 @@
 import { ConnectedInput, PromptContext } from '../types/node'
 
-/**
- * Check if an input is used in a given text
- * @param text The text to search in
- * @param inputKey The input key to search for (without $$)
- * @returns Boolean indicating if the input is used
- */
-const isInputUsedInText = (text: string, inputKey: string): boolean => {
-  if (!text || !inputKey) return false
-  // Check for $$inputKey$$ pattern
-  const pattern = new RegExp(`\\$\\$${inputKey}\\$\\$`, 'g')
-  return pattern.test(text)
-}
 
 /**
  * Get all used inputs from a text

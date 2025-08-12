@@ -147,23 +147,19 @@ const SystemPromptModal: React.FC<SystemPromptModalProps> = ({
         )
       }
       
-      // Bold and italic
-      let processedLine = line
+      // Bold and italic processing
       const boldRegex = /\*\*(.+?)\*\*/g
       const italicRegex = /\*(.+?)\*/g
       const codeRegex = /`(.+?)`/g
       
       if (boldRegex.test(line) || italicRegex.test(line) || codeRegex.test(line)) {
-        const parts = []
-        let lastIndex = 0
-        let match
         
         // Process inline code first
-        const tempLine = line.replace(codeRegex, (m, p1) => `<CODE>${p1}</CODE>`)
+        const tempLine = line.replace(codeRegex, (_m, p1) => `<CODE>${p1}</CODE>`)
         // Then bold
-        const tempLine2 = tempLine.replace(boldRegex, (m, p1) => `<BOLD>${p1}</BOLD>`)
+        const tempLine2 = tempLine.replace(boldRegex, (_m, p1) => `<BOLD>${p1}</BOLD>`)
         // Then italic
-        const finalLine = tempLine2.replace(italicRegex, (m, p1) => `<ITALIC>${p1}</ITALIC>`)
+        const finalLine = tempLine2.replace(italicRegex, (_m, p1) => `<ITALIC>${p1}</ITALIC>`)
         
         // Split and render
         const segments = finalLine.split(/(<CODE>.*?<\/CODE>|<BOLD>.*?<\/BOLD>|<ITALIC>.*?<\/ITALIC>)/g)
@@ -227,61 +223,6 @@ const SystemPromptModal: React.FC<SystemPromptModalProps> = ({
     return text
   }
 
-  // Custom Markdown components to highlight tokens
-  const markdownComponents = {
-    p: ({ children }: any) => {
-      return <p>{processTextWithTokens(children)}</p>
-    },
-    h1: ({ children }: any) => {
-      return <h1 className="text-3xl font-bold mb-4">{processTextWithTokens(children)}</h1>
-    },
-    h2: ({ children }: any) => {
-      return <h2 className="text-2xl font-bold mb-3">{processTextWithTokens(children)}</h2>
-    },
-    h3: ({ children }: any) => {
-      return <h3 className="text-xl font-bold mb-2">{processTextWithTokens(children)}</h3>
-    },
-    h4: ({ children }: any) => {
-      return <h4 className="text-lg font-semibold mb-2">{processTextWithTokens(children)}</h4>
-    },
-    h5: ({ children }: any) => {
-      return <h5 className="text-base font-semibold mb-1">{processTextWithTokens(children)}</h5>
-    },
-    h6: ({ children }: any) => {
-      return <h6 className="text-sm font-semibold mb-1">{processTextWithTokens(children)}</h6>
-    },
-    li: ({ children }: any) => {
-      return <li>{processTextWithTokens(children)}</li>
-    },
-    strong: ({ children }: any) => {
-      return <strong className="font-bold">{processTextWithTokens(children)}</strong>
-    },
-    em: ({ children }: any) => {
-      return <em className="italic">{processTextWithTokens(children)}</em>
-    },
-    code: ({ children }: any) => {
-      return <code className="bg-gray-100 px-1 py-0.5 rounded font-mono text-sm">{children}</code>
-    },
-    pre: ({ children }: any) => {
-      return (
-        <pre className="bg-gray-100 p-3 rounded overflow-x-auto mb-4">
-          {children}
-        </pre>
-      )
-    },
-    ul: ({ children }: any) => {
-      return <ul className="list-disc list-inside mb-4">{children}</ul>
-    },
-    ol: ({ children }: any) => {
-      return <ol className="list-decimal list-inside mb-4">{children}</ol>
-    },
-    blockquote: ({ children }: any) => {
-      return <blockquote className="border-l-4 border-gray-300 pl-4 italic my-4">{children}</blockquote>
-    },
-    hr: () => {
-      return <hr className="my-4 border-gray-300" />
-    }
-  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">

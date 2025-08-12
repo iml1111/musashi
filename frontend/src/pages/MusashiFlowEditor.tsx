@@ -36,7 +36,7 @@ type Edge = {
   target: string
   sourceHandle?: string
   targetHandle?: string
-  label?: string
+  label?: string | undefined
   type?: string
   animated?: boolean
   data?: any
@@ -356,7 +356,7 @@ const MusashiFlowEditor: React.FC = () => {
       })
       
       const flowEdges: Edge[] = data.edges.map(edge => {
-        const direction = edge.data?.direction || 'unidirectional'
+        const direction = (edge as any).data?.direction || 'unidirectional'
         const edgeConfig: Edge = {
           id: edge.id,
           source: edge.source,

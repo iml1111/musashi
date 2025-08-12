@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react'
 import { X, Copy, Search, Maximize2, Minimize2, FileText, Check, User, Bot } from 'lucide-react'
-import { Typography, Card } from '../common'
 import { PromptContext } from '../../types/node'
 
 interface SystemPromptViewModalProps {
@@ -58,14 +57,14 @@ const SystemPromptViewModal: React.FC<SystemPromptViewModalProps> = ({
   const handleCopy = async () => {
     try {
       let textToCopy = systemPrompt
-      if (activeTab === 'preview' || activeTab === 'prompts') {
+      if (activeTab === 'preview') {
         textToCopy = `Developer Message:\n${systemPrompt}\n\n${
           prompts.length > 0 
-            ? `Prompt Context:\n${prompts.map((p, i) => `${i + 1}. [${p.type}]: ${p.content}`).join('\n\n')}`
+            ? `Prompt Context:\n${prompts.map((p, _i) => `${_i + 1}. [${p.type}]: ${p.content}`).join('\n\n')}`
             : ''
         }`
       } else if (activeTab === 'prompts') {
-        textToCopy = prompts.map((p, i) => `[${p.type}]: ${p.content}`).join('\n\n')
+        textToCopy = prompts.map((p, _i) => `[${p.type}]: ${p.content}`).join('\n\n')
       }
       await navigator.clipboard.writeText(textToCopy)
       setCopied(true)

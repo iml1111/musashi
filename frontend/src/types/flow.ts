@@ -13,7 +13,7 @@ export type Edge = {
   target: string
   sourceHandle?: string
   targetHandle?: string
-  label?: string | React.ReactNode
+  label?: string | undefined
   type?: string
   animated?: boolean
   data?: any
