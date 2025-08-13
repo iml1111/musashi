@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
-from app.models.user import Token, LoginRequest, User
+from app.models.user import Token, LoginRequest, User, UserCreate
 from app.services.auth import AuthService, get_current_active_user_dependency
+from app.services.user import UserService
 from app.core.database import get_database
 
 router = APIRouter()
@@ -39,6 +40,34 @@ async def login_form(form_data: OAuth2PasswordRequestForm = Depends(), db=Depend
 async def read_users_me(current_user: User = Depends(get_current_active_user_dependency)):
     """Get current user info"""
     return current_user
+
+
+@router.post("/register", response_model=Token)
+async def register(user_data: UserCreate, db=Depends(get_database)):
+    """Register a new user"""
+    user_service = UserService(db)
+    auth_service = AuthService(db)
+    
+    # Create the user
+    try:
+        await user_service.create_user(user_data)
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )
+    
+    # Authenticate the newly created user
+    token = await auth_service.authenticate_user(user_data.username, user_data.password)
+    if not token:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to authenticate after registration"
+        )
+    
+    return token
 
 
 @router.post("/logout")
