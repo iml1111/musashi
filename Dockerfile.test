@@ -24,7 +24,7 @@ RUN pip install --no-cache-dir --user -r /tmp/requirements.txt \
     && find /root/.local -name "*.pyc" -delete
 
 # Stage 4: Production Runtime
-FROM nginx:1.24-alpine AS runtime
+FROM nginx:1.29-alpine AS runtime
 
 # Install Python and create user
 RUN apk add --no-cache python3 py3-pip dumb-init curl shadow \
