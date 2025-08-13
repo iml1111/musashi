@@ -51,13 +51,13 @@ if [[ "$python_version" != "3.12" ]]; then
     echo -e "${RED}⚠️  경고: CI는 Python 3.12를 사용합니다. 현재 버전과 다를 수 있습니다.${NC}"
 fi
 
-# Node.js 버전 확인 (CI에서는 18 사용)
+# Node.js 버전 확인 (CI에서는 20 사용)
 echo -e "\n${YELLOW}📦 Node.js 환경 확인...${NC}"
 if command -v node &> /dev/null; then
     node_version=$(node --version | cut -d'v' -f2 | cut -d'.' -f1)
     echo "현재 Node.js 버전: v$(node --version | cut -d'v' -f2)"
-    if [[ "$node_version" != "18" ]]; then
-        echo -e "${RED}⚠️  경고: CI는 Node.js 18을 사용합니다. 현재 버전과 다를 수 있습니다.${NC}"
+    if [[ "$node_version" != "20" ]]; then
+        echo -e "${RED}⚠️  경고: CI는 Node.js 20을 사용합니다. 현재 버전과 다를 수 있습니다.${NC}"
     fi
 else
     echo -e "${RED}❌ Node.js가 설치되지 않았습니다.${NC}"
@@ -147,17 +147,68 @@ else
 fi
 
 # =============================================================================
-# Docker 빌드 테스트 (선택사항)
+# Docker 빌드 및 컴포즈 테스트 (GitHub Actions와 동일)
 # =============================================================================
 
 cd "$PROJECT_ROOT"
 
 echo -e "\n${YELLOW}🐳 Docker 빌드 테스트...${NC}"
-if docker-compose build; then
+if docker compose build; then
     echo -e "${GREEN}✅ Docker 빌드 통과${NC}"
 else
     echo -e "${RED}❌ Docker 빌드 실패${NC}"
     DOCKER_BUILD_FAILED=1
+fi
+
+echo -e "\n${YELLOW}🐳 Docker Compose 헬스체크 테스트...${NC}"
+# GitHub Actions CI와 동일한 환경변수 설정
+export SECRET_KEY="test-secret-key-for-ci"
+export MONGODB_URL="mongodb://mongo:27017"
+export DATABASE_NAME="musashi_test"
+
+# 기존 컨테이너 정리
+docker compose down 2>/dev/null || true
+
+# 서비스 시작
+echo "Docker Compose 서비스 시작..."
+if docker compose up -d; then
+    echo "컨테이너 시작됨. 대기 중..."
+    sleep 30
+    
+    # 컨테이너 상태 확인
+    echo "=== 컨테이너 상태 ==="
+    docker compose ps
+    
+    # 로그 확인
+    echo "=== Mongo 로그 ==="
+    docker compose logs mongo | tail -10
+    echo "=== App 로그 ==="
+    docker compose logs musashi | tail -20
+    
+    # MongoDB 연결 테스트
+    if docker compose exec -T mongo mongosh --quiet --eval "db.runCommand('ping')" 2>/dev/null; then
+        echo -e "${GREEN}✅ MongoDB 연결 성공${NC}"
+    else
+        echo -e "${RED}❌ MongoDB 연결 실패${NC}"
+        DOCKER_MONGO_FAILED=1
+    fi
+    
+    # 앱 헬스체크 테스트 (GitHub Actions와 동일한 방식)
+    echo "앱 연결 테스트..."
+    if timeout 30 bash -c 'until docker compose exec -T musashi curl -sf http://localhost:8080/api/v1/health; do sleep 2; done'; then
+        echo -e "${GREEN}✅ 앱 헬스체크 성공${NC}"
+    else
+        echo -e "${RED}❌ 앱 헬스체크 실패${NC}"
+        echo "대체 연결 테스트..."
+        docker compose exec -T musashi curl -v http://localhost:8080/ || echo "직접 연결 실패"
+        DOCKER_HEALTH_FAILED=1
+    fi
+    
+    # 정리
+    docker compose down
+else
+    echo -e "${RED}❌ Docker Compose 시작 실패${NC}"
+    DOCKER_COMPOSE_FAILED=1
 fi
 
 # =============================================================================
@@ -209,6 +260,27 @@ if [[ -n "$DOCKER_BUILD_FAILED" ]]; then
     ((FAILED_COUNT++))
 else
     echo -e "${GREEN}✅ Docker 빌드 성공${NC}"
+fi
+
+if [[ -n "$DOCKER_COMPOSE_FAILED" ]]; then
+    echo -e "${RED}❌ Docker Compose 시작 실패${NC}"
+    ((FAILED_COUNT++))
+else
+    echo -e "${GREEN}✅ Docker Compose 시작 성공${NC}"
+fi
+
+if [[ -n "$DOCKER_MONGO_FAILED" ]]; then
+    echo -e "${RED}❌ MongoDB 연결 실패${NC}"
+    ((FAILED_COUNT++))
+else
+    echo -e "${GREEN}✅ MongoDB 연결 성공${NC}"
+fi
+
+if [[ -n "$DOCKER_HEALTH_FAILED" ]]; then
+    echo -e "${RED}❌ 앱 헬스체크 실패${NC}"
+    ((FAILED_COUNT++))
+else
+    echo -e "${GREEN}✅ 앱 헬스체크 성공${NC}"
 fi
 
 # MongoDB 컨테이너 정리

@@ -41,14 +41,8 @@ services:
         condition: service_healthy
     healthcheck:
       test: 
-        - "CMD"
-        - "curl"
-        - "-f"
-        - "http://localhost:8080/health"
-        - "&&"
-        - "curl"
-        - "-f" 
-        - "http://localhost:8080/api/v1/health"
+        - "CMD-SHELL"
+        - "curl -f http://localhost:8080/health && curl -f http://localhost:8080/api/v1/health"
       interval: 30s
       timeout: 10s
       retries: 3
@@ -101,14 +95,8 @@ services:
         reservations:
           memory: 512M
           cpus: '0.5'
-    # Security: Run as non-root user
-    user: "999:999"
-    command: >
-      mongod 
-      --auth
-      --bind_ip_all
-      --logpath /var/log/mongodb/mongod.log
-      --logappend
+    # Use default MongoDB setup for compatibility
+    # In production, enable authentication and custom logging
 
   # Optional: Redis for caching (uncomment if needed)
   # redis:
