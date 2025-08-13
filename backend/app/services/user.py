@@ -30,9 +30,12 @@ class UserService:
         # Check if username already exists
         existing_user = await self.collection.find_one({"username": user.username})
         if existing_user:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, detail="Username already exists"
-            )
+            raise ValueError("Username already registered")
+            
+        # Check if email already exists
+        existing_email = await self.collection.find_one({"email": user.email})
+        if existing_email:
+            raise ValueError("Email already registered")
 
         hashed_password = self.auth_service.get_password_hash(user.password)
         user_data = user.model_dump(exclude={"password"})

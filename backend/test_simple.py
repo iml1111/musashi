@@ -5,7 +5,6 @@ print("=== Simple FastAPI Test ===")
 try:
     print("1. Testing basic imports...")
     import sys
-    import os
     print(f"Python path: {sys.path}")
     print(f"Python version: {sys.version}")
     

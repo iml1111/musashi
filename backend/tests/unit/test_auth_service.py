@@ -200,7 +200,6 @@ class TestAuthService:
     async def test_get_current_admin_user_success(self, auth_service, mock_db, sample_admin_user):
         """Test getting current admin user."""
         from unittest.mock import AsyncMock
-        from app.models.user import User
 
         mock_db.users.find_one = AsyncMock(return_value=sample_admin_user)
         
@@ -219,7 +218,6 @@ class TestAuthService:
     async def test_get_current_admin_user_failure(self, auth_service, mock_db, sample_user):
         """Test admin access with regular user."""
         from unittest.mock import AsyncMock
-        from fastapi import HTTPException
         
         mock_db.users.find_one = AsyncMock(return_value=sample_user)
         

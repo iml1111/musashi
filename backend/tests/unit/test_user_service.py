@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import MagicMock
 from bson import ObjectId
 from datetime import datetime
 
@@ -32,7 +32,7 @@ class TestUserService:
                 "email": "new@example.com",
                 "hashed_password": "hashed_password",
                 "is_active": True,
-                "roles": ["user"],
+                "role": "user",
                 "created_at": datetime.utcnow(),
                 "updated_at": datetime.utcnow(),
             },
@@ -44,7 +44,7 @@ class TestUserService:
         assert result.username == "newuser"
         assert result.email == "new@example.com"
         assert result.is_active is True
-        assert "user" in result.roles
+        assert result.role == "user"
         mock_db.users.insert_one.assert_called_once()
 
     @pytest.mark.asyncio
@@ -112,7 +112,13 @@ class TestUserService:
         mock_cursor = MagicMock()
         mock_cursor.skip.return_value = mock_cursor
         mock_cursor.limit.return_value = mock_cursor
-        mock_cursor.to_list = AsyncMock(return_value=[sample_user, sample_admin_user])
+        
+        # Mock async iterator for cursor
+        async def async_iter(cursor):
+            for user in [sample_user, sample_admin_user]:
+                yield user
+        mock_cursor.__aiter__ = async_iter
+        
         mock_db.users.find.return_value = mock_cursor
 
         result = await user_service.get_users(skip=10, limit=20)

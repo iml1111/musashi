@@ -17,12 +17,18 @@ class WorkflowService:
         workflow_data["version"] = 1
         result = await self.collection.insert_one(workflow_data)
         created_workflow = await self.collection.find_one({"_id": result.inserted_id})
+        if created_workflow:
+            created_workflow["id"] = str(created_workflow["_id"])
+            created_workflow.pop("_id", None)
         return Workflow(**created_workflow)
 
     async def get_workflow(self, workflow_id: str) -> Optional[Workflow]:
         if not ObjectId.is_valid(workflow_id):
             return None
         workflow = await self.collection.find_one({"_id": ObjectId(workflow_id)})
+        if workflow:
+            workflow["id"] = str(workflow["_id"])
+            workflow.pop("_id", None)
         return Workflow(**workflow) if workflow else None
 
     async def get_workflows(
@@ -33,6 +39,9 @@ class WorkflowService:
             filter_query["owner_id"] = owner_id
         cursor = self.collection.find(filter_query).skip(skip).limit(limit)
         workflows = await cursor.to_list(length=limit)
+        for workflow in workflows:
+            workflow["id"] = str(workflow["_id"])
+            workflow.pop("_id", None)
         return [Workflow(**workflow) for workflow in workflows]
 
     async def update_workflow(
@@ -81,10 +90,29 @@ class WorkflowService:
 
     async def get_workflow_by_share_token(self, share_token: str) -> Optional[Workflow]:
         workflow = await self.collection.find_one({"share_token": share_token, "is_public": True})
+        if workflow:
+            workflow["id"] = str(workflow["_id"])
+            workflow.pop("_id", None)
         return Workflow(**workflow) if workflow else None
 
     async def generate_share_token(self, workflow_id: str) -> Optional[str]:
         """Generate and return share token for a workflow"""
-        workflow = await self.share_workflow(workflow_id, "")  # Empty owner_id for testing
-        return workflow.share_token if workflow else None
+        if not ObjectId.is_valid(workflow_id):
+            return None
+        
+        # Check if workflow exists
+        workflow = await self.get_workflow(workflow_id)
+        if not workflow:
+            return None
+
+        # Generate share token if not exists
+        if not workflow.share_token:
+            share_token = secrets.token_urlsafe(16)
+            await self.collection.update_one(
+                {"_id": ObjectId(workflow_id)},
+                {"$set": {"share_token": share_token, "is_public": True}},
+            )
+            return share_token
+        
+        return workflow.share_token
 

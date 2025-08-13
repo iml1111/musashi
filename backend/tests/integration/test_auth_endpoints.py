@@ -98,6 +98,7 @@ class TestAuthEndpoints:
         }
         mock_db.users.find_one = AsyncMock(side_effect=[
             None,  # Check for existing username in create_user
+            None,  # Check for existing email in create_user 
             created_user,  # Return created user after insert in create_user
             created_user,  # Return user for authentication in authenticate_user
         ])
