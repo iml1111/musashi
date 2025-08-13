@@ -10,7 +10,7 @@
 </div>
 
 <div align="center">
-  <h3>Cut the code. Shape the flow.</h3>
+  <h3>Flow Sharp, Ship Fast.</h3>
   <p>Reduce code complexity, create powerful workflows.</p>
 </div>
 

@@ -175,7 +175,7 @@ const Footer: React.FC<FooterProps> = ({
               </div>
               <Typography variant="body" className="mb-6" style={{ color: theme.palette.gray[400] }}>
                 AI Agent Workflow Design Tool that focuses on visual workflow creation. 
-                Cut the code. Shape the flow.
+                Flow Sharp, Ship Fast.
               </Typography>
               {showSocial && (
                 <div className="flex space-x-4">

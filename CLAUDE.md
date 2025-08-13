@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Musashi is an AI Agent Workflow Design Tool that focuses on visual workflow creation without execution capabilities. The mission is "Cut the code. Shape the flow." - providing a lightweight, open-source tool for designing agentic workflows through node/edge-based flow charts.
+Musashi is an AI Agent Workflow Design Tool that focuses on visual workflow creation without execution capabilities. The mission is "Flow Sharp, Ship Fast." - providing a lightweight, open-source tool for designing agentic workflows through node/edge-based flow charts.
 
 **Key Principles:**
 - Design-only focus (no execution/simulation)

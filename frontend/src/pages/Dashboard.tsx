@@ -209,7 +209,7 @@ const Dashboard: React.FC = () => {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
               <h1 className="text-2xl font-bold text-gray-900">Musashi</h1>
-              <span className="ml-3 text-sm text-gray-500">Cut the code. Shape the flow.</span>
+              <span className="ml-3 text-sm text-gray-500">Flow Sharp, Ship Fast.</span>
             </div>
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-2 text-sm text-gray-700">
