@@ -1,27 +1,27 @@
 # Musashi Component Guidelines
 
-프로젝트의 일관성과 유지보수성을 위한 컴포넌트 사용 가이드라인입니다.
+Component Usage Guidelines for project consistency and maintainability.
 
-## 🎯 핵심 원칙
+## 🎯 Core Principles
 
-### 1. **기존 컴포넌트 우선 사용 (Component First)**
-- 새로운 UI가 필요할 때는 **반드시** 기존 컴포넌트를 먼저 검토
-- 커스텀 스타일링 대신 기존 컴포넌트의 props 활용
-- HTML 태그나 인라인 스타일 대신 디자인 시스템 컴포넌트 사용
+### 1. **Component First (Prioritize Existing Components)**
+- When new UI is needed, **always** review existing components first
+- Utilize existing component props instead of custom styling
+- Use design system components instead of HTML tags or inline styles
 
-### 2. **디자인 시스템 준수**
-- 모든 색상, 간격, 타이포그래피는 `theme.ts`에서 정의된 값 사용
-- 일관된 사용자 경험을 위해 컴포넌트 변형(variant) 활용
-- 브랜드 아이덴티티 유지
+### 2. **Design System Compliance**
+- Use values defined in `theme.ts` for all colors, spacing, and typography
+- Utilize component variants for consistent user experience
+- Maintain brand identity
 
-### 3. **확장성 고려**
-- 기존 컴포넌트로 해결되지 않는 경우에만 새 컴포넌트 생성
-- 새 컴포넌트는 재사용 가능하도록 설계
-- props를 통한 유연한 커스터마이징 지원
+### 3. **Scalability Considerations**
+- Create new components only when existing components cannot resolve the issue
+- Design new components for reusability
+- Support flexible customization through props
 
-## 📚 사용 가능한 컴포넌트
+## 📚 Available Components
 
-### 기본 컴포넌트 (`/src/components/common/`)
+## Base Components (`/src/components/common/`)
 
 ```typescript
 import { 
@@ -30,75 +30,75 @@ import {
 } from '../components/common';
 ```
 
-#### **Typography 컴포넌트**
+### **Typography Component**
 ```tsx
-// ✅ 올바른 사용
-<Typography variant="h1">제목</Typography>
-<Typography variant="body" color="light">설명 텍스트</Typography>
+// ✅ Correct Usage
+<Typography variant="h1">Title</Typography>
+<Typography variant="body" color="light">Description text</Typography>
 
-// ❌ 잘못된 사용
-<h1 style={{fontSize: '32px'}}>제목</h1>
-<p className="text-gray-500">설명 텍스트</p>
+// ❌ Incorrect Usage
+<h1 style={{fontSize: '32px'}}>Title</h1>
+<p className="text-gray-500">Description text</p>
 ```
 
-#### **Button 컴포넌트**
+### **Button Component**
 ```tsx
-// ✅ 올바른 사용
-<Button variant="primary" size="large">주요 액션</Button>
-<Button variant="secondary" disabled>비활성 버튼</Button>
+// ✅ Correct Usage
+<Button variant="primary" size="large">Primary Action</Button>
+<Button variant="secondary" disabled>Disabled Button</Button>
 
-// ❌ 잘못된 사용
-<button className="bg-blue-500 text-white px-4 py-2">버튼</button>
+// ❌ Incorrect Usage
+<button className="bg-blue-500 text-white px-4 py-2">Button</button>
 ```
 
-#### **Card 컴포넌트**
+### **Card Component**
 ```tsx
-// ✅ 올바른 사용
+// ✅ Correct Usage
 <Card variant="elevated" hover>
-  <Typography variant="h4">카드 제목</Typography>
-  <Typography variant="body" color="light">내용</Typography>
+  <Typography variant="h4">Card Title</Typography>
+  <Typography variant="body" color="light">Content</Typography>
 </Card>
 
-// ✅ 이미지가 있는 카드
+// ✅ Card with Image
 <Card 
   image="/path/to/image.jpg" 
-  imageAlt="설명"
+  imageAlt="Description"
   hover
 >
-  <Typography variant="h4">이미지 카드</Typography>
+  <Typography variant="h4">Image Card</Typography>
 </Card>
 
-// ❌ 잘못된 사용
-<div className="bg-white shadow rounded p-4">내용</div>
+// ❌ Incorrect Usage
+<div className="bg-white shadow rounded p-4">Content</div>
 ```
 
-#### **Input 컴포넌트**
+### **Input Component**
 ```tsx
-// ✅ 올바른 사용
+// ✅ Correct Usage
 <Input 
-  label="이메일" 
-  placeholder="이메일을 입력하세요"
+  label="Email" 
+  placeholder="Enter your email"
   error={emailError}
   variant="outlined"
 />
 
-// ❌ 잘못된 사용
+// ❌ Incorrect Usage
 <input type="text" className="border rounded px-3 py-2" />
 ```
 
-#### **Badge 컴포넌트**
+### **Badge Component**
 ```tsx
-// ✅ 올바른 사용
-<Badge variant="success">완료</Badge>
-<Badge variant="warning" size="small">경고</Badge>
+// ✅ Correct Usage
+<Badge variant="success">Complete</Badge>
+<Badge variant="warning" size="small">Warning</Badge>
 
-// ❌ 잘못된 사용
-<span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">완료</span>
+// ❌ Incorrect Usage
+<span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">Complete</span>
 ```
 
-#### **Carousel 컴포넌트**
+### **Carousel Component**
 ```tsx
-// ✅ 올바른 사용
+// ✅ Correct Usage
 <Carousel 
   items={carouselItems}
   autoPlay
@@ -106,57 +106,57 @@ import {
   showDots
 />
 
-// ❌ 잘못된 사용 (직접 슬라이더 구현)
+// ❌ Incorrect Usage (direct slider implementation)
 <div className="flex overflow-x-auto">...</div>
 ```
 
-### 레이아웃 컴포넌트
+### Layout Components
 
-#### **Navbar 컴포넌트**
+### **Navbar Component**
 ```tsx
-// ✅ 올바른 사용
+// ✅ Correct Usage
 <Navbar variant="transparent" fixed />
 <Navbar showSearch={false} showAuth={false} />
 
-// ❌ 잘못된 사용
+// ❌ Incorrect Usage
 <header className="bg-white border-b">
   <nav>...</nav>
 </header>
 ```
 
-#### **Footer 컴포넌트**
+### **Footer Component**
 ```tsx
-// ✅ 올바른 사용
+// ✅ Correct Usage
 <Footer variant="detailed" showNewsletter />
 <Footer variant="minimal" />
 
-// ❌ 잘못된 사용
+// ❌ Incorrect Usage
 <footer className="bg-gray-900 text-white">...</footer>
 ```
 
-#### **Hero 컴포넌트**
+### **Hero Component**
 ```tsx
-// ✅ 올바른 사용
+// ✅ Correct Usage
 <Hero 
   variant="split"
-  title="메인 제목"
-  description="설명 텍스트"
+  title="Main Title"
+  description="Description text"
   primaryAction={{
-    text: "시작하기",
+    text: "Get Started",
     onClick: handleStart
   }}
-  features={["기능1", "기능2", "기능3"]}
+  features={["Feature1", "Feature2", "Feature3"]}
 />
 
-// ❌ 잘못된 사용
+// ❌ Incorrect Usage
 <div className="bg-gradient-to-r from-blue-500 to-purple-600 py-20">
-  <h1 className="text-4xl font-bold text-white">제목</h1>
+  <h1 className="text-4xl font-bold text-white">Title</h1>
 </div>
 ```
 
-## 🎨 테마 시스템 사용
+## 🎨 Theme System Usage
 
-### **색상 사용**
+### **Color Usage**
 ```tsx
 // ✅ 올바른 사용
 import { theme } from '../utils/theme';
@@ -175,7 +175,7 @@ const styles = {
 };
 ```
 
-### **간격 사용**
+### **Spacing Usage**
 ```tsx
 // ✅ 올바른 사용
 <div style={{ padding: theme.spacing[24], margin: theme.spacing.blockM }}>
@@ -184,7 +184,7 @@ const styles = {
 <div style={{ padding: '24px', margin: '1.5rem' }}>
 ```
 
-### **타이포그래피 사용**
+### **Typography Usage**
 ```tsx
 // ✅ 올바른 사용
 <Typography 
@@ -201,25 +201,25 @@ const styles = {
 }}>
 ```
 
-## 🔧 새 컴포넌트 생성 가이드
+## 🔧 New Component Creation Guide
 
-### **언제 새 컴포넌트를 만들 것인가?**
+### **When to Create New Components?**
 
-1. **기존 컴포넌트 조합으로 해결 불가능**
-2. **재사용 빈도가 3회 이상 예상**
-3. **복잡한 로직이나 상태 관리 필요**
-4. **접근성(a11y) 요구사항이 특수한 경우**
+1. **기존 Component 조합으로 Resolve 불가능**
+2. **재사용 Frequency가 3회 이상 예상**
+3. **복잡한 로직이나 Status Management 필요**
+4. **Accessibility(a11y) Requirement이 특수한 경우**
 
-### **새 컴포넌트 생성 절차**
+### **New Component Creation Process**
 
-1. **요구사항 분석**
+1. **Requirement Analysis**
    ```
-   - 어떤 기존 컴포넌트와 유사한가?
+   - 어떤 기존 Component와 유사한가?
    - 어떤 props가 필요한가?
-   - 어떤 변형(variant)이 필요한가?
+   - 어떤 Variants(variant)이 필요한가?
    ```
 
-2. **컴포넌트 설계**
+2. **Component 설계**
    ```tsx
    interface NewComponentProps {
      variant?: 'default' | 'custom';
@@ -231,61 +231,61 @@ const styles = {
    ```
 
 3. **구현**
-   - `/src/components/common/NewComponent.tsx` 생성
-   - 테마 시스템 사용
-   - TypeScript 타입 정의
-   - 접근성 고려
+   - `/src/components/common/NewComponent.tsx` Create
+   - 테마 Hour스템 사용
+   - TypeScript Type 정의
+   - Accessibility 고려
 
-4. **등록**
-   - `/src/components/common/index.ts`에 export 추가
-   - Components 페이지에 데모 추가
+4. **Registration**
+   - `/src/components/common/index.ts`에 export Add
+   - Components 페이지에 데모 Add
 
-5. **문서화**
-   - 이 문서에 사용법 추가
-   - Props 인터페이스 설명
+5. **Documentation화**
+   - 이 Documentation에 Usage Add
+   - Props 인터페이스 Description
 
-## 📋 체크리스트
+## 📋 Checklist
 
-### **컴포넌트 사용 전 체크리스트**
-- [ ] 기존 컴포넌트로 구현 가능한지 확인
-- [ ] Typography 컴포넌트로 텍스트 처리
-- [ ] Button 컴포넌트로 버튼 처리  
-- [ ] Card 컴포넌트로 콘텐츠 그룹핑
-- [ ] 테마 시스템의 색상/간격 사용
-- [ ] 인라인 스타일 대신 컴포넌트 props 활용
+### **Pre-Component Usage Checklist**
+- [ ] 기존 Component로 구현 가능한지 Confirm
+- [ ] Typography Component로 텍스트 Process
+- [ ] Button Component로 버튼 Process  
+- [ ] Card Component로 콘텐츠 Group핑
+- [ ] 테마 Hour스템의 색상/Interval 사용
+- [ ] 인라인 스타Day 대신 Component props 활용
 
-### **새 컴포넌트 생성 시 체크리스트**
-- [ ] 재사용성 고려한 props 설계
-- [ ] 테마 시스템 통합
-- [ ] TypeScript 타입 정의
-- [ ] 접근성(a11y) 고려
-- [ ] 반응형 디자인 지원
-- [ ] index.ts에 export 추가
-- [ ] Components 페이지에 데모 추가
+### **New Component Creation Checklist**
+- [ ] Reusability 고려한 props 설계
+- [ ] 테마 Hour스템 Integration
+- [ ] TypeScript Type 정의
+- [ ] Accessibility(a11y) 고려
+- [ ] 반응형 디자인 Support
+- [ ] index.ts에 export Add
+- [ ] Components 페이지에 데모 Add
 
-## 🚫 금지사항
+## 🚫 Prohibited Practices
 
-1. **직접 스타일링 금지**
+1. **직접 스타Day링 금지**
    ```tsx
    // ❌ 금지
    <div style={{color: '#red', fontSize: '16px'}}>
    <div className="text-red-500 text-base">
    ```
 
-2. **HTML 태그 직접 사용 금지**
+2. **HTML Tag 직접 사용 금지**
    ```tsx
    // ❌ 금지
-   <h1>제목</h1>
+   <h1>Title</h1>
    <button>버튼</button>
    <input type="text" />
    
    // ✅ 권장
-   <Typography variant="h1">제목</Typography>
+   <Typography variant="h1">Title</Typography>
    <Button>버튼</Button>
    <Input />
    ```
 
-3. **하드코딩된 값 사용 금지**
+3. **하드코딩된 Value 사용 금지**
    ```tsx
    // ❌ 금지
    padding: '24px'
@@ -298,7 +298,7 @@ const styles = {
    fontSize: theme.typography.fontSizes[200]
    ```
 
-## 📖 예제: 올바른 페이지 구성
+## 📖 Example: Proper Page Configuration
 
 ```tsx
 import React from 'react';
@@ -313,34 +313,34 @@ const ExamplePage: React.FC = () => {
       
       <Hero
         variant="centered"
-        title="환영합니다"
-        description="Musashi와 함께 워크플로우를 디자인하세요"
+        title="Welcome"
+        description="Design workflows with Musashi"
         primaryAction={{
-          text: "시작하기",
-          onClick: () => console.log("시작!")
+          text: "Get Started",
+          onClick: () => console.log("Start!")
         }}
       />
       
       <main className="max-w-6xl mx-auto p-8">
         <Typography variant="h2" className="mb-8">
-          주요 기능
+          Key Features
         </Typography>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <Card hover>
-            <Badge variant="primary" className="mb-4">새로운</Badge>
+            <Badge variant="primary" className="mb-4">New</Badge>
             <Typography variant="h4" className="mb-2">
-              시각적 디자인
+              Visual Design
             </Typography>
             <Typography variant="body" color="light" className="mb-4">
-              드래그 앤 드롭으로 쉽게 워크플로우를 만드세요
+              Create workflows easily with drag and drop
             </Typography>
             <Button variant="secondary" size="small">
-              자세히 보기
+              Learn More
             </Button>
           </Card>
           
-          {/* 더 많은 카드들... */}
+          {/* More cards... */}
         </div>
       </main>
       
@@ -352,15 +352,15 @@ const ExamplePage: React.FC = () => {
 export default ExamplePage;
 ```
 
-## 🔄 지속적인 개선
+## 🔄 Continuous Improvement
 
-이 가이드라인은 프로젝트가 성장함에 따라 지속적으로 업데이트됩니다:
+These guidelines are continuously updated as the project grows:
 
-1. **새 컴포넌트 추가 시** → 이 문서에 사용법 추가
-2. **컴포넌트 개선 시** → 변경된 API 문서화
-3. **베스트 프랙티스 발견 시** → 예제 코드 업데이트
+1. **When adding new components** → Add usage to this documentation
+2. **When improving components** → Document changed APIs
+3. **When discovering best practices** → Update example code
 
 ---
 
-**마지막 업데이트**: 2024-08-03  
-**관리자**: Musashi Development Team
+**Last Updated**: 2024-08-03  
+**Maintained by**: Musashi Development Team

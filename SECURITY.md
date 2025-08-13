@@ -154,7 +154,7 @@ All code and container images are automatically scanned with the following tools
     format: 'sarif'
     output: 'trivy-results.sarif'
     severity: 'HIGH,CRITICAL'
-    exit-code: '1'  # HIGH/CRITICAL 발견 시 빌드 실패
+    exit-code: '1'  # HIGH/CRITICAL 발견 Hour Build Failed
     ignore-unfixed: true
     vuln-type: 'os,library'
     scanners: 'vuln,secret,config'
@@ -241,7 +241,7 @@ All official container images are signed using Cosign.
     IMAGE_DIGEST="${{ steps.build.outputs.digest }}"
     IMAGE_NAME="${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}"
     
-    # 이미지 서명
+    # Image 서명
     cosign sign --yes "${IMAGE_NAME}@${IMAGE_DIGEST}"
     cosign sign --yes "${IMAGE_NAME}:${{ github.ref_name }}"
     

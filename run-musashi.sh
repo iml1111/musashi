@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# Musashi 단일 Docker 컨테이너 실행 스크립트
-# 사용법: ./run-musashi.sh
+# Musashi Single Docker Container Execute Script
+# Usage: ./run-musashi.sh
 
-# 색상 정의
+# Color definitions
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -11,14 +11,14 @@ NC='\033[0m' # No Color
 
 echo -e "${GREEN}🚀 Starting Musashi Container...${NC}"
 
-# 기존 컨테이너가 있다면 중지 및 제거
+# Stop and remove existing container if it exists
 if [ "$(docker ps -aq -f name=musashi)" ]; then
     echo -e "${YELLOW}📦 Removing existing musashi container...${NC}"
     docker stop musashi 2>/dev/null
     docker rm musashi 2>/dev/null
 fi
 
-# 컨테이너 실행
+# Execute container
 docker run -d \
   --name musashi \
   --restart unless-stopped \
@@ -34,7 +34,7 @@ docker run -d \
   --add-host host.docker.internal:host-gateway \
   musashi:latest
 
-# 실행 결과 확인
+# Confirm execution result
 if [ $? -eq 0 ]; then
     echo -e "${GREEN}✅ Musashi container started successfully!${NC}"
     echo ""

@@ -17,13 +17,13 @@ const Components: React.FC = () => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(e.target.value);
     if (e.target.value.length < 3) {
-      setInputError('최소 3글자 이상 입력해주세요.');
+      setInputError('Please enter at least 3 characters.');
     } else {
       setInputError('');
     }
   };
 
-  // 샘플 이미지 URL들 (placeholder 서비스 사용)
+  // Sample image URLs (using placeholder service)
   const sampleImages = [
     'https://picsum.photos/400/300?random=1',
     'https://picsum.photos/400/300?random=2',
@@ -32,7 +32,7 @@ const Components: React.FC = () => {
     'https://picsum.photos/400/300?random=5',
   ];
 
-  // Carousel 아이템들
+  // Carousel items
   const carouselItems = [
     {
       id: 1,
@@ -42,9 +42,9 @@ const Components: React.FC = () => {
           imageAlt="Sample Image 1"
           hover
         >
-          <Typography variant="h4" className="mb-2">첫 번째 슬라이드</Typography>
+          <Typography variant="h4" className="mb-2">First Slide</Typography>
           <Typography variant="body" color="light">
-            아름다운 이미지와 함께하는 첫 번째 카드입니다.
+            The first card with beautiful images.
           </Typography>
         </Card>
       )
@@ -57,9 +57,9 @@ const Components: React.FC = () => {
           imageAlt="Sample Image 2"
           hover
         >
-          <Typography variant="h4" className="mb-2">두 번째 슬라이드</Typography>
+          <Typography variant="h4" className="mb-2">Second Slide</Typography>
           <Typography variant="body" color="light">
-            매력적인 콘텐츠가 담긴 두 번째 카드입니다.
+            The second card with attractive content.
           </Typography>
         </Card>
       )
@@ -72,9 +72,9 @@ const Components: React.FC = () => {
           imageAlt="Sample Image 3"
           hover
         >
-          <Typography variant="h4" className="mb-2">세 번째 슬라이드</Typography>
+          <Typography variant="h4" className="mb-2">Third Slide</Typography>
           <Typography variant="body" color="light">
-            흥미로운 내용이 포함된 세 번째 카드입니다.
+            The third card with interesting content.
           </Typography>
         </Card>
       )
@@ -87,9 +87,9 @@ const Components: React.FC = () => {
           imageAlt="Sample Image 4"
           hover
         >
-          <Typography variant="h4" className="mb-2">네 번째 슬라이드</Typography>
+          <Typography variant="h4" className="mb-2">Fourth Slide</Typography>
           <Typography variant="body" color="light">
-            다양한 정보를 담은 네 번째 카드입니다.
+            The fourth card with various information.
           </Typography>
         </Card>
       )
@@ -113,7 +113,7 @@ const Components: React.FC = () => {
         <div className="mb-12">
           <Typography variant="h1" className="mb-4">Component Library</Typography>
           <Typography variant="body" color="light">
-            Musashi의 디자인 시스템 컴포넌트들을 확인하고 테스트할 수 있습니다.
+            View and test Musashi's design system components.
           </Typography>
         </div>
 
@@ -294,7 +294,7 @@ const Components: React.FC = () => {
                     <Badge variant="success">New</Badge>
                   </div>
                   <Typography variant="body" color="light" className="mb-3">
-                    이미지가 포함된 카드입니다. 호버 효과가 적용되어 있습니다.
+                    A card with an image. Hover effect is applied.
                   </Typography>
                   <Button variant="primary" size="small">Learn More</Button>
                 </Card>
@@ -308,7 +308,7 @@ const Components: React.FC = () => {
                 >
                   <Typography variant="h4" className="mb-2">Outlined Image Card</Typography>
                   <Typography variant="body" color="light" className="mb-3">
-                    테두리가 있는 이미지 카드입니다. 이미지 높이를 커스텀할 수 있습니다.
+                    An image card with a border. Image height can be customized.
                   </Typography>
                   <div className="flex space-x-2">
                     <Button variant="secondary" size="small">View</Button>
@@ -327,7 +327,7 @@ const Components: React.FC = () => {
                     <Badge variant="warning">Hot</Badge>
                   </div>
                   <Typography variant="body" color="light" className="mb-3">
-                    고급스러운 그림자 효과가 적용된 프리미엄 카드입니다.
+                    A premium card with elegant shadow effects applied.
                   </Typography>
                   <div className="flex items-center justify-between">
                     <Typography variant="small" color="primary" weight="semibold">

@@ -1,34 +1,34 @@
 # Musashi Scripts
 
-유용한 자동화 스크립트 모음
+Collection of useful automation scripts
 
 ## 📦 merge-deps.sh
 
-의존성 업데이트 PR들을 자동으로 승인하고 머지하는 스크립트입니다.
+Dependencies Update PR들을 Auto으로 Approval하고 머지하는 Script입니다.
 
-### 사용법
+# ## Usage
 
 ```bash
 ./scripts/merge-deps.sh
 ```
 
-### 기능
+# ## Feature
 
-- Dependabot 또는 Renovate bot이 생성한 PR 자동 감지
+- Dependabot 또는 Renovate bot이 Created PR Auto 감지
 - "dependencies" 또는 "deps" 라벨이 붙은 PR 감지
-- 각 PR을 자동으로 승인(approve)
-- 머지 가능한 PR을 자동으로 머지
-- 브랜치 자동 삭제
-- 컬러풀한 진행 상황 표시
-- 상세한 결과 요약
+- 각 PR을 Auto으로 Approval(approve)
+- 머지 가능한 PR을 Auto으로 머지
+- Branch Auto Delete
+- 컬러Pull한 Progress Situation 표Hour
+- 상세한 Result Summary
 
-### 필요 사항
+# # # 필요 사항
 
-- GitHub CLI (`gh`) 설치 및 인증
-- 저장소에 대한 쓰기 권한
+- GitHub CLI (`gh`) 설치 및 Authentication
+- Save소에 대한 쓰기 Permission
 - `jq` JSON 프로세서 설치
 
-### 예시 출력
+# ## Examples Output
 
 ```
 🔄 Dependency PR Auto-Merger for iml1111/musashi
@@ -51,16 +51,16 @@ Processing PR #42: Bump axios from 1.4.0 to 1.5.0
 ✅ Done!
 ```
 
-### 자동화 (GitHub Actions)
+# ## Automation (GitHub Actions)
 
-정기적으로 실행하려면 GitHub Actions workflow를 추가하세요:
+정기적으로 Execute하려면 GitHub Actions workflow를 Add하세요:
 
 ```yaml
 name: Auto-merge Dependencies
 on:
   schedule:
-    - cron: '0 9 * * 1' # 매주 월요일 오전 9시
-  workflow_dispatch: # 수동 실행도 가능
+    - cron: '0 9 * * 1' # 매주 Month요Day 오전 9Hour
+  workflow_dispatch: # Manual Execute도 가능
 
 jobs:
   merge-deps:
@@ -75,24 +75,24 @@ jobs:
 
 ## 🔧 ci-repro.sh
 
-CI 환경을 로컬에서 재현하는 스크립트입니다.
+CI Environment을 로컬에서 재현하는 Script입니다.
 
-### 사용법
+# ## Usage
 
 ```bash
 ./scripts/ci-repro.sh
 ```
 
-### 기능
+# ## Feature
 
-- Python 3.12 환경 검증
-- Node.js 20 환경 검증
-- MongoDB 컨테이너 자동 시작
-- Backend/Frontend 테스트 실행
-- Docker 빌드 테스트
-- CI와 동일한 옵션으로 실행
-- 상세한 로그 저장
+- Python 3.12 Environment Validation
+- Node.js 20 Environment Validation
+- MongoDB Container Auto Start
+- Backend/Frontend Testing Execute
+- Docker Build Testing
+- CI와 동Day한 Option으로 Execute
+- Detailed log saving
 
 ---
 
-더 많은 스크립트가 추가될 예정입니다.
+더 많은 Script가 Add될 예정입니다.

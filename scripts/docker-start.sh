@@ -1,33 +1,33 @@
 #!/bin/bash
 
 # ===========================================
-# Musashi Docker Compose 빠른 시작 스크립트
+# Musashi Docker Compose Quick Start Script
 # ===========================================
 # 
-# 사용법:
+# Usage:
 # ./scripts/docker-start.sh [ENVIRONMENT] [OPTIONS]
 #
-# 환경:
-#   prod       - 프로덕션 환경 (기본값)
-#   dev        - 개발 환경
-#   build      - 빌드 테스트 환경
+# Environment:
+# prod       - Production Environment (default)
+# dev        - Development Environment
+# build      - Build Testing Environment
 #
-# 옵션:
-#   --rebuild  - 이미지 강제 재빌드
-#   --clean    - 기존 컨테이너/볼륨 정리 후 시작
-#   --logs     - 시작 후 로그 모니터링
-#   --help     - 도움말 표시
+# Option:
+# --rebuild  - Force rebuild images
+# --clean    - Clean existing containers/volumes before start
+# --logs     - Monitor logs after start
+# --help     - Show help message
 
-set -e  # 에러 발생시 스크립트 중단
+set -e  # Stop script on error
 
-# 색상 정의
+# Color definitions
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-# 로그 함수들
+# Log functions
 log_info() {
     echo -e "${BLUE}[INFO]${NC} $1"
 }
@@ -44,73 +44,73 @@ log_error() {
     echo -e "${RED}[ERROR]${NC} $1"
 }
 
-# 도움말 표시
+# Show help message
 show_help() {
     cat << EOF
-🚀 Musashi Docker Compose 빠른 시작 도구
+🚀 Musashi Docker Compose Quick Start Tool
 
-사용법:
+Usage:
   $0 [ENVIRONMENT] [OPTIONS]
 
-환경:
-  prod       프로덕션 환경 (docker-compose.yml)
-  dev        개발 환경 (docker-compose.dev.yml)
-  build      빌드 테스트 (docker-compose.build.yml)
+Environment:
+  prod       Production Environment (docker-compose.yml)
+  dev        Development Environment (docker-compose.dev.yml)
+  build      Build Testing (docker-compose.build.yml)
 
-옵션:
-  --rebuild  이미지 강제 재빌드
-  --clean    기존 컨테이너/볼륨 정리 후 시작
-  --logs     시작 후 로그 모니터링  
-  --help     이 도움말 표시
+Option:
+  --rebuild  Force rebuild images
+  --clean    Clean existing containers/volumes before start
+  --logs     Monitor logs after start  
+  --help     Show this help message
 
-예제:
-  $0                     # 프로덕션 환경으로 시작
-  $0 dev                 # 개발 환경으로 시작  
-  $0 prod --rebuild      # 프로덕션 환경, 이미지 재빌드
-  $0 dev --clean --logs  # 개발 환경, 정리 후 시작, 로그 모니터링
+Example:
+  $0                     # Start with Production Environment
+  $0 dev                 # Start with Development Environment  
+  $0 prod --rebuild      # Production Environment, Image 재Build
+  $0 dev --clean --logs  # Development Environment, 정리 후 Start, Log Monitoring
 
-환경 변수 설정:
-  1. .env.example을 .env로 복사
-  2. SECRET_KEY 등 필수 값 설정
-  3. 필요시 포트 및 데이터베이스 설정 조정
+Environment Variables Settings:
+  1. .env.example을 .env로 Copy
+  2. SECRET_KEY 등 Required Value Settings
+  3. 필요Hour Port 및 Database Settings 조정
 
-문제 해결:
-  - 포트 충돌: .env에서 MUSASHI_PORT 변경
-  - 권한 문제: sudo 없이 Docker 실행 가능한지 확인
-  - 볼륨 문제: --clean 옵션으로 볼륨 정리 후 재시작
+Problem Resolve:
+  - Port Conflict: .env에서 MUSASHI_PORT Change
+  - Permission Problem: sudo 없이 Docker Execute 가능한지 Confirm
+  - Volume Problem: --clean Option으로 Volume 정리 후 재Start
 
 EOF
 }
 
-# 환경 변수 파일 확인
+# Environment Variables File Confirm
 check_env_file() {
     if [[ ! -f .env ]]; then
-        log_warning ".env 파일이 없습니다"
+        log_warning ".env File이 없습니다"
         
         if [[ -f .env.example ]]; then
-            log_info ".env.example에서 .env 파일을 생성합니다..."
+            log_info ".env.example에서 .env File을 Create합니다..."
             cp .env.example .env
-            log_warning "⚠️  .env 파일을 열어서 SECRET_KEY 등 필수 값들을 설정하세요!"
-            log_warning "특히 프로덕션 환경에서는 보안을 위해 모든 기본값을 변경해주세요."
+            log_warning "⚠️  .env File을 열어서 SECRET_KEY 등 Required Value들을 Settings하세요!"
+            log_warning "특히 Production Environment에서는 Security을 위해 모든 DefaultValue을 Change해주세요."
         else
-            log_error ".env.example 파일도 찾을 수 없습니다!"
-            log_error "환경 변수 설정 파일이 필요합니다."
+            log_error ".env.example File도 찾을 수 없습니다!"
+            log_error "Environment Variables Settings File이 필요합니다."
             exit 1
         fi
     else
-        log_success ".env 파일이 존재합니다"
+        log_success ".env File이 존재합니다"
         
-        # SECRET_KEY 확인
+        # SECRET_KEY Confirm
         if grep -q "your-super-secure-secret-key-change-this-in-production" .env; then
-            log_warning "⚠️  기본 SECRET_KEY가 사용되고 있습니다!"
-            log_warning "보안을 위해 .env 파일에서 SECRET_KEY를 변경해주세요."
+            log_warning "⚠️  Default SECRET_KEY가 사용되고 있습니다!"
+            log_warning "Security을 위해 .env File에서 SECRET_KEY를 Change해주세요."
         fi
     fi
 }
 
-# Docker 및 Docker Compose 확인
+# Docker 및 Docker Compose Confirm
 check_dependencies() {
-    log_info "의존성 확인 중..."
+    log_info "Dependencies Confirm 중..."
     
     if ! command -v docker &> /dev/null; then
         log_error "Docker가 설치되어 있지 않습니다!"
@@ -124,53 +124,53 @@ check_dependencies() {
         exit 1
     fi
     
-    # Docker 데몬 실행 확인
+    # Docker 데몬 Execute Confirm
     if ! docker info &> /dev/null; then
-        log_error "Docker 데몬이 실행되고 있지 않습니다!"
-        log_error "Docker Desktop을 시작하거나 Docker 서비스를 시작하세요."
+        log_error "Docker 데몬이 Execute되고 있지 않습니다!"
+        log_error "Docker Desktop을 Start하거나 Docker Service를 Start하세요."
         exit 1
     fi
     
-    log_success "모든 의존성이 준비되었습니다"
+    log_success "모든 Dependencies이 준비되었습니다"
 }
 
-# 컨테이너 및 볼륨 정리
+# Container 및 Volume 정리
 cleanup() {
-    log_info "기존 컨테이너 및 볼륨 정리 중..."
+    log_info "기존 Container 및 Volume 정리 중..."
     
-    # 실행 중인 컨테이너 중지
+    # Execute 중인 Stop container
     if docker-compose -f "$COMPOSE_FILE" ps -q 2>/dev/null | grep -q .; then
-        log_info "실행 중인 컨테이너를 중지합니다..."
+        log_info "Execute 중인 Container를 Stop합니다..."
         docker-compose -f "$COMPOSE_FILE" down
     fi
     
-    # 볼륨 정리 (선택적)
-    read -p "데이터 볼륨도 삭제하시겠습니까? (y/N): " -n 1 -r
+    # Volume 정리 (Select적)
+    read -p "Data Volume도 Delete하Hour겠습니까? (y/N): " -n 1 -r
     echo
     if [[ $REPLY =~ ^[Yy]$ ]]; then
-        log_warning "볼륨을 삭제합니다... (데이터가 손실될 수 있습니다)"
+        log_warning "Volume을 Delete합니다... (Data가 손실될 수 있습니다)"
         docker-compose -f "$COMPOSE_FILE" down -v
         
-        # 이름이 지정된 볼륨 정리
+        # Name이 지정된 Volume 정리
         docker volume ls -q | grep musashi | xargs -r docker volume rm
     fi
     
-    # 미사용 이미지 정리
-    log_info "미사용 Docker 이미지 정리 중..."
+    # 미사용 Image 정리
+    log_info "미사용 Docker Image 정리 중..."
     docker image prune -f
     
-    log_success "정리 완료"
+    log_success "정리 Complete"
 }
 
 # 메인 함수
 main() {
-    # 기본값 설정
+    # DefaultValue Settings
     ENVIRONMENT="prod"
     REBUILD=false
     CLEAN=false  
     SHOW_LOGS=false
     
-    # 명령행 인수 처리
+    # 명령행 인수 Process
     while [[ $# -gt 0 ]]; do
         case $1 in
             prod|dev|build)
@@ -194,14 +194,14 @@ main() {
                 exit 0
                 ;;
             *)
-                log_error "알 수 없는 옵션: $1"
+                log_error "알 수 없는 Option: $1"
                 show_help
                 exit 1
                 ;;
         esac
     done
     
-    # Compose 파일 선택
+    # Compose File Select
     case $ENVIRONMENT in
         prod)
             COMPOSE_FILE="docker-compose.yml"
@@ -214,110 +214,110 @@ main() {
             ;;
     esac
     
-    log_info "🚀 Musashi Docker Compose 시작"
-    log_info "환경: $ENVIRONMENT ($COMPOSE_FILE)"
+    log_info "🚀 Musashi Docker Compose Start"
+    log_info "Environment: $ENVIRONMENT ($COMPOSE_FILE)"
     
-    # 의존성 확인
+    # Dependencies Confirm
     check_dependencies
     
-    # 환경 변수 파일 확인
+    # Environment Variables File Confirm
     check_env_file
     
-    # Compose 파일 존재 확인
+    # Compose File 존재 Confirm
     if [[ ! -f "$COMPOSE_FILE" ]]; then
-        log_error "$COMPOSE_FILE 파일을 찾을 수 없습니다!"
+        log_error "$COMPOSE_FILE File을 찾을 수 없습니다!"
         exit 1
     fi
     
-    # 정리 옵션
+    # 정리 Option
     if [[ "$CLEAN" == true ]]; then
         cleanup
     fi
     
-    # 빌드 옵션 설정
+    # Build Option Settings
     BUILD_ARGS=""
     if [[ "$REBUILD" == true ]]; then
         BUILD_ARGS="--build"
-        log_info "이미지를 강제로 재빌드합니다..."
+        log_info "Image를 강제로 재Build합니다..."
     fi
     
-    # Docker Compose 실행
-    log_info "Docker Compose를 시작합니다..."
+    # Docker Compose Execute
+    log_info "Docker Compose를 Start합니다..."
     
     if [[ "$ENVIRONMENT" == "dev" ]]; then
-        log_info "개발 환경 옵션 서비스들:"
-        log_info "  - 프론트엔드 개발 서버: docker-compose -f $COMPOSE_FILE --profile frontend-dev up -d"
-        log_info "  - Redis 개발 서버: docker-compose -f $COMPOSE_FILE --profile redis up -d"
+        log_info "Development Environment Option Service들:"
+        log_info "  - Frontend Development Server: docker-compose -f $COMPOSE_FILE --profile frontend-dev up -d"
+        log_info "  - Redis Development Server: docker-compose -f $COMPOSE_FILE --profile redis up -d"
         log_info "  - MongoDB Express: docker-compose -f $COMPOSE_FILE --profile mongo-admin up -d"
     fi
     
-    # 컨테이너 시작
+    # Container Start
     if ! docker-compose -f "$COMPOSE_FILE" up -d $BUILD_ARGS; then
-        log_error "Docker Compose 시작에 실패했습니다!"
+        log_error "Docker Compose Start에 Failed했습니다!"
         exit 1
     fi
     
-    # 상태 확인
-    log_info "컨테이너 상태 확인 중..."
+    # Status Confirm
+    log_info "Container Status Confirm 중..."
     sleep 5
     
-    # 헬스체크 대기
-    log_info "서비스 헬스체크 대기 중..."
+    # 헬스체크 Wait
+    log_info "Service 헬스체크 Wait 중..."
     local max_attempts=30
     local attempt=1
     
     while [[ $attempt -le $max_attempts ]]; do
         if docker-compose -f "$COMPOSE_FILE" ps | grep -E "(healthy|Up)" > /dev/null; then
-            log_success "서비스가 정상적으로 시작되었습니다! 🎉"
+            log_success "Service가 정상적으로 Start되었습니다! 🎉"
             break
         fi
         
-        log_info "대기 중... ($attempt/$max_attempts)"
+        log_info "Wait 중... ($attempt/$max_attempts)"
         sleep 2
         ((attempt++))
     done
     
     if [[ $attempt -gt $max_attempts ]]; then
-        log_warning "헬스체크 타임아웃. 로그를 확인하세요."
+        log_warning "헬스체크 Timeout. Log를 Confirm하세요."
     fi
     
-    # 접속 정보 표시
+    # 접속 Info 표Hour
     echo
-    log_success "=== Musashi 접속 정보 ==="
+    log_success "=== Musashi 접속 Info ==="
     
     case $ENVIRONMENT in
         prod)
-            echo "🌐 웹 애플리케이션: http://localhost:8080"
-            echo "📊 API 문서: http://localhost:8080/docs"
+            echo "🌐 Web 애플리케이션: http://localhost:8080"
+            echo "📊 API Documentation: http://localhost:8080/docs"
             ;;
         dev)
-            echo "🌐 웹 애플리케이션: http://localhost:8080"
-            echo "⚙️  백엔드 API: http://localhost:8000"
-            echo "📊 API 문서: http://localhost:8000/docs"
+            echo "🌐 Web 애플리케이션: http://localhost:8080"
+            echo "⚙️  Backend API: http://localhost:8000"
+            echo "📊 API Documentation: http://localhost:8000/docs"
             echo "🗄️  MongoDB: mongodb://localhost:27017"
             echo "📊 MongoDB Express: http://localhost:8081 (admin/admin123)"
             ;;
         build)
-            echo "🌐 빌드 테스트: http://localhost:8080"
+            echo "🌐 Build Testing: http://localhost:8080"
             echo "🗄️  MongoDB: mongodb://localhost:27017"
             ;;
     esac
     
     echo
-    log_info "유용한 명령어들:"
-    echo "  컨테이너 로그 보기: docker-compose -f $COMPOSE_FILE logs -f"
-    echo "  컨테이너 상태 확인: docker-compose -f $COMPOSE_FILE ps"
-    echo "  컨테이너 중지: docker-compose -f $COMPOSE_FILE down"
-    echo "  데이터와 함께 정리: docker-compose -f $COMPOSE_FILE down -v"
+    log_info "유용한 Command들:"
+    echo "  Container Log View: docker-compose -f $COMPOSE_FILE logs -f"
+    echo "  Container Status Confirm: docker-compose -f $COMPOSE_FILE ps"
+    echo "  Stop container: docker-compose -f $COMPOSE_FILE down"
+    echo "  Data와 함께 정리: docker-compose -f $COMPOSE_FILE down -v"
     
-    # 로그 모니터링
+    # Log Monitoring
     if [[ "$SHOW_LOGS" == true ]]; then
         echo
-        log_info "로그 모니터링을 시작합니다... (Ctrl+C로 중단)"
+        log_info "Log Monitoring을 Start합니다... (Ctrl+C로 중단)"
         sleep 2
         docker-compose -f "$COMPOSE_FILE" logs -f
     fi
 }
 
-# 스크립트 실행
+# Script Execute
 main "$@"

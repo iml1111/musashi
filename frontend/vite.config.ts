@@ -20,11 +20,11 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: (id) => {
-          // dagre를 별도 청크로 분리
+          // dagre를 별도 청크로 Separate
           if (id.includes('dagre')) {
             return 'dagre'
           }
-          // React 관련 라이브러리 분리
+          // React 관련 Library Separate
           if (id.includes('node_modules/react')) {
             return 'react-vendor'
           }

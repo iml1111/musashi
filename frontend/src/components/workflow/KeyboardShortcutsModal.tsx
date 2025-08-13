@@ -49,25 +49,25 @@ const KeyboardShortcutsModal: React.FC<KeyboardShortcutsModalProps> = ({ isOpen,
 
   const shortcutCategories: ShortcutCategory[] = [
     {
-      title: '편집 작업',
+      title: 'Edit Task',
       shortcuts: [
-        { keys: ['Ctrl/Cmd', 'Z'], description: '실행 취소' },
-        { keys: ['Ctrl/Cmd', 'Shift', 'Z'], description: '다시 실행' },
-        { keys: ['Ctrl/Cmd', 'Y'], description: '다시 실행 (대체)' },
-        { keys: ['Delete'], description: '선택된 노드 삭제' },
+        { keys: ['Ctrl/Cmd', 'Z'], description: 'Undo' },
+        { keys: ['Ctrl/Cmd', 'Shift', 'Z'], description: 'Redo' },
+        { keys: ['Ctrl/Cmd', 'Y'], description: 'Redo (alternative)' },
+        { keys: ['Delete'], description: 'Delete selected node' },
       ]
     },
     {
-      title: '파일 작업',
+      title: 'File Task',
       shortcuts: [
-        { keys: ['Ctrl/Cmd', 'S'], description: '워크플로우 저장' },
-        { keys: ['Ctrl/Cmd', 'E'], description: '워크플로우 내보내기' },
+        { keys: ['Ctrl/Cmd', 'S'], description: 'Save workflow' },
+        { keys: ['Ctrl/Cmd', 'E'], description: 'Export workflow' },
       ]
     },
     {
-      title: '자동 저장',
+      title: 'Auto Save',
       shortcuts: [
-        { keys: ['자동'], description: '매 1분마다 자동 저장' },
+        { keys: ['Auto'], description: 'Auto-save every minute' },
       ]
     }
   ]
@@ -81,7 +81,7 @@ const KeyboardShortcutsModal: React.FC<KeyboardShortcutsModalProps> = ({ isOpen,
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <Typography variant="h2" className="text-gray-900">
-            키보드 단축키
+            Keyboard Shortcuts
           </Typography>
           <button
             onClick={onClose}
@@ -131,7 +131,7 @@ const KeyboardShortcutsModal: React.FC<KeyboardShortcutsModalProps> = ({ isOpen,
           {/* Additional Info */}
           <Card variant="outlined" className="mt-6 p-4 bg-blue-50 border-blue-200">
             <Typography variant="body" className="text-blue-700">
-              <strong>팁:</strong> Ctrl 키는 Windows/Linux에서, Cmd 키는 macOS에서 사용됩니다.
+              <strong>Tip:</strong> Use Ctrl key on Windows/Linux and Cmd key on macOS.
             </Typography>
           </Card>
         </div>

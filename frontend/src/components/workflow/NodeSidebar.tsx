@@ -16,7 +16,7 @@ import { ConnectedInput, ConnectedOutput, isFinalOutputNode } from '../../types/
 import ConnectedOutputViewer from './ConnectedOutputViewer'
 import { getUnusedInputs } from '../../utils/inputUsageChecker'
 
-// OutputItem 컴포넌트
+// OutputItem Component
 interface OutputItemProps {
   output: { key: string; type: string; example?: string }
   index: number

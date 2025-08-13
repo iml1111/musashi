@@ -32,14 +32,14 @@ const InputItem: React.FC<InputItemProps> = ({ input, onUpdate, onDelete }) => {
     setIsEditing(false)
   }
 
-  // JSON 구문 강조를 위한 함수
+  // Function for JSON syntax highlighting
   const highlightJSON = (jsonStr: string) => {
     try {
-      // JSON 파싱 및 포맷팅
+      // JSON parsing and formatting
       const parsed = JSON.parse(jsonStr)
       const formatted = JSON.stringify(parsed, null, 2)
       
-      // JSON 구문 강조
+      // JSON syntax highlighting
       return formatted
         .replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, (match) => {
           let cls = 'number'
@@ -56,17 +56,17 @@ const InputItem: React.FC<InputItemProps> = ({ input, onUpdate, onDelete }) => {
           }
           
           const colors: Record<string, string> = {
-            key: '#0550ae',     // 진한 파란색
-            string: '#0a7ea4',  // 파란색
-            number: '#0550ae',  // 진한 파란색
-            boolean: '#0550ae', // 진한 파란색
-            null: '#6e7781'     // 회색
+            key: '#0550ae',     // dark blue
+            string: '#0a7ea4',  // blue
+            number: '#0550ae',  // dark blue
+            boolean: '#0550ae', // dark blue
+            null: '#6e7781'     // gray
           }
           
           return `<span style="color: ${colors[cls] || '#000'}">${match}</span>`
         })
     } catch (e) {
-      // JSON이 아닌 경우 원본 반환
+      // Return original if not JSON
       return jsonStr
     }
   }
