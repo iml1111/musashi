@@ -92,9 +92,13 @@ jobs:
         docker compose build
     
     - name: Test Docker compose
+      env:
+        SECRET_KEY: test-secret-key-for-ci
+        MONGODB_URL: mongodb://localhost:27017
+        DATABASE_NAME: musashi_test
       run: |
         docker compose up -d
-        sleep 30
-        curl -f http://localhost:3000/ || exit 1
-        curl -f http://localhost:8000/health || exit 1
+        sleep 60
+        curl -f http://localhost:8080/ || exit 1
+        curl -f http://localhost:8080/api/v1/health || exit 1
         docker compose down
