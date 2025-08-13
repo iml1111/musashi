@@ -8,9 +8,8 @@ router = APIRouter()
 
 
 @router.post("/login", response_model=Token)
-async def login(login_data: LoginRequest):
+async def login(login_data: LoginRequest, db=Depends(get_database)):
     """Login and get access token"""
-    db = get_database()
     service = AuthService(db)
     token = await service.authenticate_user(login_data.username, login_data.password)
     if not token:
@@ -23,9 +22,8 @@ async def login(login_data: LoginRequest):
 
 
 @router.post("/login/form", response_model=Token)
-async def login_form(form_data: OAuth2PasswordRequestForm = Depends()):
+async def login_form(form_data: OAuth2PasswordRequestForm = Depends(), db=Depends(get_database)):
     """Login with form data (OAuth2 compatible)"""
-    db = get_database()
     service = AuthService(db)
     token = await service.authenticate_user(form_data.username, form_data.password)
     if not token:

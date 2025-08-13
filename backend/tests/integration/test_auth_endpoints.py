@@ -53,7 +53,7 @@ class TestAuthEndpoints:
 
         # Make request
         response = client.post(
-            "/api/v1/auth/login", data={"username": "testuser", "password": "secret123"}
+            "/api/v1/auth/login", json={"username": "testuser", "password": "secret123"}
         )
 
         # Assertions
@@ -68,7 +68,7 @@ class TestAuthEndpoints:
         mock_db.users.find_one = AsyncMock(return_value=None)
 
         response = client.post(
-            "/api/v1/auth/login", data={"username": "testuser", "password": "wrongpassword"}
+            "/api/v1/auth/login", json={"username": "testuser", "password": "wrongpassword"}
         )
 
         assert response.status_code == 401
@@ -76,7 +76,7 @@ class TestAuthEndpoints:
 
     def test_login_missing_fields(self, client):
         """Test login with missing fields."""
-        response = client.post("/api/v1/auth/login", data={"username": "testuser"})
+        response = client.post("/api/v1/auth/login", json={"username": "testuser"})
 
         assert response.status_code == 422
 
