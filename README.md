@@ -3,9 +3,10 @@
 > **Visual AI Agent Workflow Designer Focused on Design Without Execution**
 
 <div align="center">
-  <img src="https://img.shields.io/badge/version-1.0.0-blue.svg" alt="Version">
+  <img src="https://img.shields.io/badge/version-1.0.1-blue.svg" alt="Version">
   <img src="https://img.shields.io/badge/license-MIT-green.svg" alt="License">
   <img src="https://img.shields.io/badge/docker-ready-blue.svg" alt="Docker Ready">
+  <img src="https://img.shields.io/badge/ghcr.io-available-blue.svg" alt="GHCR">
   <img src="https://img.shields.io/badge/platform-linux%2Famd64%20%7C%20linux%2Farm64-lightgrey" alt="Platforms">
 </div>
 
@@ -70,9 +71,14 @@
 
 ## 🚀 Quick Start
 
-### 1-Minute Installation - Docker Run
+### 1-Minute Installation - Docker Run (GHCR)
 
 ```bash
+# Pull the latest image from GitHub Container Registry
+docker pull ghcr.io/iml1111/musashi:v1.0.1
+# Or use latest tag
+docker pull ghcr.io/iml1111/musashi:latest
+
 # Run with a single command (includes MongoDB)
 docker run -d \
   --name musashi \
@@ -83,11 +89,13 @@ docker run -d \
   -e DATABASE_NAME="musashi" \
   -e SECRET_KEY="$(openssl rand -hex 32)" \
   --add-host host.docker.internal:host-gateway \
-  ghcr.io/imiml/musashi:latest
+  ghcr.io/iml1111/musashi:latest
 
 # Access in browser
 open http://localhost
 ```
+
+> **Note**: The package is hosted on GitHub Container Registry (ghcr.io). If the package visibility is set to private, you may need to authenticate first with `docker login ghcr.io`.
 
 ### Docker Compose (Recommended)
 
