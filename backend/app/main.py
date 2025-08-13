@@ -41,7 +41,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="Musashi API",
-    description="AI Agent Workflow Design Tool - Cut the code. Shape the flow.",
+    description="AI Agent Workflow Design Tool - Flow Sharp, Ship Fast.",
     version="1.0.0",
     openapi_url=f"{settings.API_V1_STR}/openapi.json",
     lifespan=lifespan,
@@ -79,7 +79,7 @@ async def root():
     if os.path.exists(index_path):
         return FileResponse(index_path)
     else:
-        return {"message": "Musashi API - Cut the code. Shape the flow.", "frontend": "not_built"}
+        return {"message": "Musashi API - Flow Sharp, Ship Fast.", "frontend": "not_built"}
 
 
 # SPA route handler for non-API paths

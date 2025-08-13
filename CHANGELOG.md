@@ -21,7 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### 🎉 Initial Release
 
 **Musashi** - AI Agent Workflow Design Tool  
-*"Cut the code. Shape the flow."*
+*"Flow Sharp, Ship Fast."*
 
 First official release. An AI agent workflow design tool focused purely on design without execution capabilities.
 

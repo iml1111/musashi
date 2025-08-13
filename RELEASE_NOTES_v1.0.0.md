@@ -6,7 +6,7 @@
 
 ## 🚀 Highlights
 
-We're excited to announce the first production release of **Musashi** - an AI Agent Workflow Design Tool that focuses on visual workflow creation without execution capabilities. Our mission is **"Cut the code. Shape the flow."** - providing a lightweight, open-source tool for designing agentic workflows through node/edge-based flow charts.
+We're excited to announce the first production release of **Musashi** - an AI Agent Workflow Design Tool that focuses on visual workflow creation without execution capabilities. Our mission is **"Flow Sharp, Ship Fast."** - providing a lightweight, open-source tool for designing agentic workflows through node/edge-based flow charts.
 
 ## 📦 Container Images
 

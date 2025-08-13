@@ -608,7 +608,7 @@ const Components: React.FC = () => {
                   showBadge
                   badgeText="Beta"
                   subtitle="Workflow Design Tool"
-                  title="Cut the Code. Shape the Flow."
+                  title="Flow Sharp, Ship Fast."
                   description="Musashi empowers teams to create sophisticated AI agent workflows through intuitive visual design. No programming required."
                   primaryAction={{
                     text: "Start Building",

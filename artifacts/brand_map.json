@@ -1,0 +1,234 @@
+{
+  "dry_run": false,
+  "total_changes": 38,
+  "changes": [
+    {
+      "file": "CHANGELOG.md",
+      "line": 24,
+      "original": "Cut the code. Shape the flow.",
+      "replacement": "Flow Sharp, Ship Fast."
+    },
+    {
+      "file": "README.md",
+      "line": 13,
+      "original": "Cut the code. Shape the flow.",
+      "replacement": "Flow Sharp, Ship Fast."
+    },
+    {
+      "file": "RELEASE_NOTES_v1.0.0.md",
+      "line": 9,
+      "original": "Cut the code. Shape the flow.",
+      "replacement": "Flow Sharp, Ship Fast."
+    },
+    {
+      "file": "CLAUDE.md",
+      "line": 7,
+      "original": "Cut the code. Shape the flow.",
+      "replacement": "Flow Sharp, Ship Fast."
+    },
+    {
+      "file": "artifacts/brand_map.json",
+      "line": 116,
+      "original": "Cut the code. Shape the flow.",
+      "replacement": "Flow Sharp, Ship Fast."
+    },
+    {
+      "file": "artifacts/brand_map.json",
+      "line": 92,
+      "original": "Cut the code. Shape the flow.",
+      "replacement": "Flow Sharp, Ship Fast."
+    },
+    {
+      "file": "artifacts/brand_map.json",
+      "line": 86,
+      "original": "Cut the code. Shape the flow.",
+      "replacement": "Flow Sharp, Ship Fast."
+    },
+    {
+      "file": "artifacts/brand_map.json",
+      "line": 80,
+      "original": "Cut the code. Shape the flow.",
+      "replacement": "Flow Sharp, Ship Fast."
+    },
+    {
+      "file": "artifacts/brand_map.json",
+      "line": 74,
+      "original": "Cut the code. Shape the flow.",
+      "replacement": "Flow Sharp, Ship Fast."
+    },
+    {
+      "file": "artifacts/brand_map.json",
+      "line": 68,
+      "original": "Cut the code. Shape the flow.",
+      "replacement": "Flow Sharp, Ship Fast."
+    },
+    {
+      "file": "artifacts/brand_map.json",
+      "line": 62,
+      "original": "Cut the code. Shape the flow.",
+      "replacement": "Flow Sharp, Ship Fast."
+    },
+    {
+      "file": "artifacts/brand_map.json",
+      "line": 56,
+      "original": "Cut the Code. Shape the Flow.",
+      "replacement": "Flow Sharp, Ship Fast."
+    },
+    {
+      "file": "artifacts/brand_map.json",
+      "line": 50,
+      "original": "Cut the code. Shape the flow.",
+      "replacement": "Flow Sharp, Ship Fast."
+    },
+    {
+      "file": "artifacts/brand_map.json",
+      "line": 44,
+      "original": "Cut the code. Shape the flow.",
+      "replacement": "Flow Sharp, Ship Fast."
+    },
+    {
+      "file": "artifacts/brand_map.json",
+      "line": 38,
+      "original": "Cut the code. Shape the flow.",
+      "replacement": "Flow Sharp, Ship Fast."
+    },
+    {
+      "file": "artifacts/brand_map.json",
+      "line": 32,
+      "original": "Cut the code. Shape the flow.",
+      "replacement": "Flow Sharp, Ship Fast."
+    },
+    {
+      "file": "artifacts/brand_map.json",
+      "line": 26,
+      "original": "Cut the code. Shape the flow.",
+      "replacement": "Flow Sharp, Ship Fast."
+    },
+    {
+      "file": "artifacts/brand_map.json",
+      "line": 20,
+      "original": "Cut the code. Shape the flow.",
+      "replacement": "Flow Sharp, Ship Fast."
+    },
+    {
+      "file": "artifacts/brand_map.json",
+      "line": 14,
+      "original": "Cut the code. Shape the flow.",
+      "replacement": "Flow Sharp, Ship Fast."
+    },
+    {
+      "file": "artifacts/brand_map.json",
+      "line": 8,
+      "original": "Cut the code. Shape the flow.",
+      "replacement": "Flow Sharp, Ship Fast."
+    },
+    {
+      "file": "artifacts/brand_map.json",
+      "line": 93,
+      "original": "Cut the code, Shape the flow",
+      "replacement": "Flow Sharp, Ship Fast"
+    },
+    {
+      "file": "artifacts/brand_map.json",
+      "line": 99,
+      "original": "Cut the code - Shape the flow",
+      "replacement": "Flow Sharp, Ship Fast"
+    },
+    {
+      "file": "artifacts/brand_map.json",
+      "line": 105,
+      "original": "Cut the code Shape the flow",
+      "replacement": "Flow Sharp, Ship Fast"
+    },
+    {
+      "file": "frontend/index.html",
+      "line": 7,
+      "original": "Cut the code. Shape the flow.",
+      "replacement": "Flow Sharp, Ship Fast."
+    },
+    {
+      "file": "frontend/src/components/common/Footer.tsx",
+      "line": 178,
+      "original": "Cut the code. Shape the flow.",
+      "replacement": "Flow Sharp, Ship Fast."
+    },
+    {
+      "file": "frontend/src/pages/Login.tsx",
+      "line": 45,
+      "original": "Cut the code. Shape the flow.",
+      "replacement": "Flow Sharp, Ship Fast."
+    },
+    {
+      "file": "frontend/src/pages/Dashboard.tsx",
+      "line": 212,
+      "original": "Cut the code. Shape the flow.",
+      "replacement": "Flow Sharp, Ship Fast."
+    },
+    {
+      "file": "frontend/src/pages/Components.tsx",
+      "line": 611,
+      "original": "Cut the Code. Shape the Flow.",
+      "replacement": "Flow Sharp, Ship Fast."
+    },
+    {
+      "file": ".claude/musashi_settings.json",
+      "line": 6,
+      "original": "Cut the code. Shape the flow.",
+      "replacement": "Flow Sharp, Ship Fast."
+    },
+    {
+      "file": "backend/app/main.py",
+      "line": 82,
+      "original": "Cut the code. Shape the flow.",
+      "replacement": "Flow Sharp, Ship Fast."
+    },
+    {
+      "file": "backend/app/main.py",
+      "line": 44,
+      "original": "Cut the code. Shape the flow.",
+      "replacement": "Flow Sharp, Ship Fast."
+    },
+    {
+      "file": "scripts/replace_phrase.py",
+      "line": 165,
+      "original": "Cut the code. Shape the flow.",
+      "replacement": "Flow Sharp, Ship Fast."
+    },
+    {
+      "file": "scripts/replace_phrase.py",
+      "line": 76,
+      "original": "Cut the code. Shape the flow.",
+      "replacement": "Flow Sharp, Ship Fast."
+    },
+    {
+      "file": "scripts/replace_phrase.py",
+      "line": 4,
+      "original": "Cut the code. Shape the flow.",
+      "replacement": "Flow Sharp, Ship Fast."
+    },
+    {
+      "file": "scripts/replace_phrase.py",
+      "line": 82,
+      "original": "Cut the code, Shape the flow",
+      "replacement": "Flow Sharp, Ship Fast"
+    },
+    {
+      "file": "scripts/replace_phrase.py",
+      "line": 87,
+      "original": "Cut the code - Shape the flow",
+      "replacement": "Flow Sharp, Ship Fast"
+    },
+    {
+      "file": "scripts/replace_phrase.py",
+      "line": 92,
+      "original": "Cut the code Shape the flow",
+      "replacement": "Flow Sharp, Ship Fast"
+    },
+    {
+      "file": "scripts/scan_phrase.py",
+      "line": 4,
+      "original": "Cut the code. Shape the flow.",
+      "replacement": "Flow Sharp, Ship Fast."
+    }
+  ]
+}
