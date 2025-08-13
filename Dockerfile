@@ -9,7 +9,7 @@ WORKDIR /app/frontend
 
 # Copy package files first for better caching
 COPY frontend/package*.json ./
-RUN npm ci --only=production && \
+RUN npm install --legacy-peer-deps && \
     npm cache clean --force
 
 # Copy frontend source and build
@@ -44,36 +44,52 @@ COPY backend/app ./app
 # Copy built frontend to nginx directory
 COPY --from=frontend-builder /app/frontend/build /usr/share/nginx/html
 
-# Configure nginx
-RUN echo 'server { \
-    listen 80; \
-    server_name _; \
-    root /usr/share/nginx/html; \
-    index index.html; \
+# Configure nginx with custom config
+RUN echo 'pid /tmp/nginx.pid; \
+error_log /var/log/nginx/error.log; \
+events { \
+    worker_connections 1024; \
+} \
+http { \
+    include /etc/nginx/mime.types; \
+    default_type application/octet-stream; \
+    access_log /var/log/nginx/access.log; \
+    client_body_temp_path /tmp/client_body; \
+    fastcgi_temp_path /tmp/fastcgi_temp; \
+    proxy_temp_path /tmp/proxy_temp; \
+    scgi_temp_path /tmp/scgi_temp; \
+    uwsgi_temp_path /tmp/uwsgi_temp; \
     \
-    location / { \
-        try_files $uri $uri/ /index.html; \
+    server { \
+        listen 80; \
+        server_name _; \
+        root /usr/share/nginx/html; \
+        index index.html; \
+        \
+        location / { \
+            try_files $uri $uri/ /index.html; \
+        } \
+        \
+        location /api { \
+            proxy_pass http://localhost:8000/api; \
+            proxy_http_version 1.1; \
+            proxy_set_header Upgrade $http_upgrade; \
+            proxy_set_header Connection "upgrade"; \
+            proxy_set_header Host $host; \
+            proxy_set_header X-Real-IP $remote_addr; \
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; \
+            proxy_set_header X-Forwarded-Proto $scheme; \
+        } \
     } \
-    \
-    location /api { \
-        proxy_pass http://localhost:8000/api; \
-        proxy_http_version 1.1; \
-        proxy_set_header Upgrade $http_upgrade; \
-        proxy_set_header Connection "upgrade"; \
-        proxy_set_header Host $host; \
-        proxy_set_header X-Real-IP $remote_addr; \
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; \
-        proxy_set_header X-Forwarded-Proto $scheme; \
-    } \
-}' > /etc/nginx/sites-available/default
+}' > /etc/nginx/nginx.conf
 
 # Create startup script
 RUN echo '#!/bin/bash\n\
 # Start FastAPI backend in background\n\
 uvicorn app.main:app --host 0.0.0.0 --port 8000 &\n\
 \n\
-# Start nginx in foreground\n\
-nginx -g "daemon off;"\n\
+# Start nginx in foreground with custom config\n\
+nginx -c /etc/nginx/nginx.conf -g "daemon off;"\n\
 ' > /app/start.sh && chmod +x /app/start.sh
 
 # Set proper permissions for nginx
@@ -81,7 +97,8 @@ RUN mkdir -p /var/lib/nginx /var/log/nginx /var/cache/nginx /var/run && \
     chown -R musashi:musashi /var/lib/nginx /var/log/nginx /var/cache/nginx /var/run && \
     chown -R musashi:musashi /app && \
     chown -R musashi:musashi /usr/share/nginx/html && \
-    chmod 755 /app/start.sh
+    chmod 755 /app/start.sh && \
+    touch /run/nginx.pid && chown musashi:musashi /run/nginx.pid
 
 # Switch to non-root user
 USER musashi
