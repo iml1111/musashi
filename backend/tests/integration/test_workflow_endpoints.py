@@ -39,20 +39,24 @@ class TestWorkflowEndpoints:
     @pytest.fixture(autouse=True)
     def override_db(self, mock_db):
         """Override database dependency."""
+        from app.services.auth import get_current_active_user_dependency
+        from app.models.user import User
+
         app.dependency_overrides[get_database] = lambda: mock_db
 
-        # Setup user mock for authentication
-        mock_db.users.find_one = AsyncMock(
-            return_value={
-                "_id": ObjectId("507f1f77bcf86cd799439011"),
-                "username": "testuser",
-                "email": "test@example.com",
-                "is_active": True,
-                "role": "user",
-                "created_at": datetime.utcnow(),
-                "updated_at": datetime.utcnow(),
-            }
+        # Create a mock current user for all workflow tests
+        mock_current_user = User(
+            id="507f1f77bcf86cd799439011",
+            username="testuser",
+            email="test@example.com",
+            is_active=True,
+            role="user",
+            created_at=datetime.utcnow(),
+            updated_at=datetime.utcnow()
         )
+
+        # Override the auth dependency
+        app.dependency_overrides[get_current_active_user_dependency] = lambda: mock_current_user
 
         yield
         app.dependency_overrides.clear()
@@ -94,8 +98,28 @@ class TestWorkflowEndpoints:
 
     def test_get_workflows_unauthorized(self, client):
         """Test getting workflows without authentication."""
-        response = client.get("/api/v1/workflows")
-        assert response.status_code == 403
+        from app.services.auth import get_current_active_user_dependency
+        
+        # Temporarily remove auth override to test unauthorized access
+        if get_current_active_user_dependency in app.dependency_overrides:
+            del app.dependency_overrides[get_current_active_user_dependency]
+        
+        try:
+            response = client.get("/api/v1/workflows")
+            assert response.status_code == 403
+        finally:
+            # Restore auth override for other tests
+            from app.models.user import User
+            mock_current_user = User(
+                id="507f1f77bcf86cd799439011",
+                username="testuser",
+                email="test@example.com",
+                is_active=True,
+                role="user",
+                created_at=datetime.utcnow(),
+                updated_at=datetime.utcnow()
+            )
+            app.dependency_overrides[get_current_active_user_dependency] = lambda: mock_current_user
 
     def test_create_workflow(self, client, mock_db, auth_token):
         """Test creating a new workflow."""
@@ -216,13 +240,31 @@ class TestWorkflowEndpoints:
         """Test generating share token for workflow."""
         # Setup mock
         workflow_id = "507f1f77bcf86cd799439014"
-        mock_db.workflows.find_one = AsyncMock(
-            return_value={
+        mock_db.workflows.find_one = AsyncMock(side_effect=[
+            # First call to get_workflow in share_workflow
+            {
                 "_id": ObjectId(workflow_id),
+                "name": "Test Workflow",
                 "owner_id": "507f1f77bcf86cd799439011",
                 "is_public": False,
+                "nodes": [],
+                "edges": [],
+                "created_at": datetime.utcnow(),
+                "updated_at": datetime.utcnow(),
+            },
+            # Second call after update
+            {
+                "_id": ObjectId(workflow_id),
+                "name": "Test Workflow",
+                "owner_id": "507f1f77bcf86cd799439011",
+                "is_public": True,
+                "share_token": "generated_token",
+                "nodes": [],
+                "edges": [],
+                "created_at": datetime.utcnow(),
+                "updated_at": datetime.utcnow(),
             }
-        )
+        ])
         mock_db.workflows.update_one = AsyncMock()
 
         # Make request
@@ -245,10 +287,13 @@ class TestWorkflowEndpoints:
             return_value={
                 "_id": ObjectId("507f1f77bcf86cd799439014"),
                 "name": "Shared Workflow",
+                "owner_id": "507f1f77bcf86cd799439011",
                 "is_public": True,
                 "share_token": share_token,
                 "nodes": [],
                 "edges": [],
+                "created_at": datetime.utcnow(),
+                "updated_at": datetime.utcnow(),
             }
         )
 

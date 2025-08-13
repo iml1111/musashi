@@ -74,14 +74,11 @@ async def register(user_data: UserCreate, db=Depends(get_database)):
 async def refresh_token(current_user: User = Depends(get_current_active_user_dependency), db=Depends(get_database)):
     """Refresh access token"""
     auth_service = AuthService(db)
-    # Generate new token for the current user
-    token_data = {
-        "access_token": auth_service.create_access_token(
-            data={"sub": current_user.username}
-        ),
-        "token_type": "bearer"
-    }
-    return Token(**token_data)
+    # Generate new token for the current user with role
+    access_token = auth_service.create_access_token(
+        data={"sub": current_user.username, "role": current_user.role}
+    )
+    return Token(access_token=access_token, token_type="bearer", user=current_user)
 
 
 @router.post("/logout")
