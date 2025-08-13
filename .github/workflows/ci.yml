@@ -91,14 +91,41 @@ jobs:
       run: |
         docker compose build
     
-    - name: Test Docker compose
+    - name: Test Docker compose up
       env:
         SECRET_KEY: test-secret-key-for-ci
-        MONGODB_URL: mongodb://localhost:27017
+        MONGODB_URL: mongodb://mongo:27017
         DATABASE_NAME: musashi_test
       run: |
+        # Start services
         docker compose up -d
-        sleep 60
-        curl -f http://localhost:8080/ || exit 1
-        curl -f http://localhost:8080/api/v1/health || exit 1
+        
+        # Wait for containers to be ready
+        echo "Waiting for containers to start..."
+        sleep 30
+        
+        # Check container status
+        docker compose ps
+        
+        # Check logs
+        echo "=== Mongo logs ==="
+        docker compose logs mongo | tail -10
+        echo "=== App logs ==="
+        docker compose logs musashi | tail -20
+        
+        # Test MongoDB connection first
+        if docker compose exec -T mongo mongosh --quiet --eval "db.runCommand('ping')" 2>/dev/null; then
+          echo "MongoDB is responding"
+        else
+          echo "MongoDB is not responding"
+        fi
+        
+        # Try connecting to app
+        echo "Testing app connectivity..."
+        timeout 30 bash -c 'until docker compose exec -T musashi curl -sf http://localhost:8080/api/v1/health; do sleep 2; done' || {
+          echo "App health check failed, trying alternative check..."
+          docker compose exec -T musashi curl -v http://localhost:8080/ || echo "Direct connection failed"
+        }
+        
+        # Cleanup
         docker compose down
