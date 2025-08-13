@@ -5,294 +5,294 @@
 
 set -e
 
-echo "🔄 Musashi CI 재현 스크립트 시작..."
+echo "🔄 Musashi CI Reproduction Script Start..."
 echo "=================================="
 
-# 색상 정의
+# Color definitions
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-# 프로젝트 루트 디렉터리 확인
+# Confirm project root directory
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 cd "$PROJECT_ROOT"
 
-echo "📍 프로젝트 루트: $PROJECT_ROOT"
+echo "📍 Project Root: $PROJECT_ROOT"
 
-# 환경 변수 설정 (GitHub Actions와 동일)
+# Environment Variables Settings (same as GitHub Actions)
 export MONGODB_URL="mongodb://admin:password123@localhost:27017/musashi_test?authSource=admin"
 export DATABASE_NAME="musashi_test"
 export SECRET_KEY="test-secret-key"
 
-# MongoDB 컨테이너 확인 및 시작
-echo -e "\n${YELLOW}🍃 MongoDB 컨테이너 확인 및 시작...${NC}"
+# Confirm and start MongoDB container
+echo -e "\n${YELLOW}🍃 Confirming and Starting MongoDB Container...${NC}"
 if ! docker ps | grep -q mongo:7.0; then
-    echo "MongoDB 컨테이너 시작중..."
+    echo "Starting MongoDB Container..."
     docker run -d --name mongodb-test \
         -e MONGO_INITDB_ROOT_USERNAME=admin \
         -e MONGO_INITDB_ROOT_PASSWORD=password123 \
         -p 27017:27017 \
-        mongo:7.0 || echo "MongoDB 컨테이너가 이미 존재하거나 실행 중입니다."
+        mongo:7.0 || echo "MongoDB Container already exists or is running."
 else
-    echo "MongoDB 컨테이너가 이미 실행중입니다."
+    echo "MongoDB Container is already running."
 fi
 
-# MongoDB 연결 대기
-echo "MongoDB 연결 대기중..."
+# Wait for MongoDB connection
+echo "Waiting for MongoDB connection..."
 sleep 5
 
-# Python 버전 확인 (CI에서는 3.12 사용)
-echo -e "\n${YELLOW}🐍 Python 환경 확인...${NC}"
+# Confirm Python version (CI uses 3.12)
+echo -e "\n${YELLOW}🐍 Confirming Python Environment...${NC}"
 python_version=$(python3 --version 2>&1 | cut -d' ' -f2 | cut -d'.' -f1,2)
-echo "현재 Python 버전: $python_version"
+echo "Current Python Version: $python_version"
 if [[ "$python_version" != "3.12" ]]; then
-    echo -e "${RED}⚠️  경고: CI는 Python 3.12를 사용합니다. 현재 버전과 다를 수 있습니다.${NC}"
+    echo -e "${RED}⚠️  Warning: CI uses Python 3.12. Current version may be different.${NC}"
 fi
 
-# Node.js 버전 확인 (CI에서는 20 사용)
-echo -e "\n${YELLOW}📦 Node.js 환경 확인...${NC}"
+# Confirm Node.js version (CI uses 20)
+echo -e "\n${YELLOW}📦 Confirming Node.js Environment...${NC}"
 if command -v node &> /dev/null; then
     node_version=$(node --version | cut -d'v' -f2 | cut -d'.' -f1)
-    echo "현재 Node.js 버전: v$(node --version | cut -d'v' -f2)"
+    echo "Current Node.js Version: v$(node --version | cut -d'v' -f2)"
     if [[ "$node_version" != "20" ]]; then
-        echo -e "${RED}⚠️  경고: CI는 Node.js 20을 사용합니다. 현재 버전과 다를 수 있습니다.${NC}"
+        echo -e "${RED}⚠️  Warning: CI uses Node.js 20. Current version may be different.${NC}"
     fi
 else
-    echo -e "${RED}❌ Node.js가 설치되지 않았습니다.${NC}"
+    echo -e "${RED}❌ Node.js is not installed.${NC}"
     exit 1
 fi
 
 # =============================================================================
-# 백엔드 테스트 (GitHub Actions와 동일한 순서)
+# Backend Testing (same order as GitHub Actions)
 # =============================================================================
 
-echo -e "\n${YELLOW}🔧 백엔드 테스트 시작...${NC}"
+echo -e "\n${YELLOW}🔧 Starting Backend Testing...${NC}"
 
-# 백엔드 디렉터리 이동
+# Move to backend directory
 cd "$PROJECT_ROOT/backend"
 
-# 백엔드 의존성 설치
-echo -e "\n📦 백엔드 의존성 설치..."
+# Install backend dependencies
+echo -e "\n📦 Installing Backend Dependencies..."
 if [[ -f "requirements.txt" ]]; then
     pip install -r requirements.txt
     pip install ruff
 else
-    echo -e "${RED}❌ requirements.txt 파일을 찾을 수 없습니다.${NC}"
+    echo -e "${RED}❌ Cannot find requirements.txt file.${NC}"
     exit 1
 fi
 
-# 백엔드 린팅 (GitHub Actions와 동일)
-echo -e "\n🔍 백엔드 린팅 검사..."
+# Backend linting (same as GitHub Actions)
+echo -e "\n🔍 Backend Linting Inspection..."
 if ruff check .; then
-    echo -e "${GREEN}✅ 백엔드 린팅 통과${NC}"
+    echo -e "${GREEN}✅ Backend Linting Passed${NC}"
 else
-    echo -e "${RED}❌ 백엔드 린팅 실패${NC}"
+    echo -e "${RED}❌ Backend Linting Failed${NC}"
     BACKEND_LINT_FAILED=1
 fi
 
-# 백엔드 테스트 실행
-echo -e "\n🧪 백엔드 테스트 실행..."
+# Execute backend testing
+echo -e "\n🧪 Executing Backend Testing..."
 if python -m pytest -v; then
-    echo -e "${GREEN}✅ 백엔드 테스트 통과${NC}"
+    echo -e "${GREEN}✅ Backend Testing Passed${NC}"
 else
-    echo -e "${RED}❌ 백엔드 테스트 실패${NC}"
+    echo -e "${RED}❌ Backend Testing Failed${NC}"
     BACKEND_TEST_FAILED=1
 fi
 
 # =============================================================================
-# 프론트엔드 테스트 (GitHub Actions와 동일한 순서)
+# Frontend Testing (same order as GitHub Actions)
 # =============================================================================
 
-echo -e "\n${YELLOW}⚛️  프론트엔드 테스트 시작...${NC}"
+echo -e "\n${YELLOW}⚛️  Starting Frontend Testing...${NC}"
 
-# 프론트엔드 디렉터리 이동
+# Move to frontend directory
 cd "$PROJECT_ROOT/frontend"
 
-# 프론트엔드 의존성 설치 (npm ci 사용)
-echo -e "\n📦 프론트엔드 의존성 설치..."
+# Install frontend dependencies (using npm ci)
+echo -e "\n📦 Installing Frontend Dependencies..."
 if [[ -f "package-lock.json" ]]; then
     npm ci
 else
-    echo -e "${RED}❌ package-lock.json 파일을 찾을 수 없습니다.${NC}"
+    echo -e "${RED}❌ Cannot find package-lock.json file.${NC}"
     exit 1
 fi
 
-# 프론트엔드 린팅
-echo -e "\n🔍 프론트엔드 린팅 검사..."
+# Frontend linting
+echo -e "\n🔍 Frontend Linting Inspection..."
 if npm run lint; then
-    echo -e "${GREEN}✅ 프론트엔드 린팅 통과${NC}"
+    echo -e "${GREEN}✅ Frontend Linting Passed${NC}"
 else
-    echo -e "${RED}❌ 프론트엔드 린팅 실패${NC}"
+    echo -e "${RED}❌ Frontend Linting Failed${NC}"
     FRONTEND_LINT_FAILED=1
 fi
 
-# 프론트엔드 테스트 (커버리지 포함)
-echo -e "\n🧪 프론트엔드 테스트 실행 (커버리지 포함)..."
+# Frontend testing (including coverage)
+echo -e "\n🧪 Executing Frontend Testing (including coverage)..."
 if npm run test:coverage; then
-    echo -e "${GREEN}✅ 프론트엔드 테스트 통과${NC}"
+    echo -e "${GREEN}✅ Frontend Testing Passed${NC}"
 else
-    echo -e "${RED}❌ 프론트엔드 테스트 실패${NC}"
+    echo -e "${RED}❌ Frontend Testing Failed${NC}"
     FRONTEND_TEST_FAILED=1
 fi
 
-# 프론트엔드 빌드
-echo -e "\n🔨 프론트엔드 빌드..."
+# Frontend Build
+echo -e "\n🔨 Frontend Build..."
 if npm run build; then
-    echo -e "${GREEN}✅ 프론트엔드 빌드 통과${NC}"
+    echo -e "${GREEN}✅ Frontend Build Passed${NC}"
 else
-    echo -e "${RED}❌ 프론트엔드 빌드 실패${NC}"
+    echo -e "${RED}❌ Frontend Build Failed${NC}"
     FRONTEND_BUILD_FAILED=1
 fi
 
 # =============================================================================
-# Docker 빌드 및 컴포즈 테스트 (GitHub Actions와 동일)
+# Docker Build and Compose Testing (same as GitHub Actions)
 # =============================================================================
 
 cd "$PROJECT_ROOT"
 
-echo -e "\n${YELLOW}🐳 Docker 빌드 테스트...${NC}"
+echo -e "\n${YELLOW}🐳 Docker Build Testing...${NC}"
 if docker compose build; then
-    echo -e "${GREEN}✅ Docker 빌드 통과${NC}"
+    echo -e "${GREEN}✅ Docker Build Passed${NC}"
 else
-    echo -e "${RED}❌ Docker 빌드 실패${NC}"
+    echo -e "${RED}❌ Docker Build Failed${NC}"
     DOCKER_BUILD_FAILED=1
 fi
 
-echo -e "\n${YELLOW}🐳 Docker Compose 헬스체크 테스트...${NC}"
-# GitHub Actions CI와 동일한 환경변수 설정
+echo -e "\n${YELLOW}🐳 Docker Compose Health Check Testing...${NC}"
+# Environment variables settings same as GitHub Actions CI
 export SECRET_KEY="test-secret-key-for-ci"
 export MONGODB_URL="mongodb://mongo:27017"
 export DATABASE_NAME="musashi_test"
 
-# 기존 컨테이너 정리
+# Clean up existing containers
 docker compose down 2>/dev/null || true
 
-# 서비스 시작
-echo "Docker Compose 서비스 시작..."
+# Start services
+echo "Starting Docker Compose Services..."
 if docker compose up -d; then
-    echo "컨테이너 시작됨. 대기 중..."
+    echo "Containers started. Waiting..."
     sleep 30
     
-    # 컨테이너 상태 확인
-    echo "=== 컨테이너 상태 ==="
+    # Confirm container status
+    echo "=== Container Status ==="
     docker compose ps
     
-    # 로그 확인
-    echo "=== Mongo 로그 ==="
+    # Check logs
+    echo "=== Mongo Log ==="
     docker compose logs mongo | tail -10
-    echo "=== App 로그 ==="
+    echo "=== App Log ==="
     docker compose logs musashi | tail -20
     
-    # MongoDB 연결 테스트
+    # Test MongoDB connection
     if docker compose exec -T mongo mongosh --quiet --eval "db.runCommand('ping')" 2>/dev/null; then
-        echo -e "${GREEN}✅ MongoDB 연결 성공${NC}"
+        echo -e "${GREEN}✅ MongoDB Connection Successful${NC}"
     else
-        echo -e "${RED}❌ MongoDB 연결 실패${NC}"
+        echo -e "${RED}❌ MongoDB Connection Failed${NC}"
         DOCKER_MONGO_FAILED=1
     fi
     
-    # 앱 헬스체크 테스트 (GitHub Actions와 동일한 방식)
-    echo "앱 연결 테스트..."
+    # App health check testing (same method as GitHub Actions)
+    echo "Testing App Connection..."
     if timeout 30 bash -c 'until docker compose exec -T musashi curl -sf http://localhost:8080/api/v1/health; do sleep 2; done'; then
-        echo -e "${GREEN}✅ 앱 헬스체크 성공${NC}"
+        echo -e "${GREEN}✅ App Health Check Successful${NC}"
     else
-        echo -e "${RED}❌ 앱 헬스체크 실패${NC}"
-        echo "대체 연결 테스트..."
-        docker compose exec -T musashi curl -v http://localhost:8080/ || echo "직접 연결 실패"
+        echo -e "${RED}❌ App Health Check Failed${NC}"
+        echo "Testing Alternative Connection..."
+        docker compose exec -T musashi curl -v http://localhost:8080/ || echo "Direct Connection Failed"
         DOCKER_HEALTH_FAILED=1
     fi
     
-    # 정리
+    # Cleanup
     docker compose down
 else
-    echo -e "${RED}❌ Docker Compose 시작 실패${NC}"
+    echo -e "${RED}❌ Docker Compose Start Failed${NC}"
     DOCKER_COMPOSE_FAILED=1
 fi
 
 # =============================================================================
-# 결과 요약
+# Result Summary
 # =============================================================================
 
-echo -e "\n${YELLOW}📋 CI 재현 결과 요약${NC}"
+echo -e "\n${YELLOW}📋 CI Reproduction Result Summary${NC}"
 echo "=================================="
 
 FAILED_COUNT=0
 
 if [[ -n "$BACKEND_LINT_FAILED" ]]; then
-    echo -e "${RED}❌ 백엔드 린팅 실패${NC}"
+    echo -e "${RED}❌ Backend Linting Failed${NC}"
     ((FAILED_COUNT++))
 else
-    echo -e "${GREEN}✅ 백엔드 린팅 성공${NC}"
+    echo -e "${GREEN}✅ Backend Linting Success${NC}"
 fi
 
 if [[ -n "$BACKEND_TEST_FAILED" ]]; then
-    echo -e "${RED}❌ 백엔드 테스트 실패${NC}"
+    echo -e "${RED}❌ Backend Testing Failed${NC}"
     ((FAILED_COUNT++))
 else
-    echo -e "${GREEN}✅ 백엔드 테스트 성공${NC}"
+    echo -e "${GREEN}✅ Backend Testing Success${NC}"
 fi
 
 if [[ -n "$FRONTEND_LINT_FAILED" ]]; then
-    echo -e "${RED}❌ 프론트엔드 린팅 실패${NC}"
+    echo -e "${RED}❌ Frontend Linting Failed${NC}"
     ((FAILED_COUNT++))
 else
-    echo -e "${GREEN}✅ 프론트엔드 린팅 성공${NC}"
+    echo -e "${GREEN}✅ Frontend Linting Success${NC}"
 fi
 
 if [[ -n "$FRONTEND_TEST_FAILED" ]]; then
-    echo -e "${RED}❌ 프론트엔드 테스트 실패${NC}"
+    echo -e "${RED}❌ Frontend Testing Failed${NC}"
     ((FAILED_COUNT++))
 else
-    echo -e "${GREEN}✅ 프론트엔드 테스트 성공${NC}"
+    echo -e "${GREEN}✅ Frontend Testing Success${NC}"
 fi
 
 if [[ -n "$FRONTEND_BUILD_FAILED" ]]; then
-    echo -e "${RED}❌ 프론트엔드 빌드 실패${NC}"
+    echo -e "${RED}❌ Frontend Build Failed${NC}"
     ((FAILED_COUNT++))
 else
-    echo -e "${GREEN}✅ 프론트엔드 빌드 성공${NC}"
+    echo -e "${GREEN}✅ Frontend Build Success${NC}"
 fi
 
 if [[ -n "$DOCKER_BUILD_FAILED" ]]; then
-    echo -e "${RED}❌ Docker 빌드 실패${NC}"
+    echo -e "${RED}❌ Docker Build Failed${NC}"
     ((FAILED_COUNT++))
 else
-    echo -e "${GREEN}✅ Docker 빌드 성공${NC}"
+    echo -e "${GREEN}✅ Docker Build Success${NC}"
 fi
 
 if [[ -n "$DOCKER_COMPOSE_FAILED" ]]; then
-    echo -e "${RED}❌ Docker Compose 시작 실패${NC}"
+    echo -e "${RED}❌ Docker Compose Start Failed${NC}"
     ((FAILED_COUNT++))
 else
-    echo -e "${GREEN}✅ Docker Compose 시작 성공${NC}"
+    echo -e "${GREEN}✅ Docker Compose Start Success${NC}"
 fi
 
 if [[ -n "$DOCKER_MONGO_FAILED" ]]; then
-    echo -e "${RED}❌ MongoDB 연결 실패${NC}"
+    echo -e "${RED}❌ MongoDB Connection Failed${NC}"
     ((FAILED_COUNT++))
 else
-    echo -e "${GREEN}✅ MongoDB 연결 성공${NC}"
+    echo -e "${GREEN}✅ MongoDB Connection Successful${NC}"
 fi
 
 if [[ -n "$DOCKER_HEALTH_FAILED" ]]; then
-    echo -e "${RED}❌ 앱 헬스체크 실패${NC}"
+    echo -e "${RED}❌ App Health Check Failed${NC}"
     ((FAILED_COUNT++))
 else
-    echo -e "${GREEN}✅ 앱 헬스체크 성공${NC}"
+    echo -e "${GREEN}✅ App Health Check Success${NC}"
 fi
 
-# MongoDB 컨테이너 정리
-echo -e "\n🧹 테스트 환경 정리..."
+# Clean up MongoDB container
+echo -e "\n🧹 Cleaning Up Testing Environment..."
 docker stop mongodb-test 2>/dev/null || true
 docker rm mongodb-test 2>/dev/null || true
 
 if [[ $FAILED_COUNT -gt 0 ]]; then
-    echo -e "\n${RED}💥 총 $FAILED_COUNT 개의 검사가 실패했습니다.${NC}"
-    echo -e "${YELLOW}🔧 문제를 해결한 후 다시 실행하세요.${NC}"
+    echo -e "\n${RED}💥 Total $FAILED_COUNT inspections failed.${NC}"
+    echo -e "${YELLOW}🔧 Please resolve the problems and retry.${NC}"
     exit 1
 else
-    echo -e "\n${GREEN}🎉 모든 CI 검사가 성공했습니다!${NC}"
+    echo -e "\n${GREEN}🎉 All CI inspections were successful!${NC}"
     exit 0
 fi

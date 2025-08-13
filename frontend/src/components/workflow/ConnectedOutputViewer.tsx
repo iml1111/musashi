@@ -29,7 +29,7 @@ const ConnectedOutputViewer: React.FC<ConnectedOutputViewerProps> = ({
     }
   }
 
-  // JSON 구문 강조
+  // JSON syntax highlighting
   const highlightJSON = (jsonStr: string) => {
     try {
       const parsed = JSON.parse(jsonStr)

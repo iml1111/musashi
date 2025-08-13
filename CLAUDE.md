@@ -24,29 +24,29 @@ Musashi is an AI Agent Workflow Design Tool that focuses on visual workflow crea
 
 ## Common Development Commands
 
-### Docker Single Container (권장)
+# # # Docker Single Container (권장)
 ```bash
-# Docker 이미지 빌드
+# Docker Image Build
 docker build -t musashi:latest -f Dockerfile.optimized .
 
-# 단일 컨테이너 실행 (프론트엔드: 80포트, 백엔드 API: 8080포트)
+# 단Day Container Execute (Frontend: 80Port, Backend API: 8080Port)
 ./run-musashi.sh
 
-# 컨테이너 관리
-docker logs -f musashi        # 로그 확인
-docker restart musashi        # 재시작
-docker stop musashi          # 중지
-docker rm musashi            # 제거
+# Container Management
+docker logs -f musashi        # Check logs
+docker restart musashi        # 재Start
+docker stop musashi          # Stop
+docker rm musashi            # Remove
 
-# Make 명령어 (단일 컨테이너)
-make docker-build            # Docker 이미지 빌드
-make docker-run              # 컨테이너 실행
-make docker-stop             # 컨테이너 중지
-make docker-restart          # 컨테이너 재시작
-make docker-logs             # 로그 확인
+# Make Command (단Day Container)
+make docker-build            # Docker Image Build
+make docker-run              # Container Execute
+make docker-stop             # Stop container
+make docker-restart          # Restart container
+make docker-logs             # Check logs
 ```
 
-### Docker Compose Development (레거시)
+# # # Docker Compose Development (레거Hour)
 ```bash
 # Initial setup
 make setup                    # Copy .env.example to .env
@@ -400,12 +400,12 @@ Musashi is enhanced with SuperClaude Framework v3.0 for advanced development wor
 
 ## Port Configuration
 
-### 단일 컨테이너 모드 (권장)
+# # # 단Day Container 모드 (권장)
 - Frontend: `:80` (nginx serving React)
 - Backend API: `:8080` (FastAPI direct access)
 - MongoDB: `:27017` (existing container)
 
-### 개발 모드 (Docker Compose)
+### Development mode (Docker Compose)
 - Frontend: `:3000` (Vite dev server)
 - Backend: `:8000` (FastAPI)
 - MongoDB: `:27017`

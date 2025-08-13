@@ -1,10 +1,10 @@
 /**
  * Musashi Component Validator
- * 개발 중 컴포넌트 사용 규칙 준수를 돕는 유틸리티
+ * Development 중 Component 사용 Rules 준수를 돕는 유틸리티
  */
 
 export const COMPONENT_RULES = {
-  // 금지된 HTML 태그들 (컴포넌트로 대체해야 함)
+  // 금지된 HTML Tag들 (Component로 대체해야 함)
   FORBIDDEN_TAGS: {
     'h1': 'Typography variant="h1"',
     'h2': 'Typography variant="h2"', 
@@ -17,7 +17,7 @@ export const COMPONENT_RULES = {
     'textarea': 'Input (with multiline)',
   },
 
-  // 권장 컴포넌트 매핑
+  // 권장 Component Mapping
   RECOMMENDED_COMPONENTS: {
     text: 'Typography',
     button: 'Button', 
@@ -30,7 +30,7 @@ export const COMPONENT_RULES = {
     badge: 'Badge',
   },
 
-  // 금지된 인라인 스타일 속성들
+  // 금지된 인라인 스타Day Properties들
   FORBIDDEN_STYLES: [
     'color',
     'backgroundColor', 
@@ -44,7 +44,7 @@ export const COMPONENT_RULES = {
 } as const;
 
 /**
- * 컴포넌트 사용 가이드를 콘솔에 출력
+ * Component 사용 Guide를 콘솔에 Output
  */
 export const showComponentGuide = (element: string) => {
   if (process.env.NODE_ENV === 'development') {
@@ -57,7 +57,7 @@ export const showComponentGuide = (element: string) => {
 ❌ 지양: <${element}>
 ✅ 권장: <${recommendation}>
 
-📚 자세한 가이드: /COMPONENT_GUIDELINES.md
+📚 자세한 Guide: /COMPONENT_GUIDELINES.md
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
       `);
     }
@@ -65,7 +65,7 @@ export const showComponentGuide = (element: string) => {
 };
 
 /**
- * 개발 환경에서 스타일 사용 경고
+ * Development Environment에서 스타Day 사용 Warning
  */
 export const warnInlineStyle = (styles: Record<string, any>) => {
   if (process.env.NODE_ENV === 'development') {
@@ -77,13 +77,13 @@ export const warnInlineStyle = (styles: Record<string, any>) => {
       console.warn(`
 🎨 Musashi Style Guide
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-❌ 인라인 스타일 사용: ${forbiddenProps.join(', ')}
+❌ 인라인 스타Day 사용: ${forbiddenProps.join(', ')}
 ✅ 권장: 
   - 색상: theme.ts 또는 Typography color prop
-  - 간격: theme.spacing 또는 Tailwind 클래스
-  - 타이포그래피: Typography 컴포넌트
+  - Interval: theme.spacing 또는 Tailwind 클래스
+  - 타이포그래피: Typography Component
 
-📚 자세한 가이드: /COMPONENT_GUIDELINES.md
+📚 자세한 Guide: /COMPONENT_GUIDELINES.md
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
       `);
     }
@@ -91,7 +91,7 @@ export const warnInlineStyle = (styles: Record<string, any>) => {
 };
 
 /**
- * 컴포넌트 import 체커
+ * Component import 체커
  */
 export const checkComponentImports = (fileContent: string) => {
   const lines = fileContent.split('\n');
@@ -109,7 +109,7 @@ export const checkComponentImports = (fileContent: string) => {
   if (hasHtmlElements && !hasComponentImport) {
     return {
       warning: true,
-      message: 'HTML 태그를 사용하고 있지만 Musashi 컴포넌트를 import하지 않았습니다.',
+      message: 'HTML Tag를 사용하고 있지만 Musashi Component를 import하지 않았습니다.',
       suggestion: "import { Typography, Button, Input } from '../components/common';"
     };
   }
@@ -118,12 +118,12 @@ export const checkComponentImports = (fileContent: string) => {
 };
 
 /**
- * 자동 수정 제안 생성
+ * Auto Modify 제안 Create
  */
 export const generateFixSuggestions = (code: string) => {
   const suggestions: Array<{from: string, to: string, reason: string}> = [];
 
-  // HTML 태그 → 컴포넌트 변환 제안
+  // HTML Tag → Component Conversion 제안
   Object.entries(COMPONENT_RULES.FORBIDDEN_TAGS).forEach(([tag, component]) => {
     const regex = new RegExp(`<${tag}([^>]*)>([^<]*)</${tag}>`, 'g');
     const matches = code.match(regex);
@@ -133,7 +133,7 @@ export const generateFixSuggestions = (code: string) => {
         suggestions.push({
           from: match,
           to: `<${component}>${match.replace(new RegExp(`</?${tag}[^>]*>`, 'g'), '')}</${component.split(' ')[0]}>`,
-          reason: `HTML ${tag} 태그를 ${component} 컴포넌트로 변경`
+          reason: `HTML ${tag} Tag를 ${component} Component로 Change`
         });
       });
     }
@@ -143,10 +143,10 @@ export const generateFixSuggestions = (code: string) => {
 };
 
 /**
- * 개발 도구 - 컴포넌트 사용 현황 분석
+ * Development Tool - Component 사용 현황 Analysis
  */
 export const analyzeComponentUsage = (_projectPath: string) => {
-  // 실제 구현은 빌드 도구나 별도 스크립트에서 사용
+  // 실제 구현은 Build Tool나 별도 Script에서 사용
   return {
     totalFiles: 0,
     componentUsage: {},
@@ -155,7 +155,7 @@ export const analyzeComponentUsage = (_projectPath: string) => {
   };
 };
 
-// 개발 환경에서만 전역 헬퍼 함수 제공
+// Development Environment에서만 전역 헬퍼 함수 제공
 if (process.env.NODE_ENV === 'development') {
   (window as any).musashiGuide = {
     showGuide: showComponentGuide,

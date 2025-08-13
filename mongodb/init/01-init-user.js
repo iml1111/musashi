@@ -1,15 +1,15 @@
-// MongoDB 초기화 스크립트 - 사용자 및 권한 설정
-// 이 스크립트는 컨테이너 시작시 자동으로 실행됩니다
+// MongoDB Second기화 Script - User 및 Permission Settings
+// 이 Script는 Container StartHour Auto으로 Execute됩니다
 
-// 환경 변수에서 데이터베이스 이름 가져오기
+// Environment Variables에서 Database Name Import
 const dbName = process.env.MONGO_INITDB_DATABASE || 'musashi';
 
-// musashi 데이터베이스로 전환
+// musashi Database로 전환
 db = db.getSiblingDB(dbName);
 
-// 개발용 사용자 생성 (프로덕션에서는 보안을 위해 수정 필요)
+// Development용 User Create (Production에서는 Security을 위해 Modify 필요)
 if (process.env.MONGO_ROOT_USERNAME && process.env.MONGO_ROOT_PASSWORD) {
-    // 관리자 계정이 설정된 경우 애플리케이션 전용 사용자 생성
+    // Management자 계정이 Settings된 경우 애플리케이션 전용 User Create
     try {
         db.createUser({
             user: "musashi_app",
@@ -33,12 +33,12 @@ if (process.env.MONGO_ROOT_USERNAME && process.env.MONGO_ROOT_PASSWORD) {
     print(`ℹ️  Running in development mode - no authentication required`);
 }
 
-// 기본 컬렉션 생성 및 인덱스 설정
+// Default 컬렉션 Create 및 인덱스 Settings
 try {
-    // users 컬렉션 생성 및 인덱스 설정
+    // users 컬렉션 Create 및 인덱스 Settings
     db.createCollection("users");
     
-    // 사용자 이메일에 유니크 인덱스 생성
+    // User 이메Day에 유니크 인덱스 Create
     db.users.createIndex(
         { "email": 1 }, 
         { 
@@ -48,7 +48,7 @@ try {
         }
     );
     
-    // 사용자 이름에 인덱스 생성
+    // User Name에 인덱스 Create
     db.users.createIndex(
         { "username": 1 },
         {
@@ -57,7 +57,7 @@ try {
         }
     );
     
-    // 생성 시간 인덱스 (TTL 가능)
+    // Create Time 인덱스 (TTL 가능)
     db.users.createIndex(
         { "created_at": 1 },
         {
@@ -68,7 +68,7 @@ try {
     
     print(`✅ Collection 'users' created with indexes`);
     
-    // workflows 컬렉션 생성 및 인덱스 설정
+    // workflows 컬렉션 Create 및 인덱스 Settings
     db.createCollection("workflows");
     
     // 워크플로우 소유자 인덱스
@@ -89,7 +89,7 @@ try {
         }
     );
     
-    // 워크플로우 이름 텍스트 검색 인덱스
+    // 워크플로우 Name 텍스트 Search 인덱스
     db.workflows.createIndex(
         { 
             "name": "text", 
@@ -101,7 +101,7 @@ try {
         }
     );
     
-    // 생성/수정 시간 복합 인덱스
+    // Create/Modify Time 복합 인덱스
     db.workflows.createIndex(
         { 
             "created_at": -1,
@@ -113,12 +113,12 @@ try {
         }
     );
     
-    // 공유 토큰 인덱스 (유니크)
+    // 공유 Token 인덱스 (유니크)
     db.workflows.createIndex(
         { "share_token": 1 },
         {
             unique: true,
-            sparse: true, // null 값 허용
+            sparse: true, // null Value Allow
             name: "share_token_unique_index",
             background: true
         }
@@ -126,14 +126,14 @@ try {
     
     print(`✅ Collection 'workflows' created with indexes`);
     
-    // 개발 환경용 샘플 데이터 삽입
+    // Development Environment용 샘플 Data 삽입
     if (process.env.ENVIRONMENT === 'development') {
-        // 테스트 사용자 생성
+        // Testing User Create
         const testUser = {
             _id: ObjectId(),
             email: "test@musashi.dev",
             username: "testuser",
-            hashed_password: "$2b$12$example.hash", // 실제로는 해시된 비밀번호
+            hashed_password: "$2b$12$example.hash", // 실제로는 해Hour된 비밀Number
             roles: ["user"],
             created_at: new Date(),
             updated_at: new Date(),
@@ -143,7 +143,7 @@ try {
         db.users.insertOne(testUser);
         print(`✅ Development test user created: ${testUser.email}`);
         
-        // 테스트 워크플로우 생성
+        // Testing Create Workflow
         const testWorkflow = {
             _id: ObjectId(),
             name: "Sample Workflow",
@@ -200,7 +200,7 @@ try {
         print(`✅ Development test workflow created: ${testWorkflow.name}`);
     }
     
-    // 데이터베이스 상태 확인
+    // Database Status Confirm
     const stats = db.stats();
     print(`📊 Database '${dbName}' initialized successfully:`);
     print(`   - Collections: ${stats.collections}`);

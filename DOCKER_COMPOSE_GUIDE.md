@@ -1,10 +1,10 @@
-# 🐳 Musashi Docker Compose 완벽 가이드
+# 🐳 Musashi Docker Compose Complete Guide
 
-## 📋 개요
+## 📋 Overview
 
-Musashi 프로젝트는 **단일 컨테이너 웹앱 아키텍처**를 기반으로 하여 프론트엔드(React) + 백엔드(FastAPI) + 웹서버(Nginx)가 하나의 최적화된 컨테이너에서 실행됩니다.
+Musashi Project is based on a **single container web app architecture** where Frontend(React) + Backend(FastAPI) + WebServer(Nginx) run in one optimized container.
 
-### 🏗️ 아키텍처
+### 🏗️ Architecture
 
 ```
 ┌─────────────────────────────────────┐
@@ -23,354 +23,354 @@ Musashi 프로젝트는 **단일 컨테이너 웹앱 아키텍처**를 기반으
     └─────────────────┘
 ```
 
-## 📁 구성 파일
+## 📁 Configuration Files
 
-### 1. 핵심 Compose 파일
-- **`docker-compose.yml`** - 프로덕션 환경 (기본)
-- **`docker-compose.dev.yml`** - 개발 환경
-- **`docker-compose.build.yml`** - 빌드 최적화/테스트
-- **`docker-compose.override.yml`** - 로컬 개발자 커스터마이징
+### 1. Core Compose Files
+- **`docker-compose.yml`** - Production Environment (Default)
+- **`docker-compose.dev.yml`** - Development Environment
+- **`docker-compose.build.yml`** - Build Optimization/Testing
+- **`docker-compose.override.yml`** - Local developer customization
 
-### 2. 환경 설정
-- **`.env.example`** - 환경 변수 템플릿 
-- **`.env`** - 실제 환경 변수 (복사 후 수정 필요)
+### 2. Environment Settings
+- **`.env.example`** - Environment Variables Template 
+- **`.env`** - Actual environment variables (copy and modify as needed)
 
-### 3. 초기화 스크립트
-- **`mongodb/init/01-init-user.js`** - MongoDB 초기 설정
-- **`scripts/docker-start.sh`** - 통합 시작 스크립트
+### 3. Initialization Scripts
+- **`mongodb/init/01-init-user.js`** - MongoDB initialization settings
+- **`scripts/docker-start.sh`** - Integrated start script
 
-## 🚀 빠른 시작
+## 🚀 Quick Start
 
-### 1단계: 환경 설정
+### Step 1: Environment Setup
 
 ```bash
-# 환경 변수 파일 생성
+# Create environment variables file
 cp .env.example .env
 
-# SECRET_KEY 등 필수 값 설정 (에디터로 .env 파일 편집)
+# Set required values like SECRET_KEY (edit .env file with editor)
 nano .env
 ```
 
-**⚠️ 중요**: 프로덕션에서는 반드시 `SECRET_KEY`를 안전한 값으로 변경하세요!
+**⚠️ Important**: In production, always change `SECRET_KEY` to a secure value!
 
-### 2단계: Docker Compose 실행
+### Step 2: Run Docker Compose
 
 ```bash
-# 통합 시작 스크립트 사용 (권장)
+# Use integrated start script (recommended)
 ./scripts/docker-start.sh
 
-# 또는 직접 Docker Compose 실행
+# Or run Docker Compose directly
 docker-compose up -d
 ```
 
-### 3단계: 접속 확인
+### Step 3: Verify Access
 
-- 🌐 **웹 애플리케이션**: http://localhost:8080
-- 📊 **API 문서**: http://localhost:8080/docs
-- 🔍 **헬스체크**: http://localhost:8080/health
+- 🌐 **Web Application**: http://localhost:8080
+- 📊 **API Documentation**: http://localhost:8080/docs
+- 🔍 **Health Check**: http://localhost:8080/health
 
-## 🛠️ 환경별 사용법
+## 🛠️ Environment-specific Usage
 
-### 🏭 프로덕션 환경
+### 🏭 Production Environment
 
 ```bash
-# 기본 프로덕션 실행
+# Default production execution
 docker-compose up -d
 
-# 또는 시작 스크립트 사용
+# Or use start script
 ./scripts/docker-start.sh prod
 ```
 
-**특징:**
-- 단일 컨테이너 아키텍처
-- 최적화된 이미지 크기
-- 보안 강화 (non-root 사용자)
-- 리소스 제한 적용
-- MongoDB 인증 활성화
+**Features:**
+- Single container architecture
+- Optimized image size
+- Enhanced security (non-root user)
+- Resource limits applied
+- MongoDB authentication enabled
 
-### 🧪 개발 환경
+### 🧪 Development Environment
 
 ```bash
-# 개발 환경 실행
+# Run development environment
 docker-compose -f docker-compose.dev.yml up -d
 
-# 또는 시작 스크립트 사용  
+# Or use start script  
 ./scripts/docker-start.sh dev
 ```
 
-**특징:**
-- 소스 코드 핫 리로드
-- 디버그 모드 활성화
-- 포트 노출 (백엔드 8000, MongoDB 27017)
-- 선택적 개발 도구들 (profiles 사용)
+**Features:**
+- Source code hot reload
+- Debug mode enabled
+- Port exposure (Backend 8000, MongoDB 27017)
+- Optional development tools (using profiles)
 
-**선택적 서비스 실행:**
+**Optional Service Execution:**
 ```bash
-# 프론트엔드 개발 서버 추가
+# Add Frontend Development Server
 docker-compose -f docker-compose.dev.yml --profile frontend-dev up -d
 
-# Redis 개발 서버 추가
+# Add Redis Development Server
 docker-compose -f docker-compose.dev.yml --profile redis up -d
 
-# MongoDB Express 관리 도구
+# MongoDB Express Management Tool
 docker-compose -f docker-compose.dev.yml --profile mongo-admin up -d
 ```
 
-### 🏗️ 빌드 테스트 환경
+### 🏗️ Build Testing Environment
 
 ```bash
-# 빌드 캐시 최적화 테스트
+# Build cache optimization testing
 docker-compose -f docker-compose.build.yml up -d
 
-# 또는 시작 스크립트 사용
+# Or use start script
 ./scripts/docker-start.sh build
 ```
 
-## ⚙️ 고급 사용법
+## ⚙️ Advanced Usage
 
-### 시작 스크립트 옵션
+### Start Script Options
 
 ```bash
-# 이미지 강제 재빌드
+# Force image rebuild
 ./scripts/docker-start.sh prod --rebuild
 
-# 기존 데이터 정리 후 시작
+# Clean existing data before start
 ./scripts/docker-start.sh dev --clean
 
-# 시작 후 로그 모니터링
+# Monitor logs after start
 ./scripts/docker-start.sh dev --logs
 
-# 모든 옵션 조합
+# All options combined
 ./scripts/docker-start.sh dev --clean --rebuild --logs
 ```
 
-### 개별 서비스 관리
+# # # 개별 Service Management
 
 ```bash
-# 특정 서비스만 재시작
+# 특정 Service만 재Start
 docker-compose restart musashi
 docker-compose restart mongo
 
-# 특정 서비스 로그 확인
+# 특정 Service Check logs
 docker-compose logs -f musashi
 docker-compose logs -f mongo
 
-# 서비스 상태 확인
+# Service Status Confirm
 docker-compose ps
 ```
 
-### 데이터베이스 관리
+# ## Database Management
 
 ```bash
-# MongoDB 컨테이너 접속
+# MongoDB Container 접속
 docker-compose exec mongo mongosh
 
-# MongoDB 데이터 백업
+# MongoDB Data Backup
 docker-compose exec mongo mongodump --db musashi --out /backups
 
-# MongoDB 데이터 복원
+# MongoDB Data 복원
 docker-compose exec mongo mongorestore --db musashi /backups/musashi
 ```
 
-## 🔧 커스터마이징
+# # 🔧 커스터마이징
 
-### 로컬 개발자 설정
+# # # 로컬 Development자 Settings
 
-`docker-compose.override.yml` 파일을 개인 설정에 맞게 수정:
+`docker-compose.override.yml` File을 개인 Settings에 맞게 Modify:
 
 ```yaml
-# 포트 변경 (충돌 방지)
+# Port Change (Conflict 방지)
 services:
   musashi:
     ports:
-      - "8081:8080"  # 8080 대신 8081 사용
+      - "8081:8080" # 8080 대신 8081 사용
     
-    # 개발용 볼륨 마운트
+    # Development용 Volume 마운트
     volumes:
       - ./backend/app:/app/app:ro
       - ./logs:/var/log/nginx
 ```
 
-### 환경 변수 커스터마이징
+# # # Environment Variables 커스터마이징
 
-`.env` 파일에서 주요 설정 조정:
+`.env` File에서 주요 Settings 조정:
 
 ```bash
-# 포트 설정
+# Port Settings
 MUSASHI_PORT=8080
 MONGO_PORT=127.0.0.1:27017
 
-# 데이터베이스 설정  
+# Database Settings  
 DATABASE_NAME=musashi
 MONGODB_URL=mongodb://mongo:27017
 
-# 보안 설정
+# Security Settings
 SECRET_KEY=your-super-secure-secret-key
 MONGO_ROOT_USERNAME=admin
 MONGO_ROOT_PASSWORD=secure-password
 
-# 개발/프로덕션 구분
+# Development/Production 구Minute
 ENVIRONMENT=production
 DEBUG=false
 LOG_LEVEL=info
 ```
 
-## 📊 모니터링 및 로그
+# # 📊 Monitoring 및 Log
 
-### 로그 확인
+### Check logs
 
 ```bash
-# 전체 서비스 로그
+# 전체 Service Log
 docker-compose logs -f
 
-# 특정 서비스 로그  
+# 특정 Service Log  
 docker-compose logs -f musashi
 docker-compose logs -f mongo
 
-# 로그 파일 직접 접근
+# Log File 직접 Access
 docker-compose exec musashi tail -f /var/log/nginx/access.log
 docker-compose exec musashi tail -f /app/logs/musashi.log
 ```
 
-### 헬스체크 모니터링
+# # # 헬스체크 Monitoring
 
 ```bash
-# 헬스체크 상태 확인
+# 헬스체크 Status Confirm
 docker-compose ps
 
-# 수동 헬스체크
+# Manual 헬스체크
 curl http://localhost:8080/health
 curl http://localhost:8080/api/v1/health
 ```
 
-### 리소스 모니터링
+# ## Resource Monitoring
 
 ```bash
-# 컨테이너 리소스 사용량
+# Container Resource 사Capacity
 docker stats
 
-# 특정 컨테이너 세부 정보
+# 특정 Container 세부 Info
 docker-compose exec musashi top
 docker-compose exec mongo mongostat
 ```
 
-## 🚨 문제 해결
+# # 🚨 Problem Resolve
 
-### 일반적인 문제들
+# # # Day반적인 Problem들
 
-#### 1. 포트 충돌
+# ### 1. Port Conflict
 ```bash
 # 에러: "port is already allocated"
-# 해결: .env에서 포트 변경
+# Resolve: .env에서 Port Change
 MUSASHI_PORT=8081
 ```
 
-#### 2. 권한 문제
+# ### 2. Permission Problem
 ```bash
 # 에러: "permission denied"
-# 해결: Docker 그룹 권한 확인
+# Resolve: Docker Group Permission Confirm
 sudo usermod -aG docker $USER
-# 로그아웃 후 다시 로그인
+# Log아웃 후 다Hour Log인
 ```
 
-#### 3. 이미지 빌드 실패
+# ### 3. Image Build Failed
 ```bash
-# 해결: 캐시 없이 재빌드
+# Resolve: Cache 없이 재Build
 docker-compose build --no-cache
 ./scripts/docker-start.sh --rebuild
 ```
 
-#### 4. 데이터베이스 연결 실패
+# ### 4. Database Connect Failed
 ```bash
-# 해결: MongoDB 컨테이너 상태 확인
+# Resolve: MongoDB Container Status Confirm
 docker-compose logs mongo
 
-# MongoDB 수동 헬스체크
+# MongoDB Manual 헬스체크
 docker-compose exec mongo mongosh --eval "db.adminCommand('ping')"
 ```
 
-#### 5. 메모리 부족
+# # # # 5. Memory 부족
 ```bash
-# 해결: 리소스 제한 조정 (.env 또는 override.yml)
-# 또는 미사용 이미지/컨테이너 정리
+# Resolve: Resource Limit 조정 (.env 또는 override.yml)
+# 또는 미사용 Image/Container 정리
 docker system prune -a
 ```
 
-### 로그 분석
+# ## Log Analysis
 
-#### Nginx 에러 로그
+# # # # Nginx 에러 Log
 ```bash
 docker-compose exec musashi tail -f /var/log/nginx/error.log
 ```
 
-#### FastAPI 애플리케이션 로그
+# # # # FastAPI 애플리케이션 Log
 ```bash
 docker-compose exec musashi tail -f /app/logs/musashi.log
 ```
 
-#### MongoDB 로그
+#### MongoDB Log
 ```bash
 docker-compose exec mongo tail -f /var/log/mongodb/mongod.log
 ```
 
-### 데이터 복구
+# # # Data 복구
 
-#### MongoDB 데이터 손실시
+# # # # MongoDB Data 손실Hour
 ```bash
-# 1. 백업이 있는 경우
+# 1. Backup이 있는 경우
 docker-compose exec mongo mongorestore --db musashi /path/to/backup
 
-# 2. 백업이 없는 경우 - 초기 데이터 재생성
+# 2. Backup이 없는 경우 - Second기 Data 재Create
 docker-compose restart mongo
-# MongoDB 초기화 스크립트가 자동 실행됩니다
+# MongoDB Second기화 Script가 Auto Execute됩니다
 ```
 
-## 🔒 보안 가이드
+## 🔒 Security Guide
 
-### 프로덕션 보안 체크리스트
+# # # Production Security 체크리스트
 
-- [ ] `.env` 파일의 `SECRET_KEY` 변경
-- [ ] MongoDB 관리자 계정 설정 (`MONGO_ROOT_USERNAME`, `MONGO_ROOT_PASSWORD`)
-- [ ] 불필요한 포트 노출 제한
-- [ ] HTTPS 설정 (리버스 프록시 사용)
-- [ ] 정기적인 보안 업데이트
-- [ ] 로그 모니터링 설정
+- [ ] `.env` File의 `SECRET_KEY` Change
+- [ ] MongoDB Management자 계정 Settings (`MONGO_ROOT_USERNAME`, `MONGO_ROOT_PASSWORD`)
+- [ ] 불필요한 Port 노출 Limit
+- [ ] HTTPS Settings (리버스 프록Hour 사용)
+- [ ] 정기적인 Security Update
+- [ ] Log Monitoring Settings
 
-### 네트워크 보안
+# ## Network Security
 
 ```yaml
-# 프로덕션용 네트워크 격리 설정
+# Production용 Network 격리 Settings
 networks:
   musashi-network:
     driver: bridge
     ipam:
       config:
         - subnet: 172.20.0.0/16
-    internal: true  # 외부 인터넷 차단 (필요시)
+    internal: true  # 외부 인터넷 Block (필요Hour)
 ```
 
-## 📈 성능 최적화
+## 📈 Performance Optimization
 
-### 리소스 튜닝
+# # # Resource 튜닝
 
 ```yaml
-# docker-compose.override.yml에서 리소스 조정
+# docker-compose.override.yml에서 Resource 조정
 services:
   musashi:
     deploy:
       resources:
         limits:
-          memory: 1G        # 메모리 제한 증가
-          cpus: '2.0'       # CPU 제한 증가
+          memory: 1G        # Increased memory limit
+          cpus: '2.0'       # Increased CPU limit
         reservations:
-          memory: 512M      # 최소 메모리 보장
-          cpus: '1.0'       # 최소 CPU 보장
+          memory: 512M      # Minimum Memory 보장
+          cpus: '1.0'       # Minimum CPU 보장
 ```
 
-### 볼륨 성능
+# ## Volume Performance
 
 ```yaml
-# SSD 스토리지 사용, 볼륨 드라이버 최적화
+# SSD 스토리지 사용, Volume 드라이버 Optimization
 volumes:
   mongo_data:
     driver: local
@@ -380,9 +380,9 @@ volumes:
       device: /fast-ssd-path/mongo-data
 ```
 
-## 🔄 CI/CD 통합
+# # 🔄 CI/CD Integration
 
-### GitHub Actions 예제
+### GitHub Actions Example
 
 ```yaml
 name: Deploy Musashi
@@ -403,23 +403,23 @@ jobs:
           ./scripts/docker-start.sh prod --rebuild
 ```
 
-## 📚 참고 자료
+# # 📚 Reference 자료
 
-- [Docker Compose 공식 문서](https://docs.docker.com/compose/)
-- [MongoDB Docker 가이드](https://hub.docker.com/_/mongo)
-- [Nginx 설정 가이드](https://nginx.org/en/docs/)
-- [FastAPI 배포 가이드](https://fastapi.tiangolo.com/deployment/)
-- [React 프로덕션 빌드](https://create-react-app.dev/docs/production-build/)
+- [Docker Compose 공식 Documentation](https://docs.docker.com/compose/)
+- [MongoDB Docker Guide](https://hub.docker.com/_/mongo)
+- [Nginx Settings Guide](https://nginx.org/en/docs/)
+- [FastAPI Deployment Guide](https://fastapi.tiangolo.com/deployment/)
+- [React Production Build](https://create-react-app.dev/docs/production-build/)
 
 ---
 
-## 🆘 지원
+# # 🆘 Support
 
-문제가 발생하거나 질문이 있으시면:
+Problem가 발생하거나 질문이 있으Hour면:
 
-1. 🐛 **이슈 생성**: GitHub Issues에 문제 상황 보고
-2. 📖 **문서 확인**: README.md 및 관련 문서 검토
-3. 🔍 **로그 분석**: `docker-compose logs -f`로 에러 로그 확인
-4. 💬 **커뮤니티**: 개발팀 또는 커뮤니티에서 도움 요청
+1. 🐛 **Issue Create**: GitHub Issues에 Problem Situation 보고
+2. 📖 **Documentation Confirm**: README.md 및 관련 Documentation Review
+3. 🔍 **Log Analysis**: `docker-compose logs -f`로 에러 Check logs
+4. 💬 **커뮤니티**: Development팀 또는 커뮤니티에서 Help Request
 
 **행운을 빕니다! 🚀**

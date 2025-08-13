@@ -296,7 +296,7 @@ const MusashiFlowEditor: React.FC = () => {
         // Prepare node data with all properties
         const nodeData: any = { 
           label: node.label, 
-          name: node.properties?.name || node.label, // name이 없으면 label을 기본값으로
+          name: node.properties?.name || node.label, // Use label as default value if name is not available
           ...node.properties 
         }
         
@@ -797,11 +797,11 @@ const MusashiFlowEditor: React.FC = () => {
   const handleAddNode = useCallback((type: string, label: string) => {
     const nodeData: any = { 
       label,
-      name: label,  // name 필드에 기본 label 값 저장
-      memo: ''  // memo 필드 추가
+      name: label,  // Save default label value to name field
+      memo: ''  // Add memo field
     }
     
-    // User Input 노드의 경우 기본 output 추가
+    // Add default output for User Input node
     if (type === 'userinput') {
       nodeData.outputs = [{
         key: 'output1',
@@ -810,7 +810,7 @@ const MusashiFlowEditor: React.FC = () => {
       }]
     }
     
-    // Agent 노드의 경우 connected_inputs, outputs, parameters 추가
+    // Add connected_inputs, outputs, parameters for Agent node
     if (type === 'agent') {
       nodeData.connected_inputs = []
       nodeData.outputs = [{
@@ -827,7 +827,7 @@ const MusashiFlowEditor: React.FC = () => {
       }
     }
     
-    // Vector Store 노드의 경우 parameters 추가
+    // Add parameters for Vector Store node
     if (type === 'vectorstore') {
       nodeData.outputs = [{
         key: 'documents',
@@ -835,11 +835,11 @@ const MusashiFlowEditor: React.FC = () => {
         example: '["doc1", "doc2", "doc3"]'
       }]
       nodeData.parameters = {
-        type: 'mongodb'  // 기본값
+        type: 'mongodb'  // DefaultValue
       }
     }
     
-    // Knowledge Base 노드의 경우 parameters 추가
+    // Add parameters for Knowledge Base node
     if (type === 'knowledgebase') {
       nodeData.outputs = [{
         key: 'records',
@@ -847,38 +847,38 @@ const MusashiFlowEditor: React.FC = () => {
         example: '[["John", 30, true, {"city": "Seoul"}], ["Jane", 25, false, {"city": "Busan"}]]'
       }]
       nodeData.parameters = {
-        type: 'postgresql',  // 기본값
+        type: 'postgresql',  // DefaultValue
         query: ''
       }
     }
     
-    // Final Output 노드의 경우 connected_outputs 추가
+    // Add connected_outputs for Final Output node
     if (type === 'finaloutput') {
       nodeData.connected_outputs = []
-      nodeData.outputs = []  // 빈 배열로 시작, connected_outputs에서 자동 생성됨
+      nodeData.outputs = []  // Start with empty array, auto-created from connected_outputs
     }
     
-    // MCP 노드의 경우 connected_inputs, parameters와 outputs 추가
+    // Add connected_inputs, parameters and outputs for MCP node
     if (type === 'mcp') {
-      nodeData.connected_inputs = []  // 빈 배열로 시작 (Agent로부터 받을 입력)
+      nodeData.connected_inputs = []  // Start with empty array (input to receive from Agent)
       nodeData.outputs = [{
         key: 'mcp_result',
         type: 'object',
         example: '{"status": "success", "data": {}}'
-      }]  // 정확히 1개의 output (고정)
+      }]  // Exactly 1 output (fixed)
       nodeData.parameters = {
-        mode: 'query'  // servers 필드 제거
+        mode: 'query'  // Remove servers field
       }
     }
     
-    // Function 노드의 경우 connected_inputs와 outputs 추가
+    // Add connected_inputs and outputs for Function node
     if (type === 'function') {
-      nodeData.connected_inputs = []  // 빈 배열로 시작 (다른 노드로부터 받을 입력)
+      nodeData.connected_inputs = []  // Start with empty array (input to receive from other nodes)
       nodeData.outputs = [{
         key: 'function_result',
         type: 'object',
         example: '{"status": "success", "result": {}}'
-      }]  // 정확히 1개의 output (고정)
+      }]  // Exactly 1 output (fixed)
       nodeData.parameters = {
         function_type: 'custom'
       }
@@ -1497,7 +1497,7 @@ const MusashiFlowEditor: React.FC = () => {
             <button
               onClick={() => setShowShortcuts(true)}
               className="p-2 border border-gray-300 rounded-md text-gray-600 bg-white hover:bg-gray-50 hover:text-gray-900 transition-colors ml-2"
-              title="키보드 단축키 (i)"
+              title="Keyboard Shortcuts (i)"
             >
               <Info className="w-4 h-4" />
             </button>
