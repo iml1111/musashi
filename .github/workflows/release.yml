@@ -5,6 +5,7 @@ on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
 
 # Required permissions for various actions
 permissions:
