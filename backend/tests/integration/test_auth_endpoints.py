@@ -31,8 +31,6 @@ class TestAuthEndpoints:
     @pytest.fixture(autouse=True)
     def override_db(self, mock_db):
         """Override database dependency."""
-        from app.services.auth import get_current_active_user_dependency, get_current_user_dependency
-        
         app.dependency_overrides[get_database] = lambda: mock_db
         yield
         app.dependency_overrides.clear()
@@ -104,7 +102,7 @@ class TestAuthEndpoints:
 
     def test_get_current_user(self, client, mock_db):
         """Test getting current user info."""
-        from app.services.auth import AuthService, get_current_active_user_dependency
+        from app.services.auth import get_current_active_user_dependency
         from app.models.user import User
 
         # Create a mock current user
