@@ -8,12 +8,10 @@ Tests that description field is properly saved and retrieved across:
 
 import pytest
 import pytest_asyncio
-import asyncio
 import logging
 from datetime import datetime
 from bson import ObjectId
 from motor.motor_asyncio import AsyncIOMotorClient
-from httpx import AsyncClient
 from fastapi.testclient import TestClient
 
 from app.main import app
@@ -109,18 +107,6 @@ class TestWorkflowDescriptionPersistence:
         # First, we need to authenticate (create a test user and get token)
         # For simplicity, using mock auth or assuming test setup
         # In real scenario, would need proper auth setup
-        
-        headers = {
-            "Content-Type": "application/json",
-            # Add auth header if needed
-        }
-        
-        # Step 1: Create workflow via API
-        create_payload = {
-            "name": "API Test Workflow",
-            "description": "Initial API description"
-        }
-        
         # Note: This would need proper auth setup in real test
         # For diagnostic purposes, showing the pattern
         
