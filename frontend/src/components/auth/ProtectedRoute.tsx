@@ -10,12 +10,6 @@ interface ProtectedRouteProps {
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireAdmin = false }) => {
   const { isAuthenticated, user, isLoading } = useAuth()
 
-    isAuthenticated, 
-    user: user ? { username: user.username, role: user.role } : null, 
-    isLoading, 
-    requireAdmin 
-  })
-
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">

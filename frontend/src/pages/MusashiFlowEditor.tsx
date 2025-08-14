@@ -628,15 +628,6 @@ const MusashiFlowEditor: React.FC = () => {
     // Extract output key from sourceHandle (format: "output-{key}")
     let outputKey = connection.sourceHandle?.replace('output-', '') || ''
     
-    // Debug logging for connection
-      source: sourceNode.type,
-      target: targetNode.type,
-      sourceHandle: connection.sourceHandle,
-      outputKey: outputKey,
-      sourceOutputs: sourceNode.data?.outputs,
-      targetType: targetNode.type
-    })
-    
     // Handle missing sourceHandle for MCP and Agent nodes
     if (!connection.sourceHandle) {
       if (sourceNode.type === 'mcp') {
@@ -676,11 +667,6 @@ const MusashiFlowEditor: React.FC = () => {
     if (targetNode.type === 'agent' || targetNode.type === 'mcp' || targetNode.type === 'function') {
       // Find the output details from source node
       const sourceOutput = sourceNode.data?.outputs?.find((o: any) => o.key === outputKey)
-      
-        outputKey: outputKey,
-        sourceOutputs: sourceNode.data?.outputs,
-        foundOutput: sourceOutput
-      })
       
       if (sourceOutput) {
         // Create new connected input
@@ -749,23 +735,11 @@ const MusashiFlowEditor: React.FC = () => {
       })
     }
     
-    // Debug: Check if updatedNodes contains connected_inputs
-      id: n.id,
-      type: n.type,
-      connected_inputs: n.data?.connected_inputs
-    })))
-    
     const { nodes: layoutedNodes, edges: layoutedEdges } = addEdgeWithLayout(
       updatedNodes,
       edges,
       newEdge
     )
-    
-    // Debug: Check if layoutedNodes lost connected_inputs
-      id: n.id,
-      type: n.type,
-      connected_inputs: n.data?.connected_inputs
-    })))
     
     setNodes(layoutedNodes)
     setEdges(layoutedEdges)

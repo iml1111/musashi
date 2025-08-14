@@ -442,20 +442,14 @@ const AdminDashboard: React.FC = () => {
                           >
                             Edit
                           </button>
-                          {(() => {
-                              userId: user.id,
-                              currentUserId: currentUser?.id,
-                              showDelete: user.id !== currentUser?.id
-                            });
-                            return user.id !== currentUser?.id && (
-                              <button
-                                onClick={() => confirmDeleteUser(user)}
-                                className="text-red-600 hover:text-red-900"
-                              >
-                                Delete
-                              </button>
-                            );
-                          })()}
+                          {user.id !== currentUser?.id && (
+                            <button
+                              onClick={() => confirmDeleteUser(user)}
+                              className="text-red-600 hover:text-red-900"
+                            >
+                              Delete
+                            </button>
+                          )}
                         </div>
                       </td>
                     </tr>
