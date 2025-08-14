@@ -4,8 +4,12 @@ Tests that description field is properly saved and retrieved across:
 1. API updates
 2. Database persistence
 3. Session refresh
+
+NOTE: This is a diagnostic test that requires local MongoDB setup
+and should be skipped in CI environments.
 """
 
+import os
 import pytest
 import pytest_asyncio
 import logging
@@ -27,6 +31,10 @@ logger = logging.getLogger(__name__)
 SENTINEL = f"SC_TEST_DESC_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
 
 
+@pytest.mark.skipif(
+    "CI" in os.environ or "GITHUB_ACTIONS" in os.environ,
+    reason="Diagnostic test requires local MongoDB setup"
+)
 class TestWorkflowDescriptionPersistence:
     """Test suite for workflow description persistence."""
     
