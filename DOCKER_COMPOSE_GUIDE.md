@@ -1,3 +1,4 @@
+<!-- Last updated: 2025-01-14 -->
 # 🐳 Musashi Docker Compose Complete Guide
 
 ## 📋 Overview
@@ -11,7 +12,7 @@ Musashi Project is based on a **single container web app architecture** where Fr
 │           Musashi Container         │
 │  ┌─────────┐ ┌─────────┐ ┌────────┐ │
 │  │ Nginx   │ │FastAPI  │ │Frontend│ │
-│  │ :8080   │ │ :8000   │ │ Build  │ │
+│  │ :80     │ │ :8000   │ │ Build  │ │
 │  │ Proxy   │ │ API     │ │ Files  │ │
 │  └─────────┘ └─────────┘ └────────┘ │
 └─────────────────────────────────────┘
@@ -57,7 +58,7 @@ nano .env
 
 ```bash
 # Use integrated start script (recommended)
-./scripts/docker-start.sh
+./run-musashi.sh
 
 # Or run Docker Compose directly
 docker-compose up -d
@@ -65,9 +66,9 @@ docker-compose up -d
 
 ### Step 3: Verify Access
 
-- 🌐 **Web Application**: http://localhost:8080
-- 📊 **API Documentation**: http://localhost:8080/docs
-- 🔍 **Health Check**: http://localhost:8080/health
+- 🌐 **Web Application**: http://localhost (port 80)
+- 📊 **API Documentation**: http://localhost:8080/api/docs
+- 🔍 **Health Check**: http://localhost:8080/api/v1/health
 
 ## 🛠️ Environment-specific Usage
 
@@ -78,7 +79,7 @@ docker-compose up -d
 docker-compose up -d
 
 # Or use start script
-./scripts/docker-start.sh prod
+./run-musashi.sh prod
 ```
 
 **Features:**
@@ -95,7 +96,7 @@ docker-compose up -d
 docker-compose -f docker-compose.dev.yml up -d
 
 # Or use start script  
-./scripts/docker-start.sh dev
+./run-musashi.sh dev
 ```
 
 **Features:**
@@ -123,7 +124,7 @@ docker-compose -f docker-compose.dev.yml --profile mongo-admin up -d
 docker-compose -f docker-compose.build.yml up -d
 
 # Or use start script
-./scripts/docker-start.sh build
+./run-musashi.sh build
 ```
 
 ## ⚙️ Advanced Usage
@@ -132,16 +133,16 @@ docker-compose -f docker-compose.build.yml up -d
 
 ```bash
 # Force image rebuild
-./scripts/docker-start.sh prod --rebuild
+./run-musashi.sh prod --rebuild
 
 # Clean existing data before start
-./scripts/docker-start.sh dev --clean
+./run-musashi.sh dev --clean
 
 # Monitor logs after start
-./scripts/docker-start.sh dev --logs
+./run-musashi.sh dev --logs
 
 # All options combined
-./scripts/docker-start.sh dev --clean --rebuild --logs
+./run-musashi.sh dev --clean --rebuild --logs
 ```
 
 # # # 개별 Service Management
@@ -277,7 +278,7 @@ sudo usermod -aG docker $USER
 ```bash
 # Resolve: Cache 없이 재Build
 docker-compose build --no-cache
-./scripts/docker-start.sh --rebuild
+./run-musashi.sh --rebuild
 ```
 
 # ### 4. Database Connect Failed
@@ -400,7 +401,7 @@ jobs:
         run: |
           cp .env.example .env
           echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> .env
-          ./scripts/docker-start.sh prod --rebuild
+          ./run-musashi.sh prod --rebuild
 ```
 
 # # 📚 Reference 자료

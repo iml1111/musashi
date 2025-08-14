@@ -1,3 +1,4 @@
+<!-- Last updated: 2025-01-14 -->
 # 🗡️ Musashi - AI Agent Workflow Design Tool
 
 > **Visual AI Agent Workflow Designer Focused on Design Without Execution**
@@ -75,21 +76,21 @@
 
 ```bash
 # Pull the latest image from GitHub Container Registry
-docker pull ghcr.io/iml1111/musashi:v1.0.1
+docker pull ghcr.io/imiml/musashi:v1.0.1
 # Or use latest tag
-docker pull ghcr.io/iml1111/musashi:latest
+docker pull ghcr.io/imiml/musashi:latest
 
 # Run with a single command (includes MongoDB)
 docker run -d \
   --name musashi \
   --restart unless-stopped \
   -p 80:80 \
-  -p 8080:8000 \
+  -p 8080:8080 \
   -e MONGODB_URL="mongodb://host.docker.internal:27017" \
   -e DATABASE_NAME="musashi" \
   -e SECRET_KEY="$(openssl rand -hex 32)" \
   --add-host host.docker.internal:host-gateway \
-  ghcr.io/iml1111/musashi:latest
+  ghcr.io/imiml/musashi:latest
 
 # Access in browser
 open http://localhost
@@ -148,8 +149,8 @@ LOG_LEVEL=info
 
 | Port | Service | Description |
 |------|---------|-------------|
-| `80` | Frontend | React application (nginx) |
-| `8080` | Backend API | FastAPI REST API |
+| `80` | Frontend | React application (nginx) - Production |
+| `8080` | Backend API | FastAPI REST API - Direct access |
 | `27017` | MongoDB | Database (external) |
 
 ### Health Check Endpoints
@@ -160,7 +161,7 @@ curl http://localhost/health
 # Response: {"status": "ok"}
 
 # Backend API health check
-curl http://localhost/api/v1/health
+curl http://localhost:8080/api/v1/health
 # Response: {"status": "healthy", "api": "v1", "timestamp": "2024-01-20T10:00:00Z"}
 
 # Docker health check status
@@ -213,7 +214,7 @@ cosign verify ghcr.io/imiml/musashi:v2.0.0 \
 docker run -d \
   --name musashi-new \
   -p 80:80 \
-  -p 8080:8000 \
+  -p 8080:8080 \
   --env-file .env \
   ghcr.io/imiml/musashi:v2.0.0
 
