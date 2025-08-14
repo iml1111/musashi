@@ -1268,6 +1268,9 @@ const MusashiFlowEditor: React.FC = () => {
           metadata: { editor: 'musashi-flow' },
         })
         setWorkflow(newWorkflow)
+        // Sync state with server response
+        setWorkflowName(newWorkflow.name)
+        setWorkflowDescription(newWorkflow.description || '')
         if (!isAutoSave) {
           showNotification('success', 'Workflow created successfully!')
         }
@@ -1281,6 +1284,9 @@ const MusashiFlowEditor: React.FC = () => {
           edges: workflowEdges,
         })
         setWorkflow(updatedWorkflow)
+        // Sync state with server response
+        setWorkflowName(updatedWorkflow.name)
+        setWorkflowDescription(updatedWorkflow.description || '')
         if (!isAutoSave) {
           showNotification('success', 'Workflow saved successfully!')
         }
