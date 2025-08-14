@@ -117,6 +117,27 @@ docker-compose up -d
 open http://localhost
 ```
 
+### Kubernetes Deployment
+
+```bash
+# 1. Download k8s deployment file
+curl -O https://raw.githubusercontent.com/imiml/musashi/main/k8s-deployment.yaml
+
+# 2. Edit the deployment file to configure:
+#    - MONGODB_URL: Your MongoDB connection string
+#    - SECRET_KEY: Generate a secure secret key
+#    - BACKEND_CORS_ORIGINS: Your domain
+
+# 3. Deploy to Kubernetes
+kubectl apply -f k8s-deployment.yaml
+
+# 4. Expose the service (example with port-forward)
+kubectl port-forward -n musashi service/musashi 8080:80
+
+# 5. Access via port-forward
+open http://localhost:8080
+```
+
 ---
 
 ## 🔧 Environment Variables
