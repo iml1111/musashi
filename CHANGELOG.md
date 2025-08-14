@@ -16,6 +16,55 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.0.2] - 2025-08-14
+
+### 🐛 Fixed
+- Workflow description not persisting after save and reload
+- User creation failing when email field is empty (MongoDB query issue)
+- Import/export not preserving node positions and connections
+- Frontend TypeScript errors and encoding issues in CI
+- Connected inputs/outputs duplication in workflow export
+
+### 🧹 Changed
+- Removed all debug console.log statements from production code
+- Unified system_prompt and developer_message fields (eliminated duplication)
+- Improved workflow import to restore complete node state
+- Enhanced layout engine spacing to reduce edge overlap
+- Backend test mocking for email duplicate checks
+
+### 📚 Documentation
+- Updated README to clarify MongoDB-only support (RDBMS planned)
+- Removed outdated documentation files (CODE_IMPROVEMENT_REPORT.md, LICENSE-THIRD-PARTY, etc.)
+- Fixed Docker port mappings and health check endpoints
+- Added comprehensive project summary documentation
+
+### 🧪 Testing
+- Added diagnostic tests for workflow persistence
+- Fixed CI test failures with proper test isolation
+- Improved test coverage for user service
+- Added E2E tests for description persistence
+
+---
+
+## [1.0.1] - 2025-01-21
+
+### 🐛 Fixed
+- GitHub Container Registry (GHCR) integration issues
+- Docker image publishing workflow
+- Version tagging and release automation
+
+### 📦 Infrastructure
+- Migrated from Docker Hub to GitHub Container Registry
+- Improved CI/CD pipeline reliability
+- Enhanced multi-platform build support
+
+### 📚 Documentation
+- Updated all Docker pull commands to use GHCR
+- Added verification instructions for signed images
+- Clarified container registry migration
+
+---
+
 ## [1.0.0] - 2025-01-20
 
 ### 🎉 Initial Release

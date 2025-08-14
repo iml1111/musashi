@@ -1,6 +1,6 @@
 {
   "name": "musashi-frontend",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "private": true,
   "description": "Musashi - AI Agent Workflow Design Tool Frontend",
   "license": "MIT",

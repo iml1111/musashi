@@ -234,7 +234,7 @@ docker stop musashi
 docker run -d \
   --name musashi \
   --env-file .env \
-  ghcr.io/iml1111/musashi:v1.0.1
+  ghcr.io/iml1111/musashi:v1.0.2
 
 # Restore data
 docker cp ./backup-20240120 musashi-mongodb:/restore
