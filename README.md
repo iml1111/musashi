@@ -119,23 +119,146 @@ open http://localhost
 
 ### Kubernetes Deployment
 
+Create a `musashi-k8s.yaml` file with the following content:
+
+```yaml
+# Musashi Kubernetes Deployment
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: musashi
+  labels:
+    app: musashi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: musashi
+  namespace: musashi
+  labels:
+    app: musashi
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: musashi
+  template:
+    metadata:
+      labels:
+        app: musashi
+    spec:
+      containers:
+      - name: musashi
+        image: ghcr.io/iml1111/musashi:v1.0.2
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 80
+          name: frontend
+        - containerPort: 8080
+          name: backend
+        env:
+        # Replace with your MongoDB connection string
+        - name: MONGODB_URL
+          value: "mongodb://your-mongodb-host:27017/musashi"
+        # Generate a secure secret key (32+ characters)
+        - name: SECRET_KEY
+          value: "your-secret-key-must-be-32-characters-minimum"
+        - name: DATABASE_NAME
+          value: "musashi"
+        - name: BACKEND_CORS_ORIGINS
+          value: "http://localhost,https://your-domain.com"
+        - name: ENVIRONMENT
+          value: "production"
+        - name: LOG_LEVEL
+          value: "info"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "200m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /api/v1/health
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /api/v1/health
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1001
+          runAsGroup: 1001
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: musashi
+  namespace: musashi
+spec:
+  selector:
+    app: musashi
+  ports:
+  - name: frontend
+    port: 80
+    targetPort: 80
+  - name: backend
+    port: 8080
+    targetPort: 8080
+  type: ClusterIP
+---
+# Optional: Horizontal Pod Autoscaler
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: musashi-hpa
+  namespace: musashi
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: musashi
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+```
+
+Deploy to Kubernetes:
+
 ```bash
-# 1. Download k8s deployment file
-curl -O https://raw.githubusercontent.com/imiml/musashi/main/k8s-deployment.yaml
+# 1. Apply the deployment
+kubectl apply -f musashi-k8s.yaml
 
-# 2. Edit the deployment file to configure:
-#    - MONGODB_URL: Your MongoDB connection string
-#    - SECRET_KEY: Generate a secure secret key
-#    - BACKEND_CORS_ORIGINS: Your domain
-
-# 3. Deploy to Kubernetes
-kubectl apply -f k8s-deployment.yaml
-
-# 4. Expose the service (example with port-forward)
+# 2. Expose the service (port-forward example)
 kubectl port-forward -n musashi service/musashi 8080:80
 
-# 5. Access via port-forward
+# 3. Access the application
 open http://localhost:8080
+
+# Optional: Check deployment status
+kubectl get pods -n musashi
+kubectl logs -n musashi deployment/musashi
 ```
 
 ---
