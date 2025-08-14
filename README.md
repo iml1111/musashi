@@ -76,9 +76,9 @@
 
 ```bash
 # Pull the latest image from GitHub Container Registry
-docker pull ghcr.io/imiml/musashi:v1.0.1
+docker pull ghcr.io/iml1111/musashi:v1.0.1
 # Or use latest tag
-docker pull ghcr.io/imiml/musashi:latest
+docker pull ghcr.io/iml1111/musashi:latest
 
 # Run with a single command (includes MongoDB)
 docker run -d \
@@ -90,13 +90,16 @@ docker run -d \
   -e DATABASE_NAME="musashi" \
   -e SECRET_KEY="$(openssl rand -hex 32)" \
   --add-host host.docker.internal:host-gateway \
-  ghcr.io/imiml/musashi:latest
+  ghcr.io/iml1111/musashi:latest
 
 # Access in browser
 open http://localhost
 ```
 
-> **Note**: The package is hosted on GitHub Container Registry (ghcr.io). If the package visibility is set to private, you may need to authenticate first with `docker login ghcr.io`.
+> **Note**: 
+> - The image path follows lowercase convention: `ghcr.io/iml1111/musashi`
+> - For first-time publishing, set the package to **Public** in GitHub Packages for anonymous pull
+> - The image includes OCI labels like `org.opencontainers.image.source` linking back to this repository
 
 ### Docker Compose (Recommended)
 
@@ -203,12 +206,12 @@ docker cp musashi-mongodb:/backup ./backup-$(date +%Y%m%d)
 docker stop musashi
 
 # Pull new image
-docker pull ghcr.io/imiml/musashi:v2.0.0
+docker pull ghcr.io/iml1111/musashi:v2.0.0
 
 # Verify image signature (optional)
-cosign verify ghcr.io/imiml/musashi:v2.0.0 \
+cosign verify ghcr.io/iml1111/musashi:v2.0.0 \
   --certificate-oidc-issuer https://token.actions.githubusercontent.com \
-  --certificate-identity-regexp 'https://github\.com/imiml/musashi/\.github/workflows/.*'
+  --certificate-identity-regexp 'https://github\.com/iml1111/musashi/\.github/workflows/.*'
 
 # Run new version
 docker run -d \
@@ -216,7 +219,7 @@ docker run -d \
   -p 80:80 \
   -p 8080:8080 \
   --env-file .env \
-  ghcr.io/imiml/musashi:v2.0.0
+  ghcr.io/iml1111/musashi:v2.0.0
 
 # Remove old container after verification
 docker rm musashi
@@ -231,7 +234,7 @@ docker stop musashi
 docker run -d \
   --name musashi \
   --env-file .env \
-  ghcr.io/imiml/musashi:v1.0.0
+  ghcr.io/iml1111/musashi:v1.0.1
 
 # Restore data
 docker cp ./backup-20240120 musashi-mongodb:/restore
@@ -275,7 +278,7 @@ docker run -d \
   -p 8080:80 \      # Frontend to 8080
   -p 9000:8000 \    # API to 9000
   --env-file .env \
-  ghcr.io/imiml/musashi:latest
+  ghcr.io/iml1111/musashi:latest
 ```
 
 ### Q: How to set up SSL/TLS?
@@ -411,17 +414,15 @@ This project is distributed under the MIT License. For more details, see the [LI
 
 ## 🔗 Links
 
-- [GitHub Repository](https://github.com/imiml/musashi)
-- [Docker Hub](https://hub.docker.com/r/musashi/musashi)
-- [Issue Tracker](https://github.com/imiml/musashi/issues)
-- [Discussions](https://github.com/imiml/musashi/discussions)
+- [GitHub Repository](https://github.com/iml1111/musashi)
+- [Container Image (GHCR)](https://github.com/iml1111/musashi/pkgs/container/musashi)
+- [Issue Tracker](https://github.com/iml1111/musashi/issues)
 
 ---
 
 ## 💬 Support
 
 - **GitHub Issues**: Bug reports and feature requests
-- **GitHub Discussions**: Questions and discussions
 - **Email**: support@musashi.dev
 
 ---
