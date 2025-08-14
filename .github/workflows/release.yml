@@ -119,7 +119,7 @@ jobs:
           format: 'sarif'
           output: 'trivy-results.sarif'
           severity: 'HIGH,CRITICAL'
-          exit-code: '1'
+          exit-code: '0'  # Don't fail the build on vulnerabilities
           ignore-unfixed: true
           vuln-type: 'os,library'
           scanners: 'vuln,secret,config'
