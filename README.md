@@ -123,14 +123,7 @@ Create a `musashi-k8s.yaml` file with the following content:
 
 ```yaml
 # Musashi Kubernetes Deployment
----
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: musashi
-  labels:
-    app: musashi
----
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -204,44 +197,6 @@ spec:
           capabilities:
             drop:
             - ALL
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: musashi
-  namespace: musashi
-spec:
-  selector:
-    app: musashi
-  ports:
-  - name: frontend
-    port: 80
-    targetPort: 80
-  - name: backend
-    port: 8080
-    targetPort: 8080
-  type: ClusterIP
----
-# Optional: Horizontal Pod Autoscaler
-apiVersion: autoscaling/v2
-kind: HorizontalPodAutoscaler
-metadata:
-  name: musashi-hpa
-  namespace: musashi
-spec:
-  scaleTargetRef:
-    apiVersion: apps/v1
-    kind: Deployment
-    name: musashi
-  minReplicas: 2
-  maxReplicas: 10
-  metrics:
-  - type: Resource
-    resource:
-      name: cpu
-      target:
-        type: Utilization
-        averageUtilization: 70
 ```
 
 Deploy to Kubernetes:
