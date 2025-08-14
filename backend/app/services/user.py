@@ -24,7 +24,6 @@ class UserService:
                 "updated_at": datetime.utcnow(),
             }
             await self.collection.insert_one(admin_data)
-            print("Admin user created with username: admin, password: 1234")
 
     async def create_user(self, user: UserCreate, created_by_admin: bool = False) -> User:
         # Check if username already exists
@@ -32,10 +31,13 @@ class UserService:
         if existing_user:
             raise ValueError("Username already registered")
             
-        # Check if email already exists
-        existing_email = await self.collection.find_one({"email": user.email})
-        if existing_email:
-            raise ValueError("Email already registered")
+        # Check if email already exists (only if email is provided)
+        if user.email is not None:
+            # MongoDB finds both null values and missing fields with {email: null}
+            # So we need to check for exact email value, not null
+            existing_email = await self.collection.find_one({"email": user.email})
+            if existing_email:
+                raise ValueError("Email already registered")
 
         hashed_password = self.auth_service.get_password_hash(user.password)
         user_data = user.model_dump(exclude={"password"})
@@ -95,6 +97,16 @@ class UserService:
                 if existing_user:
                     raise HTTPException(
                         status_code=status.HTTP_400_BAD_REQUEST, detail="Username already exists"
+                    )
+            
+            # Check email uniqueness if updating email (and email is not None)
+            if "email" in update_data and update_data["email"] is not None:
+                existing_email = await self.collection.find_one(
+                    {"email": update_data["email"], "_id": {"$ne": ObjectId(user_id)}}
+                )
+                if existing_email:
+                    raise HTTPException(
+                        status_code=status.HTTP_400_BAD_REQUEST, detail="Email already exists"
                     )
 
             await self.collection.update_one({"_id": ObjectId(user_id)}, {"$set": update_data})

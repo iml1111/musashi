@@ -51,7 +51,6 @@ export const showComponentGuide = (element: string) => {
     const recommendation = COMPONENT_RULES.FORBIDDEN_TAGS[element as keyof typeof COMPONENT_RULES.FORBIDDEN_TAGS];
     
     if (recommendation) {
-      console.warn(`
 🎨 Musashi Component Guide
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ❌ 지양: <${element}>
@@ -74,7 +73,6 @@ export const warnInlineStyle = (styles: Record<string, any>) => {
     );
 
     if (forbiddenProps.length > 0) {
-      console.warn(`
 🎨 Musashi Style Guide
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ❌ 인라인 스타Day 사용: ${forbiddenProps.join(', ')}

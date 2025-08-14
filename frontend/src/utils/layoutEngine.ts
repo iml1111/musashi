@@ -13,8 +13,8 @@ export interface LayoutOptions {
 
 const defaultOptions: LayoutOptions = {
   direction: 'TB',
-  nodeSpacing: 200,
-  rankSpacing: 300,
+  nodeSpacing: 300,  // Increased from 200 to prevent edge overlap
+  rankSpacing: 400,  // Increased from 300 for better vertical spacing
   nodeWidth: 200,
   nodeHeight: 60,
 };
@@ -38,11 +38,11 @@ export function calculateLayout(
     rankdir: direction,
     nodesep: nodeSpacing,
     ranksep: rankSpacing,
-    marginx: 100,
-    marginy: 100,
-    // Settings for better cycle handling
+    marginx: 150,  // Increased from 100
+    marginy: 150,  // Increased from 100
+    // Settings for better cycle handling and edge separation
     ranker: 'longest-path',
-    edgesep: 150,
+    edgesep: 200,  // Increased from 150 to better separate parallel edges
   });
 
   // Default edge label
@@ -59,7 +59,6 @@ export function calculateLayout(
   // Add edges to the graph
   edges.forEach((edge) => {
     if (!edge || !edge.source || !edge.target) {
-      console.error('Invalid edge found:', edge);
       return; // Skip invalid edges
     }
     g.setEdge(edge.source, edge.target);
@@ -167,7 +166,6 @@ export function addEdgeWithLayout(
     
     return result;
   } catch (error) {
-    console.error('Error in calculateLayout:', error);
     // Return the original nodes and new edges if layout fails
     return { nodes, edges: allEdges };
   }

@@ -9,7 +9,6 @@ import Card from '../components/common/Card'
 import { ArrowLeft } from 'lucide-react'
 
 const AdminDashboard: React.FC = () => {
-  console.log('AdminDashboard: Component rendering')
   const { user: currentUser, logout } = useAuth()
   const navigate = useNavigate()
   const [users, setUsers] = useState<User[]>([])
@@ -21,7 +20,6 @@ const AdminDashboard: React.FC = () => {
   const [error, setError] = useState('')
   const [successMessage, setSuccessMessage] = useState('')
   
-  console.log('AdminDashboard: Current user:', currentUser ? { username: currentUser.username, role: currentUser.role } : null)
 
   // Create user form state
   const [createForm, setCreateForm] = useState<CreateUserRequest>({
@@ -445,7 +443,6 @@ const AdminDashboard: React.FC = () => {
                             Edit
                           </button>
                           {(() => {
-                            console.log('Delete button check:', {
                               userId: user.id,
                               currentUserId: currentUser?.id,
                               showDelete: user.id !== currentUser?.id

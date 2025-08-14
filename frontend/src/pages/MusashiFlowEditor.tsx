@@ -20,6 +20,7 @@ import {
   addEdgeWithLayout,
   removeEdgeWithLayout,
 } from '../utils/layoutEngine'
+import { MarkerType } from '../types/flow'
 
 // Define types locally without ReactFlow dependency
 type Node = {
@@ -222,13 +223,17 @@ const MusashiFlowEditor: React.FC = () => {
         id: node.id,
         type: node.type,
         label: node.data?.label,
+        position: node.position,  // Include node position for layout preservation
         properties: node.data,
       })),
       edges: edges.map(edge => ({
         id: edge.id,
         source: edge.source,
         target: edge.target,
+        sourceHandle: edge.sourceHandle,  // Include source handle for connection restoration
+        targetHandle: edge.targetHandle,  // Include target handle for connection restoration
         label: edge.label,
+        animated: edge.animated,  // Include animation state
       })),
     }
 
@@ -589,8 +594,6 @@ const MusashiFlowEditor: React.FC = () => {
   }, [edges, nodes])
 
   const handleConnect = useCallback((connection: Connection) => {
-    console.log('=== handleConnect called ===')
-    console.log('Connection:', connection)
     
     if (!connection.source || !connection.target) return
     
@@ -598,8 +601,6 @@ const MusashiFlowEditor: React.FC = () => {
     const sourceNode = nodes.find(n => n.id === connection.source)
     const targetNode = nodes.find(n => n.id === connection.target)
     
-    console.log('Source node:', sourceNode)
-    console.log('Target node:', targetNode)
     
     if (!sourceNode || !targetNode) return
     
@@ -628,7 +629,6 @@ const MusashiFlowEditor: React.FC = () => {
     let outputKey = connection.sourceHandle?.replace('output-', '') || ''
     
     // Debug logging for connection
-    console.log('Connection Debug:', {
       source: sourceNode.type,
       target: targetNode.type,
       sourceHandle: connection.sourceHandle,
@@ -677,7 +677,6 @@ const MusashiFlowEditor: React.FC = () => {
       // Find the output details from source node
       const sourceOutput = sourceNode.data?.outputs?.find((o: any) => o.key === outputKey)
       
-      console.log('Looking for sourceOutput:', {
         outputKey: outputKey,
         sourceOutputs: sourceNode.data?.outputs,
         foundOutput: sourceOutput
@@ -693,7 +692,6 @@ const MusashiFlowEditor: React.FC = () => {
           outputExample: sourceOutput.example
         }
         
-        console.log('Creating connected input:', newConnectedInput)
         
         // Update target node's connected_inputs
         updatedNodes = updatedNodes.map(node => {
@@ -708,13 +706,11 @@ const MusashiFlowEditor: React.FC = () => {
                 ]
               }
             }
-            console.log('Updated target node:', updatedNode)
             return updatedNode
           }
           return node
         })
       } else {
-        console.log('sourceOutput not found!')
       }
     }
     
@@ -754,7 +750,6 @@ const MusashiFlowEditor: React.FC = () => {
     }
     
     // Debug: Check if updatedNodes contains connected_inputs
-    console.log('Before layout - updatedNodes:', updatedNodes.map(n => ({
       id: n.id,
       type: n.type,
       connected_inputs: n.data?.connected_inputs
@@ -767,7 +762,6 @@ const MusashiFlowEditor: React.FC = () => {
     )
     
     // Debug: Check if layoutedNodes lost connected_inputs
-    console.log('After layout - layoutedNodes:', layoutedNodes.map(n => ({
       id: n.id,
       type: n.type,
       connected_inputs: n.data?.connected_inputs
@@ -777,16 +771,12 @@ const MusashiFlowEditor: React.FC = () => {
     setEdges(layoutedEdges)
     
     // Debug: Verify that the connected_inputs are in the final nodes
-    console.log('=== Final verification after setNodes ===')
     const targetNodeFinal = layoutedNodes.find(n => n.id === targetNode.id)
-    console.log('Target node after layout:', targetNodeFinal)
-    console.log('Target node connected_inputs:', targetNodeFinal?.data?.connected_inputs)
     
     // Update selectedNode to reflect the latest data after connection
     if (selectedNode) {
       const updatedSelectedNode = layoutedNodes.find(n => n.id === selectedNode.id)
       if (updatedSelectedNode) {
-        console.log('Updating selectedNode with:', updatedSelectedNode)
         setSelectedNode(updatedSelectedNode)
       }
     }
@@ -934,7 +924,6 @@ const MusashiFlowEditor: React.FC = () => {
     
     // Update edge labels when outputs change
     if (updates.data?.outputs) {
-      console.log('Updating node outputs:', nodeId, updates.data.outputs)
       
       setEdges(prevEdges => {
         const updatedEdges = prevEdges.map(edge => {
@@ -954,7 +943,6 @@ const MusashiFlowEditor: React.FC = () => {
                   sourceOutput: newOutput.key // CustomEdge displays this value
                 }
               }
-              console.log(`Updated edge from ${nodeId}: ${oldOutputKey} -> ${newOutput.key}`)
               return updatedEdge
             } else {
               // Output key has changed or been removed
@@ -971,16 +959,13 @@ const MusashiFlowEditor: React.FC = () => {
                     sourceOutput: renamedOutput.key // Update displayed value
                   }
                 }
-                console.log(`Renamed edge output from ${nodeId}: ${oldOutputKey} -> ${renamedOutput.key}`)
                 return updatedEdge
               }
-              console.warn(`Output ${oldOutputKey} not found for edge from ${nodeId}`)
             }
           }
           return edge
         })
         
-        console.log('Updated edges:', updatedEdges.filter(e => e.source === nodeId))
         return updatedEdges
       })
     }
@@ -1300,6 +1285,91 @@ const MusashiFlowEditor: React.FC = () => {
     }
   }, [workflowId, workflow, nodes, edges, workflowName, workflowDescription, navigate, showNotification])
 
+  // Function to reconstruct connected_inputs from edges
+  const reconstructConnectedInputs = useCallback((nodes: Node[], edges: Edge[]) => {
+    const updatedNodes = nodes.map(node => {
+      // Handle Agent, MCP, and Function nodes
+      if (node.type === 'agent' || node.type === 'mcp' || node.type === 'function') {
+        // Find all edges targeting this node
+        const incomingEdges = edges.filter(edge => edge.target === node.id)
+        
+        // Create connected_inputs from incoming edges
+        const connectedInputs = incomingEdges.map(edge => {
+          const sourceNode = nodes.find(n => n.id === edge.source)
+          if (!sourceNode) return null
+          
+          // Extract output key from sourceHandle or label
+          const outputKey = edge.sourceHandle?.replace('output-', '') || edge.label || 'output'
+          
+          // Find the output details from source node
+          const sourceOutput = sourceNode.data?.outputs?.find((o: any) => o.key === outputKey)
+          
+          return {
+            nodeId: sourceNode.id,
+            nodeName: sourceNode.data?.name || sourceNode.data?.label || 'Unknown',
+            outputKey: outputKey,
+            outputType: sourceOutput?.type || 'string',
+            outputExample: sourceOutput?.example
+          }
+        }).filter(Boolean) // Remove null entries
+        
+        return {
+          ...node,
+          data: {
+            ...node.data,
+            connected_inputs: connectedInputs
+          }
+        }
+      }
+      
+      // Handle FinalOutput nodes
+      if (node.type === 'finaloutput') {
+        // Find all edges targeting this node
+        const incomingEdges = edges.filter(edge => edge.target === node.id)
+        
+        // Create connected_outputs from incoming edges
+        const connectedOutputs = incomingEdges.map(edge => {
+          const sourceNode = nodes.find(n => n.id === edge.source)
+          if (!sourceNode) return null
+          
+          // Extract output key from sourceHandle or label
+          const outputKey = edge.sourceHandle?.replace('output-', '') || edge.label || 'output'
+          
+          // Find the output details from source node
+          const sourceOutput = sourceNode.data?.outputs?.find((o: any) => o.key === outputKey)
+          
+          return {
+            nodeId: sourceNode.id,
+            nodeName: sourceNode.data?.name || sourceNode.data?.label || 'Unknown',
+            outputKey: outputKey,
+            outputType: sourceOutput?.type || 'string',
+            outputExample: sourceOutput?.example
+          }
+        }).filter(Boolean) // Remove null entries
+        
+        // Update outputs array to match connected_outputs
+        const outputs = connectedOutputs.map(co => ({
+          key: co.outputKey,
+          type: co.outputType,
+          example: co.outputExample
+        }))
+        
+        return {
+          ...node,
+          data: {
+            ...node.data,
+            connected_outputs: connectedOutputs,
+            outputs: outputs
+          }
+        }
+      }
+      
+      return node
+    })
+    
+    return updatedNodes
+  }, [])
+
   const handleImport = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (!file) return
@@ -1322,15 +1392,90 @@ const MusashiFlowEditor: React.FC = () => {
             return node
           })
           
-          // Apply auto-layout to imported nodes
-          const layouted = calculateLayout(migratedNodes, data.edges)
-          setNodes(layouted.nodes)
-          setEdges(layouted.edges)
+          // Check if all nodes have position information
+          const hasPositions = migratedNodes.every((node: any) => node.position && node.position.x !== undefined && node.position.y !== undefined)
+          
+          let finalNodes: Node[]
+          let finalEdges: Edge[]
+          
+          if (hasPositions) {
+            // If positions exist, restore the original layout
+            const restoredNodes = migratedNodes.map((node: any) => ({
+              id: node.id,
+              type: node.type || 'default',
+              position: node.position,
+              data: node.properties || {},
+              draggable: false,  // Maintain auto-layout principle
+            }))
+            
+            // Restore edges with handle information
+            // If sourceHandle is missing, reconstruct it from label
+            const restoredEdges = data.edges.map((edge: any) => {
+              const outputKey = edge.label || edge.sourceHandle?.replace('output-', '') || ''
+              return {
+                id: edge.id,
+                source: edge.source,
+                target: edge.target,
+                sourceHandle: edge.sourceHandle || (edge.label ? `output-${edge.label}` : null),
+                targetHandle: edge.targetHandle || null,
+                label: edge.label,
+                animated: edge.animated || false,
+                type: 'custom',
+                markerEnd: { type: MarkerType.ArrowClosed },
+                // Add data for edge label display
+                data: {
+                  sourceOutput: outputKey,
+                  onLabelClick: handleEdgeLabelClick,
+                }
+              }
+            })
+            
+            finalNodes = restoredNodes
+            finalEdges = restoredEdges
+          } else {
+            // If no positions, apply auto-layout (backward compatibility)
+            const nodesForLayout = migratedNodes.map((node: any) => ({
+              id: node.id,
+              type: node.type || 'default',
+              data: node.properties || {},
+            }))
+            
+            // Create edges with reconstructed handles even for auto-layout
+            const edgesWithHandles = data.edges.map((edge: any) => {
+              const outputKey = edge.label || edge.sourceHandle?.replace('output-', '') || ''
+              return {
+                id: edge.id,
+                source: edge.source,
+                target: edge.target,
+                sourceHandle: edge.sourceHandle || (edge.label ? `output-${edge.label}` : null),
+                targetHandle: edge.targetHandle || null,
+                label: edge.label,
+                animated: edge.animated || false,
+                type: 'custom',
+                markerEnd: { type: MarkerType.ArrowClosed },
+                // Add data for edge label display
+                data: {
+                  sourceOutput: outputKey,
+                  onLabelClick: handleEdgeLabelClick,
+                }
+              }
+            })
+            
+            const layouted = calculateLayout(nodesForLayout, edgesWithHandles)
+            finalNodes = layouted.nodes
+            finalEdges = edgesWithHandles
+          }
+          
+          // Reconstruct connected_inputs based on edges
+          const nodesWithConnections = reconstructConnectedInputs(finalNodes, finalEdges)
+          
+          setNodes(nodesWithConnections)
+          setEdges(finalEdges)
           setWorkflowName(data.name || 'Imported Workflow')
           setWorkflowDescription(data.description || '')
           
           // Reset history with imported state
-          setHistory([{ nodes: layouted.nodes, edges: layouted.edges }])
+          setHistory([{ nodes: nodesWithConnections, edges: finalEdges }])
           setHistoryIndex(0)
           
           showNotification('success', 'Workflow imported successfully')
@@ -1338,7 +1483,6 @@ const MusashiFlowEditor: React.FC = () => {
           showNotification('error', 'Invalid workflow file format')
         }
       } catch (error) {
-        console.error('Failed to import workflow:', error)
         showNotification('error', 'Failed to import workflow. Invalid file format.')
       }
     }
@@ -1346,7 +1490,7 @@ const MusashiFlowEditor: React.FC = () => {
     
     // Reset input value to allow importing the same file again
     event.target.value = ''
-  }, [showNotification])
+  }, [showNotification, reconstructConnectedInputs, handleEdgeLabelClick])
 
   // Keyboard shortcuts - moved here after all function definitions
   useEffect(() => {
@@ -1391,7 +1535,6 @@ const MusashiFlowEditor: React.FC = () => {
   
   useEffect(() => {
     if (nodes.length > 0 && flowRef.current?.fitView && debouncedLayoutVersion > 0) {
-      console.log('Auto fitting view after layout change')
       flowRef.current.fitView()
     }
   }, [debouncedLayoutVersion, nodes.length])

@@ -70,13 +70,11 @@ const FlowCanvasInner = forwardRef<FlowCanvasHandle, FlowCanvasProps>(({
   const handleFitView = useCallback(() => {
     // Don't run if component is not mounted
     if (!isMounted) {
-      console.warn('Component not yet mounted, skipping fitView')
       return
     }
 
     // Safety check: ensure nodes exist
     if (!nodes || nodes.length === 0) {
-      console.warn('No nodes available for fitView')
       return
     }
 
@@ -85,7 +83,6 @@ const FlowCanvasInner = forwardRef<FlowCanvasHandle, FlowCanvasProps>(({
       const flowNodes = getNodes()
       
       if (!flowNodes || flowNodes.length === 0) {
-        console.warn('No nodes in React Flow store')
         return
       }
 
@@ -101,7 +98,6 @@ const FlowCanvasInner = forwardRef<FlowCanvasHandle, FlowCanvasProps>(({
       )
 
       if (validNodes.length === 0) {
-        console.warn('No nodes with valid positions')
         return
       }
 
@@ -120,7 +116,6 @@ const FlowCanvasInner = forwardRef<FlowCanvasHandle, FlowCanvasProps>(({
 
       // Check if bounding box is valid
       if (!isFinite(minX) || !isFinite(minY) || !isFinite(maxX) || !isFinite(maxY)) {
-        console.warn('Invalid bounding box calculated')
         return
       }
 
@@ -128,7 +123,6 @@ const FlowCanvasInner = forwardRef<FlowCanvasHandle, FlowCanvasProps>(({
       const container = document.querySelector('.react-flow') as HTMLElement
       
       if (!container) {
-        console.warn('React Flow container not found')
         return
       }
 
@@ -136,7 +130,6 @@ const FlowCanvasInner = forwardRef<FlowCanvasHandle, FlowCanvasProps>(({
       const containerHeight = container.offsetHeight
       
       if (!containerWidth || !containerHeight) {
-        console.warn('Container dimensions invalid')
         return
       }
 
@@ -171,7 +164,6 @@ const FlowCanvasInner = forwardRef<FlowCanvasHandle, FlowCanvasProps>(({
       
       // Validate final values
       if (!isFinite(x) || !isFinite(y) || !isFinite(zoom)) {
-        console.warn('Invalid viewport values calculated')
         return
       }
 
@@ -181,7 +173,6 @@ const FlowCanvasInner = forwardRef<FlowCanvasHandle, FlowCanvasProps>(({
         { duration: 400 }
       )
     } catch (error) {
-      console.error('Custom fitView failed:', error)
       // As last resort, try the native fitView with error suppression
       try {
         const padding = isSidebarOpen 
@@ -196,7 +187,6 @@ const FlowCanvasInner = forwardRef<FlowCanvasHandle, FlowCanvasProps>(({
           duration: 400,
         })
       } catch (fallbackError) {
-        console.error('Fallback fitView also failed:', fallbackError)
       }
     }
   }, [fitView, isSidebarOpen, nodes, isMounted, getNodes, getViewport, setViewport])
