@@ -1298,7 +1298,7 @@ const MusashiFlowEditor: React.FC = () => {
     } finally {
       setSaving(false)
     }
-  }, [workflowId, workflow, nodes, edges, workflowName, navigate, showNotification])
+  }, [workflowId, workflow, nodes, edges, workflowName, workflowDescription, navigate, showNotification])
 
   const handleImport = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
