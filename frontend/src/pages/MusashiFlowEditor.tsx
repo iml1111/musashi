@@ -745,7 +745,7 @@ const MusashiFlowEditor: React.FC = () => {
     setEdges(layoutedEdges)
     
     // Debug: Verify that the connected_inputs are in the final nodes
-    const targetNodeFinal = layoutedNodes.find(n => n.id === targetNode.id)
+    // const targetNodeFinal = layoutedNodes.find(n => n.id === targetNode.id)
     
     // Update selectedNode to reflect the latest data after connection
     if (selectedNode) {
@@ -1323,9 +1323,9 @@ const MusashiFlowEditor: React.FC = () => {
         
         // Update outputs array to match connected_outputs
         const outputs = connectedOutputs.map(co => ({
-          key: co.outputKey,
-          type: co.outputType,
-          example: co.outputExample
+          key: co?.outputKey || '',
+          type: co?.outputType || 'any',
+          example: co?.outputExample || ''
         }))
         
         return {
