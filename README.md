@@ -123,7 +123,7 @@ open http://localhost
 
 | Variable | Description | Default | Required |
 |--------|------|--------|------|
-| `MONGODB_URL` | MongoDB connection URL | `mongodb://localhost:27017` | ✅ |
+| `MONGODB_URL` | MongoDB connection URL (Currently only MongoDB is supported, RDBMS integration planned) | `mongodb://localhost:27017` | ✅ |
 | `DATABASE_NAME` | Database name | `musashi` | ✅ |
 | `SECRET_KEY` | JWT signing secret key (32+ characters) | - | ✅ |
 | `BACKEND_CORS_ORIGINS` | CORS allowed origins | `http://localhost` | ❌ |
@@ -154,7 +154,7 @@ LOG_LEVEL=info
 |------|---------|-------------|
 | `80` | Frontend | React application (nginx) - Production |
 | `8080` | Backend API | FastAPI REST API - Direct access |
-| `27017` | MongoDB | Database (external) |
+| `27017` | MongoDB | Database (external) - RDBMS support planned |
 
 ### Health Check Endpoints
 
@@ -420,12 +420,6 @@ This project is distributed under the MIT License. For more details, see the [LI
 
 ---
 
-## 💬 Support
-
-- **GitHub Issues**: Bug reports and feature requests
-- **Email**: support@musashi.dev
-
----
 
 <div align="center">
   <sub>Built with ❤️ by the Musashi Team</sub>
