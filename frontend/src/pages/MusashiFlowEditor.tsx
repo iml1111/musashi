@@ -332,7 +332,7 @@ const MusashiFlowEditor: React.FC = () => {
               temperature: 1.0,
               max_tokens: 10000,
               top_p: 1.0,
-              system_prompt: ''
+              developer_message: ''
             }
           }
         }
@@ -823,7 +823,7 @@ const MusashiFlowEditor: React.FC = () => {
         temperature: 1.0,
         max_tokens: 10000,
         top_p: 1.0,
-        system_prompt: ''
+        developer_message: ''
       }
     }
     
@@ -1309,8 +1309,21 @@ const MusashiFlowEditor: React.FC = () => {
       try {
         const data = JSON.parse(e.target?.result as string)
         if (data.nodes && data.edges) {
+          // Migrate system_prompt to developer_message for backward compatibility
+          const migratedNodes = data.nodes.map((node: any) => {
+            if (node.properties?.parameters?.system_prompt !== undefined) {
+              // If system_prompt exists but developer_message doesn't, migrate it
+              if (!node.properties.parameters.developer_message) {
+                node.properties.parameters.developer_message = node.properties.parameters.system_prompt
+              }
+              // Remove system_prompt field
+              delete node.properties.parameters.system_prompt
+            }
+            return node
+          })
+          
           // Apply auto-layout to imported nodes
-          const layouted = calculateLayout(data.nodes, data.edges)
+          const layouted = calculateLayout(migratedNodes, data.edges)
           setNodes(layouted.nodes)
           setEdges(layouted.edges)
           setWorkflowName(data.name || 'Imported Workflow')

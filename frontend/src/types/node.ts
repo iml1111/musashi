@@ -30,10 +30,10 @@ export interface AgentParameters {
   temperature: number
   max_tokens: number
   top_p: number
-  developer_message: string  // Previously system_prompt
-  system_prompt?: string      // For backward compatibility
+  developer_message: string  // Unified field for system/developer message
   prompts?: PromptContext[]   // Optional array of prompt contexts (max 100)
   tools?: AgentTool[]
+  // Note: system_prompt field removed - use developer_message instead
 }
 
 export interface BaseNodeData {

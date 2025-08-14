@@ -1418,8 +1418,8 @@ const NodeSidebar: React.FC<NodeSidebarProps> = ({
                 parameters: {
                   ...currentNode.data.parameters,
                   developer_message: newDeveloperMessage,
-                  system_prompt: newDeveloperMessage, // For backward compatibility
                   prompts: newPrompts
+                  // system_prompt field removed - using developer_message only
                 }
               }
             })
