@@ -1,3 +1,4 @@
+<!-- Last updated: 2025-01-14 -->
 # CLAUDE.md
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
@@ -24,12 +25,12 @@ Musashi is an AI Agent Workflow Design Tool that focuses on visual workflow crea
 
 ## Common Development Commands
 
-# # # Docker Single Container (권장)
+### Docker Single Container (Recommended)
 ```bash
 # Docker Image Build
 docker build -t musashi:latest -f Dockerfile.optimized .
 
-# 단Day Container Execute (Frontend: 80Port, Backend API: 8080Port)
+# Single Container Execute (Frontend: port 80, Backend API: port 8080)
 ./run-musashi.sh
 
 # Container Management
@@ -46,7 +47,7 @@ make docker-restart          # Restart container
 make docker-logs             # Check logs
 ```
 
-# # # Docker Compose Development (레거Hour)
+### Docker Compose Development (Legacy)
 ```bash
 # Initial setup
 make setup                    # Copy .env.example to .env

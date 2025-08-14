@@ -136,7 +136,8 @@ class TestUserService:
         update_data = UserUpdate(email="newemail@example.com", is_active=False)
 
         updated_user = {**sample_user, "email": "newemail@example.com", "is_active": False}
-        mock_db.users.find_one.return_value = updated_user
+        # Mock find_one to return None for email check, then updated_user for final fetch
+        mock_db.users.find_one.side_effect = [None, updated_user]
 
         result = await user_service.update_user(user_id, update_data)
 

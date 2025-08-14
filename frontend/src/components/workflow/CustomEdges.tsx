@@ -63,6 +63,11 @@ export const CustomEdge = ({
   // Check if this is a locked tool connection
   const isToolConnection = data?.locked === true
   
+  // Check for cross connection (diagonal edges that might overlap)
+  const isCrossConnection = Math.abs(sourceX - targetX) > 100 && 
+                            Math.abs(sourceY - targetY) < 300 &&
+                            !isSelfLoop && !isUpward
+  
   let edgePath: string
   
   if (isSelfLoop) {
@@ -117,6 +122,23 @@ export const CustomEdge = ({
     
     edgePath = `M ${sourceX},${sourceY}
                 Q ${midX},${sourceY + offsetY}
+                  ${targetX},${targetY}`
+  } else if (isCrossConnection) {
+    // For cross connections, create a curved path to avoid overlap
+    const horizontalGap = targetX - sourceX
+    const verticalGap = targetY - sourceY
+    
+    // Determine curve direction based on relative positions
+    const curveDirection = horizontalGap > 0 ? 1 : -1
+    
+    // Calculate control point offset to create separation
+    const offsetAmount = Math.min(Math.abs(horizontalGap) * 0.4, 150)
+    const controlPointX = sourceX + (horizontalGap / 2) + (offsetAmount * curveDirection)
+    const controlPointY = sourceY + (verticalGap / 2)
+    
+    // Create a curved path that avoids overlap
+    edgePath = `M ${sourceX},${sourceY}
+                Q ${controlPointX},${controlPointY}
                   ${targetX},${targetY}`
   } else {
     // For normal downward connections, use simple bezier curve

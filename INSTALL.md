@@ -1,3 +1,4 @@
+<!-- Last updated: 2025-01-14 -->
 # 📦 Musashi Installation Guide
 
 This document provides detailed instructions for installing and operating Musashi in a production environment.
@@ -46,7 +47,7 @@ docker run -d \
   --name musashi \
   --restart unless-stopped \
   -p 80:80 \
-  -p 8080:8000 \
+  -p 8080:8080 \
   -e MONGODB_URL="mongodb://host.docker.internal:27017" \
   -e DATABASE_NAME="musashi" \
   -e SECRET_KEY="$(openssl rand -hex 32)" \
@@ -79,7 +80,7 @@ docker login ghcr.io
 docker pull ghcr.io/imiml/musashi:latest
 
 # Specific version
-docker pull ghcr.io/imiml/musashi:v1.0.0
+docker pull ghcr.io/imiml/musashi:v1.0.1
 
 # Development version
 docker pull ghcr.io/imiml/musashi:develop
@@ -110,7 +111,7 @@ cosign download sbom ghcr.io/imiml/musashi:latest > musashi-sbom.json
 docker run -d \
   --name musashi \
   -p 80:80 \
-  -p 8080:8000 \
+  -p 8080:8080 \
   -e MONGODB_URL="mongodb://mongodb:27017" \
   -e DATABASE_NAME="musashi" \
   -e SECRET_KEY="your-secret-key" \
@@ -120,7 +121,7 @@ docker run -d \
 docker run -d \
   --name musashi \
   -p 80:80 \
-  -p 8080:8000 \
+  -p 8080:8080 \
   -e MONGODB_URL="mongodb://host.docker.internal:27017" \
   --add-host host.docker.internal:host-gateway \
   -e DATABASE_NAME="musashi" \
@@ -146,7 +147,7 @@ services:
     container_name: musashi
     ports:
       - "80:80"        # Frontend (nginx)
-      - "8080:8000"    # Backend API (FastAPI)
+      - "8080:8080"    # Backend API (FastAPI)
     environment:
       # Required environment variables
       - MONGODB_URL=${MONGODB_URL:-mongodb://mongodb:27017}
@@ -441,7 +442,7 @@ docker rename musashi-new musashi
 docker run -d \
   --name musashi \
   -p 80:80 \
-  -p 8080:8000 \
+  -p 8080:8080 \
   --volumes-from musashi-old \
   ghcr.io/imiml/musashi:${NEW_VERSION}
 
@@ -480,7 +481,7 @@ docker stop musashi && docker rm musashi
 docker run -d \
   --name musashi \
   -p 80:80 \
-  -p 8080:8000 \
+  -p 8080:8080 \
   -e MONGODB_URL="mongodb://host.docker.internal:27017" \
   -e DATABASE_NAME="musashi" \
   -e SECRET_KEY="${SECRET_KEY}" \

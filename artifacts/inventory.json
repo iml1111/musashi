@@ -1,0 +1,214 @@
+{
+  "project": {
+    "name": "Musashi",
+    "description": "AI Agent Workflow Design Tool - Flow Sharp, Ship Fast",
+    "version": "1.0.0",
+    "repository": "https://github.com/imiml/musashi",
+    "architecture": "Single Container Web Application"
+  },
+  "languages": {
+    "backend": {
+      "primary": "Python 3.12",
+      "frameworks": ["FastAPI", "Pydantic", "Motor (async MongoDB)"]
+    },
+    "frontend": {
+      "primary": "TypeScript 5.2",
+      "frameworks": ["React 18.2", "Vite 7.1", "React Flow 11.11", "Tailwind CSS 3.3", "React Query 3.39"]
+    }
+  },
+  "build_tools": {
+    "backend": {
+      "package_manager": "pip",
+      "test_runner": "pytest",
+      "linter": "ruff",
+      "requirements": "requirements.txt"
+    },
+    "frontend": {
+      "package_manager": "npm",
+      "build_tool": "vite",
+      "test_runner": "vitest",
+      "e2e_test": "playwright",
+      "linter": "tsc --noEmit"
+    },
+    "containerization": {
+      "primary": "Docker",
+      "compose_files": ["docker-compose.yml", "docker-compose.dev.yml", "docker-compose.build.yml"],
+      "dockerfiles": ["Dockerfile", "Dockerfile.optimized", "Dockerfile.test"],
+      "orchestration": "docker-compose"
+    }
+  },
+  "ports": {
+    "production": {
+      "frontend": 80,
+      "backend_api": 8080,
+      "mongodb": 27017
+    },
+    "development": {
+      "frontend": 3000,
+      "backend_api": 8000,
+      "mongodb": 27017
+    }
+  },
+  "health_endpoints": {
+    "backend": [
+      "/health",
+      "/api/v1/health"
+    ],
+    "combined_check": "curl -f http://localhost:8080/health && curl -f http://localhost:8080/api/v1/health"
+  },
+  "docker": {
+    "images": {
+      "app": "musashi:latest",
+      "mongodb": "mongo:7-jammy",
+      "base_images": {
+        "python": "3.12",
+        "node": "20",
+        "nginx": "1.24-alpine"
+      }
+    },
+    "containers": {
+      "app": "musashi",
+      "database": "musashi-mongo"
+    },
+    "volumes": [
+      "musashi_mongo_data",
+      "musashi_mongo_config",
+      "musashi_logs"
+    ],
+    "networks": ["musashi-network"]
+  },
+  "environment_variables": {
+    "required": [
+      "MONGODB_URL",
+      "DATABASE_NAME",
+      "SECRET_KEY"
+    ],
+    "optional": [
+      "MUSASHI_PORT",
+      "ENVIRONMENT",
+      "DEBUG",
+      "LOG_LEVEL",
+      "BACKEND_CORS_ORIGINS",
+      "MONGO_ROOT_USERNAME",
+      "MONGO_ROOT_PASSWORD",
+      "REDIS_PASSWORD",
+      "VITE_API_URL",
+      "WORKERS_PER_CORE",
+      "MAX_WORKERS"
+    ]
+  },
+  "ci_cd": {
+    "platform": "GitHub Actions",
+    "workflows": [
+      ".github/workflows/ci.yml",
+      ".github/workflows/release.yml"
+    ],
+    "test_jobs": [
+      "backend-test",
+      "frontend-test",
+      "docker-build"
+    ],
+    "services": {
+      "mongodb": "mongo:7.0"
+    }
+  },
+  "commands": {
+    "docker": {
+      "build": "docker build -t musashi:latest -f Dockerfile.optimized .",
+      "run": "./run-musashi.sh",
+      "stop": "docker stop musashi",
+      "restart": "docker restart musashi",
+      "logs": "docker logs -f musashi",
+      "remove": "docker rm -f musashi"
+    },
+    "make": {
+      "docker-build": "Build Docker image for single container",
+      "docker-run": "Run Musashi as single container",
+      "docker-stop": "Stop Musashi container",
+      "docker-restart": "Restart Musashi container",
+      "docker-logs": "Show logs from Musashi container",
+      "docker-clean": "Remove Musashi container and image"
+    },
+    "frontend": {
+      "dev": "npm run dev",
+      "build": "npm run build",
+      "test": "npm test",
+      "test:coverage": "npm run test:coverage",
+      "test:e2e": "npm run test:e2e",
+      "lint": "npm run lint"
+    },
+    "backend": {
+      "dev": "uvicorn app.main:app --reload --port 8000",
+      "test": "python -m pytest",
+      "lint": "ruff check ."
+    }
+  },
+  "api": {
+    "version": "v1",
+    "prefix": "/api/v1",
+    "openapi": "/api/v1/openapi.json",
+    "endpoints": {
+      "auth": "/api/v1/auth/*",
+      "workflows": "/api/v1/workflows/*",
+      "users": "/api/v1/users/*",
+      "admin": "/api/v1/admin/*"
+    }
+  },
+  "database": {
+    "type": "MongoDB",
+    "version": "7-jammy",
+    "collections": ["workflows", "users"],
+    "connection": {
+      "production": "mongodb://mongo:27017",
+      "development": "mongodb://localhost:27017",
+      "docker": "mongodb://host.docker.internal:27017"
+    }
+  },
+  "features": {
+    "core": [
+      "Visual workflow creation with React Flow",
+      "Automatic layout with Dagre",
+      "JWT authentication",
+      "Role-based access control (RBAC)",
+      "Team collaboration",
+      "Version control friendly (JSON export)",
+      "Read-only sharing with tokens"
+    ],
+    "ui": [
+      "Drag-and-drop workflow editor",
+      "FigJam-like canvas experience",
+      "Responsive design with Tailwind CSS",
+      "Component library with Typography, Button, Card, etc."
+    ]
+  },
+  "dependencies": {
+    "critical_backend": [
+      "fastapi>=0.104.0",
+      "motor>=3.3.0",
+      "python-jose[cryptography]>=3.3.0",
+      "passlib[bcrypt]>=1.7.4"
+    ],
+    "critical_frontend": [
+      "react@^18.2.0",
+      "reactflow@^11.11.4",
+      "dagre@^0.8.5",
+      "react-router-dom@^7.8.0"
+    ]
+  },
+  "file_structure": {
+    "backend": {
+      "entry": "backend/app/main.py",
+      "api": "backend/app/api/v1/",
+      "models": "backend/app/models/",
+      "services": "backend/app/services/",
+      "core": "backend/app/core/"
+    },
+    "frontend": {
+      "entry": "frontend/src/App.tsx",
+      "pages": "frontend/src/pages/",
+      "components": "frontend/src/components/",
+      "services": "frontend/src/services/",
+      "types": "frontend/src/types/"
+    }
+  }
+}

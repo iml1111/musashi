@@ -38,7 +38,6 @@ const Dashboard: React.FC = () => {
       const data = await workflowService.getWorkflows()
       setWorkflows(data)
     } catch (err) {
-      console.error('Failed to fetch workflows:', err)
       setError(err instanceof Error ? err.message : 'Failed to fetch workflows')
     } finally {
       setLoading(false)
@@ -77,7 +76,6 @@ const Dashboard: React.FC = () => {
       
       hideDeleteDialog()
     } catch (err) {
-      console.error('Failed to delete workflow:', err)
       alert('Failed to delete workflow. Please try again.')
     } finally {
       setDeleting(null)
@@ -119,7 +117,6 @@ const Dashboard: React.FC = () => {
       // Copy to clipboard
       await copyShareLink(workflow.id, result.share_token)
     } catch (err) {
-      console.error('Failed to generate share link:', err)
       alert('Failed to generate share link. Please try again.')
       setShareState(prev => ({
         ...prev,
@@ -146,7 +143,6 @@ const Dashboard: React.FC = () => {
         }))
       }, 2000)
     } catch (err) {
-      console.error('Failed to copy to clipboard:', err)
       // Fallback for older browsers
       const textArea = document.createElement('textarea')
       textArea.value = shareUrl

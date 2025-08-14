@@ -1,0 +1,21 @@
+{
+  "name": "Test Import Workflow",
+  "description": "Testing migration",
+  "nodes": [
+    {
+      "id": "agent-1",
+      "type": "agent",
+      "label": "Test Agent",
+      "properties": {
+        "parameters": {
+          "model": "gpt-4",
+          "temperature": 0.7,
+          "max_tokens": 1000,
+          "top_p": 1,
+          "system_prompt": "This is a legacy system prompt"
+        }
+      }
+    }
+  ],
+  "edges": []
+}

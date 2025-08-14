@@ -234,14 +234,9 @@ const NodeSidebar: React.FC<NodeSidebarProps> = ({
   const currentNode = nodes.find(n => n.id === selectedNode.id)
   
   // Debug: Log the current node data
-  console.log('NodeSidebar - selectedNode:', selectedNode)
-  console.log('NodeSidebar - currentNode:', currentNode)
-  console.log('NodeSidebar - currentNode.data:', currentNode?.data)
-  console.log('NodeSidebar - connected_inputs:', currentNode?.data?.connected_inputs)
   
   // If we can't find the node in the current nodes array, something went wrong
   if (!currentNode) {
-    console.error('NodeSidebar: Current node not found in nodes array', selectedNode.id)
     return null
   }
 
@@ -1418,8 +1413,8 @@ const NodeSidebar: React.FC<NodeSidebarProps> = ({
                 parameters: {
                   ...currentNode.data.parameters,
                   developer_message: newDeveloperMessage,
-                  system_prompt: newDeveloperMessage, // For backward compatibility
                   prompts: newPrompts
+                  // system_prompt field removed - using developer_message only
                 }
               }
             })

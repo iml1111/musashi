@@ -25,7 +25,6 @@ const ConnectedOutputViewer: React.FC<ConnectedOutputViewerProps> = ({
       setCopiedIndex(index)
       setTimeout(() => setCopiedIndex(null), 2000)
     } catch (err) {
-      console.error('Failed to copy:', err)
     }
   }
 

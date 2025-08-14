@@ -1,0 +1,44 @@
+# Page snapshot
+
+```yaml
+- banner:
+  - button "Back to Dashboard":
+    - img
+  - textbox "Workflow Name": Test Import Workflow
+  - textbox "Add a description...": Testing migration
+  - paragraph: Musashi Flow Editor - Auto-layout workflow design
+  - button "Add Node":
+    - img
+    - text: Add Node
+  - button "Undo (Ctrl+Z)":
+    - img
+  - button "Redo (Ctrl+Shift+Z)" [disabled]:
+    - img
+  - button "Export":
+    - img
+    - text: Export
+  - img
+  - text: Import
+  - button "Save":
+    - img
+    - text: Save
+  - button "Keyboard Shortcuts (i)":
+    - img
+- img
+- button "Agent No model selected":
+  - img
+  - text: Agent No model selected
+- img
+- button "Zoom in":
+  - img
+- button "Zoom out":
+  - img
+- button "Fit view":
+  - img
+- button "Lock interaction":
+  - img
+- img "React Flow mini map"
+- link "React Flow attribution":
+  - /url: https://reactflow.dev
+  - text: React Flow
+```

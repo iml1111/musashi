@@ -1,0 +1,10 @@
+Musashi v1.0.1 - Visual AI Agent Workflow Designer
+Stack: React 18 + TypeScript frontend, FastAPI + Python 3.12 backend, MongoDB 7
+Architecture: Single container (nginx:80 + API:8080), Docker optimized, multi-platform
+Features: Drag-drop workflow design, RBAC team collaboration, Git-friendly JSON export
+Security: JWT auth, bcrypt passwords, Cosign signed images, Trivy scanning
+Quick start: docker pull ghcr.io/imiml/musashi:latest && ./run-musashi.sh
+Health checks: /health (frontend), /api/v1/health (backend)
+Required env: MONGODB_URL, DATABASE_NAME, SECRET_KEY (32+ chars)
+CI/CD: GitHub Actions with multi-arch builds, automated testing, GHCR deployment
+Mission: Flow Sharp, Ship Fast - Design-only focus, no execution
