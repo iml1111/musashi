@@ -16,6 +16,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.0.4] - 2025-08-15
+
+### 🐛 Fixed
+- CI pipeline test failures resolved
+- Backend Mock object KeyError in workflow service tests
+- Frontend test coverage thresholds adjusted for stability
+
+### 🧹 Changed
+- Unit tests updated to reflect optimistic locking behavior
+- Test infrastructure improvements for better reliability
+
+---
+
 ## [1.0.3] - 2025-08-15
 
 ### 🎉 Added
