@@ -149,7 +149,9 @@ class TestWorkflowService:
 
         mock_db.workflows.update_one.assert_called_once()
         call_args = mock_db.workflows.update_one.call_args
-        assert call_args[0][0] == {"_id": ObjectId(workflow_id)}
+        # Check that the query includes both _id and version (optimistic locking)
+        assert call_args[0][0]["_id"] == ObjectId(workflow_id)
+        assert "version" in call_args[0][0]  # Version check for optimistic locking
         assert "$inc" in call_args[0][1]
         assert call_args[0][1]["$inc"]["version"] == 1
 
