@@ -1498,13 +1498,13 @@
 <span class="cstat-no" title="statement not covered" >  const handleInputChange = (e: React.ChangeEvent&lt;HTMLInputElement&gt;) =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >    setInputValue(e.target.value);</span>
 <span class="cstat-no" title="statement not covered" >    if (e.target.value.length &lt; 3) {</span>
-<span class="cstat-no" title="statement not covered" >      setInputError('최소 3글자 이상 입력해주세요.');</span>
+<span class="cstat-no" title="statement not covered" >      setInputError('Please enter at least 3 characters.');</span>
 <span class="cstat-no" title="statement not covered" >    } else {</span>
 <span class="cstat-no" title="statement not covered" >      setInputError('');</span>
 <span class="cstat-no" title="statement not covered" >    }</span>
 <span class="cstat-no" title="statement not covered" >  };</span>
 &nbsp;
-  // 샘플 이미지 URL들 (placeholder 서비스 사용)
+  // Sample image URLs (using placeholder service)
 <span class="cstat-no" title="statement not covered" >  const sampleImages = [</span>
 <span class="cstat-no" title="statement not covered" >    'https://picsum.photos/400/300?random=1',</span>
 <span class="cstat-no" title="statement not covered" >    'https://picsum.photos/400/300?random=2',</span>
@@ -1513,7 +1513,7 @@
 <span class="cstat-no" title="statement not covered" >    'https://picsum.photos/400/300?random=5',</span>
 <span class="cstat-no" title="statement not covered" >  ];</span>
 &nbsp;
-  // Carousel 아이템들
+  // Carousel items
 <span class="cstat-no" title="statement not covered" >  const carouselItems = [</span>
 <span class="cstat-no" title="statement not covered" >    {</span>
 <span class="cstat-no" title="statement not covered" >      id: 1,</span>
@@ -1523,9 +1523,9 @@
 <span class="cstat-no" title="statement not covered" >          imageAlt="Sample Image 1"</span>
 <span class="cstat-no" title="statement not covered" >          hover</span>
         &gt;
-<span class="cstat-no" title="statement not covered" >          &lt;Typography variant="h4" className="mb-2"&gt;첫 번째 슬라이드&lt;/Typography&gt;</span>
+<span class="cstat-no" title="statement not covered" >          &lt;Typography variant="h4" className="mb-2"&gt;First Slide&lt;/Typography&gt;</span>
 <span class="cstat-no" title="statement not covered" >          &lt;Typography variant="body" color="light"&gt;</span>
-            아름다운 이미지와 함께하는 첫 번째 카드입니다.
+            The first card with beautiful images.
 <span class="cstat-no" title="statement not covered" >          &lt;/Typography&gt;</span>
 <span class="cstat-no" title="statement not covered" >        &lt;/Card&gt;</span>
       )
@@ -1538,9 +1538,9 @@
 <span class="cstat-no" title="statement not covered" >          imageAlt="Sample Image 2"</span>
 <span class="cstat-no" title="statement not covered" >          hover</span>
         &gt;
-<span class="cstat-no" title="statement not covered" >          &lt;Typography variant="h4" className="mb-2"&gt;두 번째 슬라이드&lt;/Typography&gt;</span>
+<span class="cstat-no" title="statement not covered" >          &lt;Typography variant="h4" className="mb-2"&gt;Second Slide&lt;/Typography&gt;</span>
 <span class="cstat-no" title="statement not covered" >          &lt;Typography variant="body" color="light"&gt;</span>
-            매력적인 콘텐츠가 담긴 두 번째 카드입니다.
+            The second card with attractive content.
 <span class="cstat-no" title="statement not covered" >          &lt;/Typography&gt;</span>
 <span class="cstat-no" title="statement not covered" >        &lt;/Card&gt;</span>
       )
@@ -1553,9 +1553,9 @@
 <span class="cstat-no" title="statement not covered" >          imageAlt="Sample Image 3"</span>
 <span class="cstat-no" title="statement not covered" >          hover</span>
         &gt;
-<span class="cstat-no" title="statement not covered" >          &lt;Typography variant="h4" className="mb-2"&gt;세 번째 슬라이드&lt;/Typography&gt;</span>
+<span class="cstat-no" title="statement not covered" >          &lt;Typography variant="h4" className="mb-2"&gt;Third Slide&lt;/Typography&gt;</span>
 <span class="cstat-no" title="statement not covered" >          &lt;Typography variant="body" color="light"&gt;</span>
-            흥미로운 내용이 포함된 세 번째 카드입니다.
+            The third card with interesting content.
 <span class="cstat-no" title="statement not covered" >          &lt;/Typography&gt;</span>
 <span class="cstat-no" title="statement not covered" >        &lt;/Card&gt;</span>
       )
@@ -1568,9 +1568,9 @@
 <span class="cstat-no" title="statement not covered" >          imageAlt="Sample Image 4"</span>
 <span class="cstat-no" title="statement not covered" >          hover</span>
         &gt;
-<span class="cstat-no" title="statement not covered" >          &lt;Typography variant="h4" className="mb-2"&gt;네 번째 슬라이드&lt;/Typography&gt;</span>
+<span class="cstat-no" title="statement not covered" >          &lt;Typography variant="h4" className="mb-2"&gt;Fourth Slide&lt;/Typography&gt;</span>
 <span class="cstat-no" title="statement not covered" >          &lt;Typography variant="body" color="light"&gt;</span>
-            다양한 정보를 담은 네 번째 카드입니다.
+            The fourth card with various information.
 <span class="cstat-no" title="statement not covered" >          &lt;/Typography&gt;</span>
 <span class="cstat-no" title="statement not covered" >        &lt;/Card&gt;</span>
       )
@@ -1594,7 +1594,7 @@
 <span class="cstat-no" title="statement not covered" >        &lt;div className="mb-12"&gt;</span>
 <span class="cstat-no" title="statement not covered" >          &lt;Typography variant="h1" className="mb-4"&gt;Component Library&lt;/Typography&gt;</span>
 <span class="cstat-no" title="statement not covered" >          &lt;Typography variant="body" color="light"&gt;</span>
-            Musashi의 디자인 시스템 컴포넌트들을 확인하고 테스트할 수 있습니다.
+            View and test Musashi's design system components.
 <span class="cstat-no" title="statement not covered" >          &lt;/Typography&gt;</span>
 <span class="cstat-no" title="statement not covered" >        &lt;/div&gt;</span>
 &nbsp;
@@ -1775,7 +1775,7 @@
 <span class="cstat-no" title="statement not covered" >                    &lt;Badge variant="success"&gt;New&lt;/Badge&gt;</span>
 <span class="cstat-no" title="statement not covered" >                  &lt;/div&gt;</span>
 <span class="cstat-no" title="statement not covered" >                  &lt;Typography variant="body" color="light" className="mb-3"&gt;</span>
-                    이미지가 포함된 카드입니다. 호버 효과가 적용되어 있습니다.
+                    A card with an image. Hover effect is applied.
 <span class="cstat-no" title="statement not covered" >                  &lt;/Typography&gt;</span>
 <span class="cstat-no" title="statement not covered" >                  &lt;Button variant="primary" size="small"&gt;Learn More&lt;/Button&gt;</span>
 <span class="cstat-no" title="statement not covered" >                &lt;/Card&gt;</span>
@@ -1789,7 +1789,7 @@
                 &gt;
 <span class="cstat-no" title="statement not covered" >                  &lt;Typography variant="h4" className="mb-2"&gt;Outlined Image Card&lt;/Typography&gt;</span>
 <span class="cstat-no" title="statement not covered" >                  &lt;Typography variant="body" color="light" className="mb-3"&gt;</span>
-                    테두리가 있는 이미지 카드입니다. 이미지 높이를 커스텀할 수 있습니다.
+                    An image card with a border. Image height can be customized.
 <span class="cstat-no" title="statement not covered" >                  &lt;/Typography&gt;</span>
 <span class="cstat-no" title="statement not covered" >                  &lt;div className="flex space-x-2"&gt;</span>
 <span class="cstat-no" title="statement not covered" >                    &lt;Button variant="secondary" size="small"&gt;View&lt;/Button&gt;</span>
@@ -1808,7 +1808,7 @@
 <span class="cstat-no" title="statement not covered" >                    &lt;Badge variant="warning"&gt;Hot&lt;/Badge&gt;</span>
 <span class="cstat-no" title="statement not covered" >                  &lt;/div&gt;</span>
 <span class="cstat-no" title="statement not covered" >                  &lt;Typography variant="body" color="light" className="mb-3"&gt;</span>
-                    고급스러운 그림자 효과가 적용된 프리미엄 카드입니다.
+                    A premium card with elegant shadow effects applied.
 <span class="cstat-no" title="statement not covered" >                  &lt;/Typography&gt;</span>
 <span class="cstat-no" title="statement not covered" >                  &lt;div className="flex items-center justify-between"&gt;</span>
 <span class="cstat-no" title="statement not covered" >                    &lt;Typography variant="small" color="primary" weight="semibold"&gt;</span>
@@ -2089,7 +2089,7 @@
 <span class="cstat-no" title="statement not covered" >                  showBadge</span>
 <span class="cstat-no" title="statement not covered" >                  badgeText="Beta"</span>
 <span class="cstat-no" title="statement not covered" >                  subtitle="Workflow Design Tool"</span>
-<span class="cstat-no" title="statement not covered" >                  title="Cut the Code. Shape the Flow."</span>
+<span class="cstat-no" title="statement not covered" >                  title="Flow Sharp, Ship Fast."</span>
 <span class="cstat-no" title="statement not covered" >                  description="Musashi empowers teams to create sophisticated AI agent workflows through intuitive visual design. No programming required."</span>
 <span class="cstat-no" title="statement not covered" >                  primaryAction={{</span>
 <span class="cstat-no" title="statement not covered" >                    text: "Start Building",</span>
@@ -2194,7 +2194,7 @@
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-08-13T07:06:34.974Z
+                at 2025-08-15T12:37:26.383Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/295</span>
+                <span class='fraction'>0/291</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/295</span>
+                <span class='fraction'>0/291</span>
             </div>
         
             
@@ -424,10 +424,7 @@
 <a name='L359'></a><a href='#L359'>359</a>
 <a name='L360'></a><a href='#L360'>360</a>
 <a name='L361'></a><a href='#L361'>361</a>
-<a name='L362'></a><a href='#L362'>362</a>
-<a name='L363'></a><a href='#L363'>363</a>
-<a name='L364'></a><a href='#L364'>364</a>
-<a name='L365'></a><a href='#L365'>365</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<a name='L362'></a><a href='#L362'>362</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -472,7 +469,6 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -504,7 +500,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -555,7 +550,6 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -575,7 +569,6 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -791,7 +784,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" >import React, { useState, useEffect } from 'react'<span class="fstat-no" title="function not covered" ><span class="branch-0 cbranch-no" title="branch not covered" ></span></span></span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" >import React, { useState, useEffect } from 'react'<span class="fstat-no" title="function not covered" ><span class="branch-0 cbranch-no" title="branch not covered" ></span></span></span>
 <span class="cstat-no" title="statement not covered" >import { Link } from 'react-router-dom'</span>
 <span class="cstat-no" title="statement not covered" >import { Plus, FileText, Share2, Settings, LogOut, User, Trash2, Check, Copy } from 'lucide-react'</span>
 <span class="cstat-no" title="statement not covered" >import { useAuth } from '../contexts/AuthContext'</span>
@@ -831,7 +825,6 @@ interface ShareState {
 <span class="cstat-no" title="statement not covered" >      const data = await workflowService.getWorkflows()</span>
 <span class="cstat-no" title="statement not covered" >      setWorkflows(data)</span>
 <span class="cstat-no" title="statement not covered" >    } catch (err) {</span>
-<span class="cstat-no" title="statement not covered" >      console.error('Failed to fetch workflows:', err)</span>
 <span class="cstat-no" title="statement not covered" >      setError(err instanceof Error ? err.message : 'Failed to fetch workflows')</span>
 <span class="cstat-no" title="statement not covered" >    } finally {</span>
 <span class="cstat-no" title="statement not covered" >      setLoading(false)</span>
@@ -870,7 +863,6 @@ interface ShareState {
       
 <span class="cstat-no" title="statement not covered" >      hideDeleteDialog()</span>
 <span class="cstat-no" title="statement not covered" >    } catch (err) {</span>
-<span class="cstat-no" title="statement not covered" >      console.error('Failed to delete workflow:', err)</span>
 <span class="cstat-no" title="statement not covered" >      alert('Failed to delete workflow. Please try again.')</span>
 <span class="cstat-no" title="statement not covered" >    } finally {</span>
 <span class="cstat-no" title="statement not covered" >      setDeleting(null)</span>
@@ -912,7 +904,6 @@ interface ShareState {
       // Copy to clipboard
 <span class="cstat-no" title="statement not covered" >      await copyShareLink(workflow.id, result.share_token)</span>
 <span class="cstat-no" title="statement not covered" >    } catch (err) {</span>
-<span class="cstat-no" title="statement not covered" >      console.error('Failed to generate share link:', err)</span>
 <span class="cstat-no" title="statement not covered" >      alert('Failed to generate share link. Please try again.')</span>
 <span class="cstat-no" title="statement not covered" >      setShareState(prev =&gt; ({</span>
 <span class="cstat-no" title="statement not covered" >        ...prev,</span>
@@ -939,7 +930,6 @@ interface ShareState {
 <span class="cstat-no" title="statement not covered" >        }))</span>
 <span class="cstat-no" title="statement not covered" >      }, 2000)</span>
 <span class="cstat-no" title="statement not covered" >    } catch (err) {</span>
-<span class="cstat-no" title="statement not covered" >      console.error('Failed to copy to clipboard:', err)</span>
       // Fallback for older browsers
 <span class="cstat-no" title="statement not covered" >      const textArea = document.createElement('textarea')</span>
 <span class="cstat-no" title="statement not covered" >      textArea.value = shareUrl</span>
@@ -1002,7 +992,7 @@ interface ShareState {
 <span class="cstat-no" title="statement not covered" >          &lt;div className="flex justify-between items-center h-16"&gt;</span>
 <span class="cstat-no" title="statement not covered" >            &lt;div className="flex items-center"&gt;</span>
 <span class="cstat-no" title="statement not covered" >              &lt;h1 className="text-2xl font-bold text-gray-900"&gt;Musashi&lt;/h1&gt;</span>
-<span class="cstat-no" title="statement not covered" >              &lt;span className="ml-3 text-sm text-gray-500"&gt;Cut the code. Shape the flow.&lt;/span&gt;</span>
+<span class="cstat-no" title="statement not covered" >              &lt;span className="ml-3 text-sm text-gray-500"&gt;Flow Sharp, Ship Fast.&lt;/span&gt;</span>
 <span class="cstat-no" title="statement not covered" >            &lt;/div&gt;</span>
 <span class="cstat-no" title="statement not covered" >            &lt;div className="flex items-center space-x-4"&gt;</span>
 <span class="cstat-no" title="statement not covered" >              &lt;div className="flex items-center space-x-2 text-sm text-gray-700"&gt;</span>
@@ -1155,14 +1145,15 @@ interface ShareState {
   )
 <span class="cstat-no" title="statement not covered" >}</span>
 &nbsp;
-<span class="cstat-no" title="statement not covered" >export default Dashboard</span></pre></td></tr></table></pre>
+<span class="cstat-no" title="statement not covered" >export default Dashboard</span>
+&nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
             </div><!-- /wrapper -->
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-08-13T07:06:34.974Z
+                at 2025-08-15T12:37:26.383Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

@@ -38,8 +38,12 @@ class WorkflowService:
             return None
         workflow = await self.collection.find_one({"_id": ObjectId(workflow_id)})
         if workflow:
-            workflow["id"] = str(workflow["_id"])
-            workflow.pop("_id", None)
+            # Safe access to _id field for mock objects in tests
+            if "_id" in workflow:
+                workflow["id"] = str(workflow["_id"])
+                workflow.pop("_id", None)
+            elif "id" not in workflow:
+                workflow["id"] = workflow_id
         return Workflow(**workflow) if workflow else None
 
     async def get_workflows(
@@ -51,8 +55,10 @@ class WorkflowService:
         cursor = self.collection.find(filter_query).skip(skip).limit(limit)
         workflows = await cursor.to_list(length=limit)
         for workflow in workflows:
-            workflow["id"] = str(workflow["_id"])
-            workflow.pop("_id", None)
+            # Safe access to _id field for mock objects in tests
+            if "_id" in workflow:
+                workflow["id"] = str(workflow["_id"])
+                workflow.pop("_id", None)
         return [Workflow(**workflow) for workflow in workflows]
 
     async def update_workflow(

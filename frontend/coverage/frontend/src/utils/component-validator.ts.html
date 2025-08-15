@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/109</span>
+                <span class='fraction'>0/102</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/109</span>
+                <span class='fraction'>0/102</span>
             </div>
         
             
@@ -210,25 +210,7 @@
 <a name='L145'></a><a href='#L145'>145</a>
 <a name='L146'></a><a href='#L146'>146</a>
 <a name='L147'></a><a href='#L147'>147</a>
-<a name='L148'></a><a href='#L148'>148</a>
-<a name='L149'></a><a href='#L149'>149</a>
-<a name='L150'></a><a href='#L150'>150</a>
-<a name='L151'></a><a href='#L151'>151</a>
-<a name='L152'></a><a href='#L152'>152</a>
-<a name='L153'></a><a href='#L153'>153</a>
-<a name='L154'></a><a href='#L154'>154</a>
-<a name='L155'></a><a href='#L155'>155</a>
-<a name='L156'></a><a href='#L156'>156</a>
-<a name='L157'></a><a href='#L157'>157</a>
-<a name='L158'></a><a href='#L158'>158</a>
-<a name='L159'></a><a href='#L159'>159</a>
-<a name='L160'></a><a href='#L160'>160</a>
-<a name='L161'></a><a href='#L161'>161</a>
-<a name='L162'></a><a href='#L162'>162</a>
-<a name='L163'></a><a href='#L163'>163</a>
-<a name='L164'></a><a href='#L164'>164</a>
-<a name='L165'></a><a href='#L165'>165</a>
-<a name='L166'></a><a href='#L166'>166</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L148'></a><a href='#L148'>148</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -281,15 +263,7 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -304,18 +278,7 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -393,13 +356,14 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
  * Musashi Component Validator
- * 개발 중 컴포넌트 사용 규칙 준수를 돕는 유틸리티
+ * Development component usage rules validation utility
  */
 &nbsp;
 <span class="cstat-no" title="statement not covered" >export const COMPONENT_RULES = {</span>
-  // 금지된 HTML 태그들 (컴포넌트로 대체해야 함)
+  // Forbidden HTML tags (must be replaced with components)
 <span class="cstat-no" title="statement not covered" >  FORBIDDEN_TAGS: {</span>
 <span class="cstat-no" title="statement not covered" >    'h1': 'Typography variant="h1"',</span>
 <span class="cstat-no" title="statement not covered" >    'h2': 'Typography variant="h2"', </span>
@@ -412,7 +376,7 @@
 <span class="cstat-no" title="statement not covered" >    'textarea': 'Input (with multiline)',</span>
 <span class="cstat-no" title="statement not covered" >  },</span>
 &nbsp;
-  // 권장 컴포넌트 매핑
+  // Recommended component mapping
 <span class="cstat-no" title="statement not covered" >  RECOMMENDED_COMPONENTS: {</span>
 <span class="cstat-no" title="statement not covered" >    text: 'Typography',</span>
 <span class="cstat-no" title="statement not covered" >    button: 'Button', </span>
@@ -425,7 +389,7 @@
 <span class="cstat-no" title="statement not covered" >    badge: 'Badge',</span>
 <span class="cstat-no" title="statement not covered" >  },</span>
 &nbsp;
-  // 금지된 인라인 스타일 속성들
+  // Forbidden inline style properties
 <span class="cstat-no" title="statement not covered" >  FORBIDDEN_STYLES: [</span>
 <span class="cstat-no" title="statement not covered" >    'color',</span>
 <span class="cstat-no" title="statement not covered" >    'backgroundColor', </span>
@@ -439,28 +403,20 @@
 <span class="cstat-no" title="statement not covered" >} as const;</span>
 &nbsp;
 /**
- * 컴포넌트 사용 가이드를 콘솔에 출력
+ * Output component usage guide to console
  */
 <span class="cstat-no" title="statement not covered" >export const showComponentGuide = (element: string) =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >  if (process.env.NODE_ENV === 'development') {</span>
 <span class="cstat-no" title="statement not covered" >    const recommendation = COMPONENT_RULES.FORBIDDEN_TAGS[element as keyof typeof COMPONENT_RULES.FORBIDDEN_TAGS];</span>
     
 <span class="cstat-no" title="statement not covered" >    if (recommendation) {</span>
-<span class="cstat-no" title="statement not covered" >      console.warn(`</span>
-🎨 Musashi Component Guide
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-<span class="cstat-no" title="statement not covered" >❌ 지양: &lt;${element}&gt;</span>
-<span class="cstat-no" title="statement not covered" >✅ 권장: &lt;${recommendation}&gt;</span>
-&nbsp;
-📚 자세한 가이드: /COMPONENT_GUIDELINES.md
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-<span class="cstat-no" title="statement not covered" >      `);</span>
+      // Component usage guide removed (was causing console output)
 <span class="cstat-no" title="statement not covered" >    }</span>
 <span class="cstat-no" title="statement not covered" >  }</span>
 <span class="cstat-no" title="statement not covered" >};</span>
 &nbsp;
 /**
- * 개발 환경에서 스타일 사용 경고
+ * Inline style usage warning in development environment
  */
 <span class="cstat-no" title="statement not covered" >export const warnInlineStyle = (styles: Record&lt;string, any&gt;) =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >  if (process.env.NODE_ENV === 'development') {</span>
@@ -469,24 +425,13 @@
 <span class="cstat-no" title="statement not covered" >    );</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    if (forbiddenProps.length &gt; 0) {</span>
-<span class="cstat-no" title="statement not covered" >      console.warn(`</span>
-🎨 Musashi Style Guide
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-<span class="cstat-no" title="statement not covered" >❌ 인라인 스타일 사용: ${forbiddenProps.join(', ')}</span>
-✅ 권장: 
-  - 색상: theme.ts 또는 Typography color prop
-  - 간격: theme.spacing 또는 Tailwind 클래스
-  - 타이포그래피: Typography 컴포넌트
-&nbsp;
-📚 자세한 가이드: /COMPONENT_GUIDELINES.md
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-<span class="cstat-no" title="statement not covered" >      `);</span>
+      // Style guide warning removed (was causing console output)
 <span class="cstat-no" title="statement not covered" >    }</span>
 <span class="cstat-no" title="statement not covered" >  }</span>
 <span class="cstat-no" title="statement not covered" >};</span>
 &nbsp;
 /**
- * 컴포넌트 import 체커
+ * Component import checker
  */
 <span class="cstat-no" title="statement not covered" >export const checkComponentImports = (fileContent: string) =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >  const lines = fileContent.split('\n');</span>
@@ -504,7 +449,7 @@
 <span class="cstat-no" title="statement not covered" >  if (hasHtmlElements &amp;&amp; !hasComponentImport) {</span>
 <span class="cstat-no" title="statement not covered" >    return {</span>
 <span class="cstat-no" title="statement not covered" >      warning: true,</span>
-<span class="cstat-no" title="statement not covered" >      message: 'HTML 태그를 사용하고 있지만 Musashi 컴포넌트를 import하지 않았습니다.',</span>
+<span class="cstat-no" title="statement not covered" >      message: 'Using HTML tags but Musashi components are not imported.',</span>
 <span class="cstat-no" title="statement not covered" >      suggestion: "import { Typography, Button, Input } from '../components/common';"</span>
 <span class="cstat-no" title="statement not covered" >    };</span>
 <span class="cstat-no" title="statement not covered" >  }</span>
@@ -513,12 +458,12 @@
 <span class="cstat-no" title="statement not covered" >};</span>
 &nbsp;
 /**
- * 자동 수정 제안 생성
+ * Generate auto-fix suggestions
  */
 <span class="cstat-no" title="statement not covered" >export const generateFixSuggestions = (code: string) =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >  const suggestions: Array&lt;{from: string, to: string, reason: string}&gt; = [];</span>
 &nbsp;
-  // HTML 태그 → 컴포넌트 변환 제안
+  // HTML tag to component conversion suggestions
 <span class="cstat-no" title="statement not covered" >  Object.entries(COMPONENT_RULES.FORBIDDEN_TAGS).forEach(([tag, component]) =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >    const regex = new RegExp(`&lt;${tag}([^&gt;]*)&gt;([^&lt;]*)&lt;/${tag}&gt;`, 'g');</span>
 <span class="cstat-no" title="statement not covered" >    const matches = code.match(regex);</span>
@@ -528,7 +473,7 @@
 <span class="cstat-no" title="statement not covered" >        suggestions.push({</span>
 <span class="cstat-no" title="statement not covered" >          from: match,</span>
 <span class="cstat-no" title="statement not covered" >          to: `&lt;${component}&gt;${match.replace(new RegExp(`&lt;/?${tag}[^&gt;]*&gt;`, 'g'), '')}&lt;/${component.split(' ')[0]}&gt;`,</span>
-<span class="cstat-no" title="statement not covered" >          reason: `HTML ${tag} 태그를 ${component} 컴포넌트로 변경`</span>
+<span class="cstat-no" title="statement not covered" >          reason: `Replace HTML ${tag} tag with ${component} component`</span>
 <span class="cstat-no" title="statement not covered" >        });</span>
 <span class="cstat-no" title="statement not covered" >      });</span>
 <span class="cstat-no" title="statement not covered" >    }</span>
@@ -538,10 +483,10 @@
 <span class="cstat-no" title="statement not covered" >};</span>
 &nbsp;
 /**
- * 개발 도구 - 컴포넌트 사용 현황 분석
+ * Development tool - Component usage analysis
  */
 <span class="cstat-no" title="statement not covered" >export const analyzeComponentUsage = (_projectPath: string) =&gt; {</span>
-  // 실제 구현은 빌드 도구나 별도 스크립트에서 사용
+  // Actual implementation used in build tools or separate scripts
 <span class="cstat-no" title="statement not covered" >  return {</span>
 <span class="cstat-no" title="statement not covered" >    totalFiles: 0,</span>
 <span class="cstat-no" title="statement not covered" >    componentUsage: {},</span>
@@ -550,7 +495,7 @@
 <span class="cstat-no" title="statement not covered" >  };</span>
 <span class="cstat-no" title="statement not covered" >};</span>
 &nbsp;
-// 개발 환경에서만 전역 헬퍼 함수 제공
+// Provide global helper functions only in development environment
 <span class="cstat-no" title="statement not covered" >if (process.env.NODE_ENV === 'development') {</span>
 <span class="cstat-no" title="statement not covered" >  (window as any).musashiGuide = {</span>
 <span class="cstat-no" title="statement not covered" >    showGuide: showComponentGuide,</span>
@@ -558,14 +503,15 @@
 <span class="cstat-no" title="statement not covered" >    fixSuggestions: generateFixSuggestions,</span>
 <span class="cstat-no" title="statement not covered" >    rules: COMPONENT_RULES</span>
 <span class="cstat-no" title="statement not covered" >  };</span>
-<span class="cstat-no" title="statement not covered" >}</span></pre></td></tr></table></pre>
+<span class="cstat-no" title="statement not covered" >}</span>
+&nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
             </div><!-- /wrapper -->
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-08-13T07:06:34.974Z
+                at 2025-08-15T12:37:26.383Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

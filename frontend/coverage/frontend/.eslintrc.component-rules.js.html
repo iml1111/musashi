@@ -155,50 +155,50 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" ><span class="branch-0 cbranch-no" title="branch not covered" >// ESLint 규칙: Musashi 컴포넌트 사용 강제</span></span></span>
+<span class="cline-any cline-no">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" ><span class="branch-0 cbranch-no" title="branch not covered" >// ESLint Rules: Musashi Component 사용 강제</span></span></span>
 <span class="cstat-no" title="statement not covered" >module.exports = {</span>
 <span class="cstat-no" title="statement not covered" >  rules: {</span>
-<span class="cstat-no" title="statement not covered" >    // HTML 태그 직접 사용 금지</span>
+<span class="cstat-no" title="statement not covered" >    // HTML Tag 직접 사용 금지</span>
 <span class="cstat-no" title="statement not covered" >    'no-restricted-syntax': [</span>
 <span class="cstat-no" title="statement not covered" >      'error',</span>
 <span class="cstat-no" title="statement not covered" >      {</span>
 <span class="cstat-no" title="statement not covered" >        selector: 'JSXElement[openingElement.name.name=/^(h[1-6]|p|button|input|span|div)$/]:not([openingElement.attributes.0.name.name="className"]):not([openingElement.attributes.0.name.name="style"])',</span>
-<span class="cstat-no" title="statement not covered" >        message: 'HTML 태그 대신 Musashi 컴포넌트를 사용하세요. h1-h6,p → Typography, button → Button, input → Input'</span>
+<span class="cstat-no" title="statement not covered" >        message: 'HTML Tag 대신 Musashi Component를 사용하세요. h1-h6,p → Typography, button → Button, input → Input'</span>
 <span class="cstat-no" title="statement not covered" >      }</span>
 <span class="cstat-no" title="statement not covered" >    ],</span>
 <span class="cstat-no" title="statement not covered" >    </span>
-<span class="cstat-no" title="statement not covered" >    // 인라인 스타일 금지</span>
+<span class="cstat-no" title="statement not covered" >    // 인라인 스타Day 금지</span>
 <span class="cstat-no" title="statement not covered" >    'react/forbid-dom-props': [</span>
 <span class="cstat-no" title="statement not covered" >      'error',</span>
 <span class="cstat-no" title="statement not covered" >      {</span>
 <span class="cstat-no" title="statement not covered" >        forbid: [</span>
 <span class="cstat-no" title="statement not covered" >          {</span>
 <span class="cstat-no" title="statement not covered" >            propName: 'style',</span>
-<span class="cstat-no" title="statement not covered" >            message: '인라인 스타일 대신 테마 시스템이나 컴포넌트 props를 사용하세요'</span>
+<span class="cstat-no" title="statement not covered" >            message: '인라인 스타Day 대신 테마 Hour스템이나 Component props를 사용하세요'</span>
 <span class="cstat-no" title="statement not covered" >          }</span>
 <span class="cstat-no" title="statement not covered" >        ]</span>
 <span class="cstat-no" title="statement not covered" >      }</span>
 <span class="cstat-no" title="statement not covered" >    ],</span>
 <span class="cstat-no" title="statement not covered" >    </span>
-<span class="cstat-no" title="statement not covered" >    // 특정 className 패턴 금지</span>
+<span class="cstat-no" title="statement not covered" >    // 특정 className Pattern 금지</span>
 <span class="cstat-no" title="statement not covered" >    'no-restricted-syntax': [</span>
 <span class="cstat-no" title="statement not covered" >      'error',</span>
 <span class="cstat-no" title="statement not covered" >      {</span>
 <span class="cstat-no" title="statement not covered" >        selector: 'JSXAttribute[name.name="className"][value.value=/text-(red|blue|green|yellow|purple|gray|black|white)-\\d+/]',</span>
-<span class="cstat-no" title="statement not covered" >        message: 'Tailwind 색상 클래스 대신 Typography 컴포넌트의 color prop을 사용하세요'</span>
+<span class="cstat-no" title="statement not covered" >        message: 'Tailwind 색상 클래스 대신 Typography Component의 color prop을 사용하세요'</span>
 <span class="cstat-no" title="statement not covered" >      },</span>
 <span class="cstat-no" title="statement not covered" >      {</span>
 <span class="cstat-no" title="statement not covered" >        selector: 'JSXAttribute[name.name="className"][value.value=/bg-(red|blue|green|yellow|purple|gray|black|white)-\\d+/]',</span>
-<span class="cstat-no" title="statement not covered" >        message: '배경색 클래스 대신 적절한 컴포넌트나 테마 시스템을 사용하세요'</span>
+<span class="cstat-no" title="statement not covered" >        message: '배경색 클래스 대신 적절한 Component나 테마 Hour스템을 사용하세요'</span>
 <span class="cstat-no" title="statement not covered" >      }</span>
 <span class="cstat-no" title="statement not covered" >    ]</span>
 <span class="cstat-no" title="statement not covered" >  }</span>
 <span class="cstat-no" title="statement not covered" >};</span>
 &nbsp;
-<span class="cstat-no" title="statement not covered" >// 사용법: .eslintrc.js에 추가</span>
+<span class="cstat-no" title="statement not covered" >// Usage: .eslintrc.js에 Add</span>
 <span class="cstat-no" title="statement not covered" >// module.exports = {</span>
 <span class="cstat-no" title="statement not covered" >//   extends: [</span>
-<span class="cstat-no" title="statement not covered" >//     // ... 기존 설정</span>
+<span class="cstat-no" title="statement not covered" >//     // ... 기존 Settings</span>
 <span class="cstat-no" title="statement not covered" >//     './.eslintrc.component-rules.js'</span>
 <span class="cstat-no" title="statement not covered" >//   ]</span>
 <span class="cstat-no" title="statement not covered" >// };</span></pre></td></tr></table></pre>
@@ -208,7 +208,7 @@
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-08-13T07:06:34.974Z
+                at 2025-08-15T12:37:26.383Z
             </div>
         <script src="../prettify.js"></script>
         <script>

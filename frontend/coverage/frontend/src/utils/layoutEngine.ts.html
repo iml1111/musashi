@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">81.06% </span>
+                <span class="strong">82.3% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>107/132</span>
+                <span class='fraction'>107/130</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">81.06% </span>
+                <span class="strong">82.3% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>107/132</span>
+                <span class='fraction'>107/130</span>
             </div>
         
             
@@ -246,8 +246,7 @@
 <a name='L181'></a><a href='#L181'>181</a>
 <a name='L182'></a><a href='#L182'>182</a>
 <a name='L183'></a><a href='#L183'>183</a>
-<a name='L184'></a><a href='#L184'>184</a>
-<a name='L185'></a><a href='#L185'>185</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
+<a name='L184'></a><a href='#L184'>184</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -308,7 +307,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">10x</span>
 <span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-yes">5x</span>
@@ -416,7 +414,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -431,7 +428,8 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import dagre from 'dagre';
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import dagre from 'dagre';
 import { Node, Edge } from '../types/flow';
 &nbsp;
 type XYPosition = { x: number; y: number };
@@ -446,8 +444,8 @@ export interface LayoutOptions {
 &nbsp;
 const defaultOptions: LayoutOptions = {
   direction: 'TB',
-  nodeSpacing: 200,
-  rankSpacing: 300,
+  nodeSpacing: 300,  // Increased from 200 to prevent edge overlap
+  rankSpacing: 400,  // Increased from 300 for better vertical spacing
   nodeWidth: 200,
   nodeHeight: 60,
 };
@@ -471,11 +469,11 @@ export function calculateLayout(
     rankdir: direction,
     nodesep: nodeSpacing,
     ranksep: rankSpacing,
-    marginx: 100,
-    marginy: 100,
-    // Settings for better cycle handling
+    marginx: 150,  // Increased from 100
+    marginy: 150,  // Increased from 100
+    // Settings for better cycle handling and edge separation
     ranker: 'longest-path',
-    edgesep: 150,
+    edgesep: 200,  // Increased from 150 to better separate parallel edges
   });
 &nbsp;
   // Default edge label
@@ -492,7 +490,6 @@ export function calculateLayout(
   // Add edges to the graph
   edges.forEach((edge) =&gt; {
     if (!edge || !edge.source || !edge.target) <span class="branch-0 cbranch-no" title="branch not covered" >{</span>
-<span class="cstat-no" title="statement not covered" >      console.error('Invalid edge found:', edge);</span>
 <span class="cstat-no" title="statement not covered" >      return; // Skip invalid edges</span>
 <span class="cstat-no" title="statement not covered" >    }</span>
     g.setEdge(edge.source, edge.target);
@@ -600,7 +597,6 @@ export <span class="fstat-no" title="function not covered" >function addEdgeWith
     
 <span class="cstat-no" title="statement not covered" >    return result;</span>
 <span class="cstat-no" title="statement not covered" >  } catch (error) {</span>
-<span class="cstat-no" title="statement not covered" >    console.error('Error in calculateLayout:', error);</span>
     // Return the original nodes and new edges if layout fails
 <span class="cstat-no" title="statement not covered" >    return { nodes, edges: allEdges };</span>
 <span class="cstat-no" title="statement not covered" >  }</span>
@@ -615,14 +611,15 @@ export <span class="fstat-no" title="function not covered" >function removeEdgeW
 <span class="cstat-no" title="statement not covered" >): { nodes: Node[]; edges: Edge[] } {</span>
 <span class="cstat-no" title="statement not covered" >  const filteredEdges = edges.filter((edge) =&gt; edge.id !== edgeId);</span>
 <span class="cstat-no" title="statement not covered" >  return calculateLayout(nodes, filteredEdges, options);</span>
-<span class="cstat-no" title="statement not covered" >}</span></pre></td></tr></table></pre>
+<span class="cstat-no" title="statement not covered" >}</span>
+&nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
             </div><!-- /wrapper -->
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-08-13T07:06:34.974Z
+                at 2025-08-15T12:37:26.383Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>
