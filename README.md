@@ -117,6 +117,20 @@ docker-compose up -d
 open http://localhost
 ```
 
+### 🔐 Default Admin Credentials
+
+When Musashi starts for the first time, it automatically creates an admin account:
+
+| Field | Value | Note |
+|-------|-------|------|
+| **Username** | `admin` | Default administrator account |
+| **Password** | `1234` | ⚠️ **Change immediately after first login** |
+
+> **Security Notice**: 
+> - The admin account is created automatically on first startup
+> - For production deployments, **immediately change the default password**
+> - Create individual user accounts for team members
+> - Never expose the default credentials in production environments
 
 ---
 
