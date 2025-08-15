@@ -1,6 +1,8 @@
 from typing import List, Optional
 from bson import ObjectId
 import secrets
+from datetime import datetime
+from fastapi import HTTPException, status
 from app.models.workflow import Workflow, WorkflowCreate, WorkflowUpdate
 
 
@@ -9,12 +11,21 @@ class WorkflowService:
         self.db = db
         self.collection = db.workflows
 
-    async def create_workflow(self, workflow: WorkflowCreate, owner_id: str) -> Workflow:
+    async def create_workflow(self, workflow: WorkflowCreate, owner_id: str, username: str = None) -> Workflow:
         workflow_data = workflow.model_dump()
         workflow_data["owner_id"] = owner_id
         workflow_data["is_public"] = False
         workflow_data["share_token"] = None
         workflow_data["version"] = 1
+        workflow_data["last_modified_by"] = username if username else owner_id
+        
+        # Initialize update logs with creation entry
+        workflow_data["update_logs"] = [{
+            "username": username if username else owner_id,
+            "timestamp": datetime.utcnow(),
+            "version": 1
+        }]
+        
         result = await self.collection.insert_one(workflow_data)
         created_workflow = await self.collection.find_one({"_id": result.inserted_id})
         if created_workflow:
@@ -45,18 +56,76 @@ class WorkflowService:
         return [Workflow(**workflow) for workflow in workflows]
 
     async def update_workflow(
-        self, workflow_id: str, workflow_update: WorkflowUpdate
+        self, workflow_id: str, workflow_update: WorkflowUpdate, current_user_id: str = None, current_username: str = None
     ) -> Optional[Workflow]:
         if not ObjectId.is_valid(workflow_id):
             return None
 
-        update_data = {k: v for k, v in workflow_update.model_dump().items() if v is not None}
-        if not update_data:
-            return await self.get_workflow(workflow_id)
+        # Get current workflow to check version
+        current_workflow = await self.get_workflow(workflow_id)
+        if not current_workflow:
+            return None
 
-        await self.collection.update_one(
-            {"_id": ObjectId(workflow_id)}, {"$set": update_data, "$inc": {"version": 1}}
+        update_data = {k: v for k, v in workflow_update.model_dump().items() if v is not None and k != "version"}
+        if not update_data:
+            return current_workflow
+
+        # Check for version conflict (optimistic locking)
+        if workflow_update.version is not None:
+            if current_workflow.version != workflow_update.version:
+                # Version mismatch - someone else has updated the workflow
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail={
+                        "message": "Workflow has been modified by another user",
+                        "current_version": current_workflow.version,
+                        "your_version": workflow_update.version,
+                        "last_modified_by": current_workflow.last_modified_by,
+                        "workflow": current_workflow.model_dump()
+                    }
+                )
+
+        # Update metadata
+        update_data["updated_at"] = datetime.utcnow()
+        if current_username:
+            update_data["last_modified_by"] = current_username
+        elif current_user_id:
+            update_data["last_modified_by"] = current_user_id
+
+        # Prepare new log entry
+        new_log_entry = {
+            "username": current_username if current_username else current_user_id,
+            "timestamp": datetime.utcnow(),
+            "version": current_workflow.version + 1
+        }
+
+        # Perform the update with version increment and log addition
+        # Keep only the last 50 logs
+        result = await self.collection.update_one(
+            {"_id": ObjectId(workflow_id), "version": current_workflow.version},
+            {
+                "$set": update_data,
+                "$inc": {"version": 1},
+                "$push": {
+                    "update_logs": {
+                        "$each": [new_log_entry],
+                        "$slice": -50  # Keep only the last 50 entries
+                    }
+                }
+            }
         )
+
+        # Check if update was successful
+        if result.modified_count == 0:
+            # Concurrent update happened between our check and update
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail={
+                    "message": "Workflow was modified during update. Please refresh and try again.",
+                    "current_workflow": (await self.get_workflow(workflow_id)).model_dump()
+                }
+            )
+
         return await self.get_workflow(workflow_id)
 
     async def delete_workflow(self, workflow_id: str) -> bool:

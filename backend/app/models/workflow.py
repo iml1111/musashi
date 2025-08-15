@@ -53,6 +53,12 @@ class Edge(BaseModel):
     data: Optional[Dict[str, Any]] = {}
 
 
+class UpdateLog(BaseModel):
+    username: str
+    timestamp: datetime
+    version: int
+
+
 class WorkflowBase(BaseModel):
     name: str
     description: Optional[str] = None
@@ -71,6 +77,7 @@ class WorkflowUpdate(BaseModel):
     nodes: Optional[List[Node]] = None
     edges: Optional[List[Edge]] = None
     metadata: Optional[Dict[str, Any]] = None
+    version: Optional[int] = None  # For optimistic locking
 
 
 class WorkflowInDB(WorkflowBase):
@@ -82,6 +89,9 @@ class WorkflowInDB(WorkflowBase):
     share_token: Optional[str] = None
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
+    last_modified_by: Optional[str] = None  # Track who made the last change
+    currently_editing: Optional[List[str]] = []  # Track active editors
+    update_logs: List[UpdateLog] = []  # Track update history (max 50 entries)
 
     model_config = ConfigDict(
         populate_by_name=True,

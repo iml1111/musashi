@@ -29,7 +29,7 @@ async def create_workflow(
 ):
     """Create a new workflow"""
     service = WorkflowService(db)
-    return await service.create_workflow(workflow, str(current_user.id))
+    return await service.create_workflow(workflow, str(current_user.id), current_user.username)
 
 
 @router.get("/{workflow_id}", response_model=Workflow)
@@ -53,12 +53,21 @@ async def update_workflow(
     current_user: User = Depends(get_current_active_user_dependency),
     db=Depends(get_database),
 ):
-    """Update a workflow"""
+    """Update a workflow with optimistic locking"""
     service = WorkflowService(db)
-    workflow = await service.update_workflow(workflow_id, workflow_update)
-    if not workflow:
-        raise HTTPException(status_code=404, detail="Workflow not found")
-    return workflow
+    try:
+        workflow = await service.update_workflow(
+            workflow_id, 
+            workflow_update, 
+            current_user_id=str(current_user.id),
+            current_username=current_user.username
+        )
+        if not workflow:
+            raise HTTPException(status_code=404, detail="Workflow not found")
+        return workflow
+    except HTTPException as e:
+        # Re-raise the 409 Conflict exception from service
+        raise e
 
 
 @router.delete("/{workflow_id}")

@@ -79,6 +79,15 @@ class WorkflowService {
       body: JSON.stringify(workflow)
     })
 
+    if (response.status === 409) {
+      // Handle conflict - throw special error with conflict data
+      const conflictData = await response.json()
+      const error = new Error('CONFLICT') as any
+      error.code = 'CONFLICT'
+      error.conflictData = conflictData.detail
+      throw error
+    }
+
     if (!response.ok) {
       const error = await response.json().catch(() => ({ detail: 'Workflow update failed' }))
       throw new Error(error.detail || 'Workflow update failed')

@@ -16,6 +16,12 @@ export interface Edge {
   targetHandle?: string
 }
 
+export interface UpdateLog {
+  username: string
+  timestamp: string
+  version: number
+}
+
 export interface Workflow {
   id: string
   name: string
@@ -30,6 +36,9 @@ export interface Workflow {
   share_token?: string
   created_at: string
   updated_at: string
+  last_modified_by?: string
+  currently_editing?: string[]
+  update_logs?: UpdateLog[]
 }
 
 export interface WorkflowCreate {
@@ -46,4 +55,5 @@ export interface WorkflowUpdate {
   nodes?: Node[]
   edges?: Edge[]
   metadata?: Record<string, any>
+  version?: number  // For optimistic locking
 }

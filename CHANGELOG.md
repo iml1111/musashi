@@ -16,6 +16,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.0.3] - 2025-08-15
+
+### 🎉 Added
+- Multi-user conflict resolution with optimistic locking
+- Workflow update history tracking (last 50 updates)
+- Auto-save functionality with 30-second intervals
+- Version conflict detection and merge UI
+- Update history modal accessible from workflow header
+
+### 🐛 Fixed
+- UTC timestamp display issue for non-UTC timezones (Korean timezone showing "9 hours ago" instead of "just now")
+- Incorrect relative time formatting in update logs
+
+### 🧹 Changed
+- Removed "Musashi Flow Editor - Auto-layout workflow design" text from workflow header
+- Optimized header height for better space utilization
+- Display username instead of ObjectId in last modified info
+
+---
+
 ## [1.0.2] - 2025-08-14
 
 ### 🐛 Fixed

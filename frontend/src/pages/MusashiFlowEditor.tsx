@@ -1,12 +1,14 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { Save, Download, Upload, ArrowLeft, AlertCircle, Undo, Redo, Info } from 'lucide-react'
+import { Save, Download, Upload, ArrowLeft, AlertCircle, Undo, Redo, Info, Clock } from 'lucide-react'
 import ReactFlowWrapper from '../components/workflow/ReactFlowWrapper'
 import NodeSidebar from '../components/workflow/NodeSidebar'
 import NodeTypeSelector from '../components/workflow/NodeTypeSelector'
 import EdgeLabelPopover from '../components/workflow/EdgeLabelPopover'
 import KeyboardShortcutsModal from '../components/workflow/KeyboardShortcutsModal'
 import SystemPromptViewModal from '../components/workflow/SystemPromptViewModal'
+import ConflictModal from '../components/workflow/ConflictModal'
+import UpdateLogsModal from '../components/workflow/UpdateLogsModal'
 import { PromptContext } from '../types/node'
 import { safeNodeTypes as nodeTypes } from '../components/workflow/SafeCustomNodes'
 import { edgeTypes } from '../components/workflow/CustomEdges'
@@ -21,6 +23,7 @@ import {
   removeEdgeWithLayout,
 } from '../utils/layoutEngine'
 import { MarkerType } from '../types/flow'
+import { formatRelativeTime } from '../utils/dateUtils'
 
 // Define types locally without ReactFlow dependency
 type Node = {
@@ -116,6 +119,26 @@ const MusashiFlowEditor: React.FC = () => {
     show: false,
   })
   const [showShortcuts, setShowShortcuts] = useState(false)
+  const [showUpdateLogs, setShowUpdateLogs] = useState(false)
+  
+  // Conflict handling state
+  const [conflictModal, setConflictModal] = useState<{
+    isOpen: boolean
+    conflictInfo: {
+      message: string
+      currentVersion: number
+      yourVersion: number
+      lastModifiedBy?: string
+    } | null
+  }>({
+    isOpen: false,
+    conflictInfo: null,
+  })
+  
+  // Auto-save state
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
+  const lastSavedRef = useRef<string>('')
+  const [, forceUpdate] = useState({}) // For forcing re-render to update relative time
   const [systemPromptModal, setSystemPromptModal] = useState<{
     isOpen: boolean
     systemPrompt: string
@@ -1195,7 +1218,7 @@ const MusashiFlowEditor: React.FC = () => {
     }))
   }, [])
 
-  const handleSave = useCallback(async (isAutoSave = false) => {
+  const handleSave = useCallback(async (isAutoSave = false, forceOverride = false) => {
     try {
       setSaving(true)
       
@@ -1230,28 +1253,46 @@ const MusashiFlowEditor: React.FC = () => {
         // Sync state with server response
         setWorkflowName(newWorkflow.name)
         setWorkflowDescription(newWorkflow.description || '')
+        setHasUnsavedChanges(false)
+        lastSavedRef.current = JSON.stringify({ nodes: workflowNodes, edges: workflowEdges })
         if (!isAutoSave) {
           showNotification('success', 'Workflow created successfully!')
         }
         const newId = newWorkflow.id || (newWorkflow as any)._id
         navigate(`/workflow/${newId}`, { replace: true })
       } else {
-        const updatedWorkflow = await workflowService.updateWorkflow(workflow.id, {
+        const updateData = {
           name: workflowName,
           description: workflowDescription,
           nodes: workflowNodes,
           edges: workflowEdges,
-        })
+          version: forceOverride ? undefined : workflow.version, // Include version for optimistic locking
+        }
+        
+        const updatedWorkflow = await workflowService.updateWorkflow(workflow.id, updateData)
         setWorkflow(updatedWorkflow)
         // Sync state with server response
         setWorkflowName(updatedWorkflow.name)
         setWorkflowDescription(updatedWorkflow.description || '')
+        setHasUnsavedChanges(false)
+        lastSavedRef.current = JSON.stringify({ nodes: workflowNodes, edges: workflowEdges })
         if (!isAutoSave) {
           showNotification('success', 'Workflow saved successfully!')
         }
       }
-    } catch (error) {
-      if (!isAutoSave) {
+    } catch (error: any) {
+      // Handle conflict error
+      if (error.code === 'CONFLICT' && error.conflictData) {
+        setConflictModal({
+          isOpen: true,
+          conflictInfo: {
+            message: error.conflictData.message,
+            currentVersion: error.conflictData.current_version,
+            yourVersion: error.conflictData.your_version,
+            lastModifiedBy: error.conflictData.last_modified_by,
+          },
+        })
+      } else if (!isAutoSave) {
         showNotification('error', error instanceof Error ? error.message : 'Failed to save workflow')
       }
     } finally {
@@ -1466,6 +1507,86 @@ const MusashiFlowEditor: React.FC = () => {
     event.target.value = ''
   }, [showNotification, reconstructConnectedInputs, handleEdgeLabelClick])
 
+  // Conflict modal handlers
+  const handleKeepLocalChanges = useCallback(async () => {
+    setConflictModal({ isOpen: false, conflictInfo: null })
+    // Force save with override
+    await handleSave(false, true)
+  }, [handleSave])
+
+  const handleUseServerVersion = useCallback(async () => {
+    setConflictModal({ isOpen: false, conflictInfo: null })
+    // Reload workflow from server
+    if (workflow?.id) {
+      try {
+        setLoading(true)
+        const serverWorkflow = await workflowService.getWorkflow(workflow.id)
+        setWorkflow(serverWorkflow)
+        setWorkflowName(serverWorkflow.name)
+        setWorkflowDescription(serverWorkflow.description || '')
+        
+        // Convert server workflow to React Flow format
+        const flowNodes = serverWorkflow.nodes.map((node: any) => ({
+          id: node.id,
+          type: node.type || 'default',
+          data: node.properties || { label: node.label },
+          position: { x: node.position_x || 0, y: node.position_y || 0 },
+          draggable: false,
+        }))
+        
+        const flowEdges = serverWorkflow.edges.map((edge: any) => ({
+          id: edge.id,
+          source: edge.source,
+          target: edge.target,
+          sourceHandle: edge.sourceHandle,
+          targetHandle: edge.targetHandle,
+          label: edge.label,
+          type: 'custom',
+          animated: false,
+          data: edge.data || {},
+        }))
+        
+        setNodes(flowNodes)
+        setEdges(flowEdges)
+        setHasUnsavedChanges(false)
+        lastSavedRef.current = JSON.stringify({ nodes: serverWorkflow.nodes, edges: serverWorkflow.edges })
+        showNotification('info', 'Loaded latest version from server')
+      } catch (error) {
+        showNotification('error', 'Failed to load server version')
+      } finally {
+        setLoading(false)
+      }
+    }
+  }, [workflow, showNotification])
+
+  // Auto-save effect
+  useEffect(() => {
+    if (!hasUnsavedChanges || !workflow || workflowId === 'new') return
+    
+    const autoSaveTimer = setTimeout(() => {
+      handleSave(true)
+    }, 30000) // Auto-save after 30 seconds
+    
+    return () => clearTimeout(autoSaveTimer)
+  }, [hasUnsavedChanges, workflow, workflowId, handleSave])
+
+  // Track changes
+  useEffect(() => {
+    const currentState = JSON.stringify({ nodes, edges })
+    if (lastSavedRef.current && currentState !== lastSavedRef.current) {
+      setHasUnsavedChanges(true)
+    }
+  }, [nodes, edges])
+
+  // Update relative time display every minute
+  useEffect(() => {
+    const interval = setInterval(() => {
+      forceUpdate({}) // Force re-render to update relative time
+    }, 60000) // Update every minute
+    
+    return () => clearInterval(interval)
+  }, [])
+
   // Keyboard shortcuts - moved here after all function definitions
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -1536,7 +1657,7 @@ const MusashiFlowEditor: React.FC = () => {
       )}
 
       {/* Header */}
-      <header className="bg-white shadow-sm border-b px-4 py-3">
+      <header className="bg-white shadow-sm border-b px-4 py-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <button
@@ -1567,7 +1688,11 @@ const MusashiFlowEditor: React.FC = () => {
                   target.style.height = `${target.scrollHeight}px`
                 }}
               />
-              <p className="text-sm text-gray-500 mt-1">Musashi Flow Editor - Auto-layout workflow design</p>
+              {workflow?.last_modified_by && (
+                <p className="text-xs text-gray-500 mt-1">
+                  Last modified by {workflow.last_modified_by} • {formatRelativeTime(workflow.updated_at)} • Version {workflow.version}
+                </p>
+              )}
             </div>
           </div>
           
@@ -1615,7 +1740,7 @@ const MusashiFlowEditor: React.FC = () => {
             <button
               onClick={() => handleSave(false)}
               disabled={saving}
-              className={`px-3 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white flex items-center ${
+              className={`px-3 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white flex items-center relative ${
                 saving
                   ? 'bg-gray-400 cursor-not-allowed'
                   : 'bg-musashi-600 hover:bg-musashi-700'
@@ -1627,12 +1752,24 @@ const MusashiFlowEditor: React.FC = () => {
                 <Save className="w-4 h-4 mr-2" />
               )}
               {saving ? 'Saving...' : 'Save'}
+              {hasUnsavedChanges && !saving && (
+                <span className="absolute -top-1 -right-1 w-2 h-2 bg-yellow-400 rounded-full"></span>
+              )}
+            </button>
+
+            {/* Update History Button */}
+            <button
+              onClick={() => setShowUpdateLogs(true)}
+              className="p-2 border border-gray-300 rounded-md text-gray-600 bg-white hover:bg-gray-50 hover:text-gray-900 transition-colors ml-2"
+              title="View Update History"
+            >
+              <Clock className="w-4 h-4" />
             </button>
 
             {/* Keyboard Shortcuts Info Button */}
             <button
               onClick={() => setShowShortcuts(true)}
-              className="p-2 border border-gray-300 rounded-md text-gray-600 bg-white hover:bg-gray-50 hover:text-gray-900 transition-colors ml-2"
+              className="p-2 border border-gray-300 rounded-md text-gray-600 bg-white hover:bg-gray-50 hover:text-gray-900 transition-colors"
               title="Keyboard Shortcuts (i)"
             >
               <Info className="w-4 h-4" />
@@ -1699,6 +1836,23 @@ const MusashiFlowEditor: React.FC = () => {
         systemPrompt={systemPromptModal.systemPrompt}
         nodeName={systemPromptModal.nodeName}
         prompts={systemPromptModal.prompts}
+      />
+
+      {/* Conflict Modal */}
+      <ConflictModal
+        isOpen={conflictModal.isOpen}
+        onClose={() => setConflictModal({ isOpen: false, conflictInfo: null })}
+        onKeepLocal={handleKeepLocalChanges}
+        onUseServer={handleUseServerVersion}
+        conflictInfo={conflictModal.conflictInfo}
+      />
+
+      {/* Update Logs Modal */}
+      <UpdateLogsModal
+        isOpen={showUpdateLogs}
+        onClose={() => setShowUpdateLogs(false)}
+        logs={workflow?.update_logs || []}
+        workflowName={workflowName}
       />
     </div>
   )
