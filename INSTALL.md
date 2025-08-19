@@ -40,7 +40,7 @@ This document provides detailed instructions for installing and operating Musash
 
 ```bash
 # 1. Pull the latest image
-docker pull ghcr.io/imiml/musashi:latest
+docker pull ghcr.io/iml1111/musashi:latest
 
 # 2. Run with a single command
 docker run -d \
@@ -54,7 +54,7 @@ docker run -d \
   --add-host host.docker.internal:host-gateway \
   --health-cmd='curl -f http://localhost/api/v1/health || exit 1' \
   --health-interval=30s \
-  ghcr.io/imiml/musashi:latest
+  ghcr.io/iml1111/musashi:latest
 
 # 3. Access in browser
 echo "Musashi is running: http://localhost"
@@ -77,13 +77,13 @@ docker login ghcr.io
 
 ```bash
 # Latest stable version
-docker pull ghcr.io/imiml/musashi:latest
+docker pull ghcr.io/iml1111/musashi:latest
 
 # Specific version
-docker pull ghcr.io/imiml/musashi:v1.0.1
+docker pull ghcr.io/iml1111/musashi:v1.0.4
 
-# Development version
-docker pull ghcr.io/imiml/musashi:develop
+# Development version (if available)
+docker pull ghcr.io/iml1111/musashi:develop
 
 # Verify pull
 docker images | grep musashi
@@ -93,9 +93,9 @@ docker images | grep musashi
 
 ```bash
 # Verify signature with Cosign (security recommended)
-cosign verify ghcr.io/imiml/musashi:latest \
+cosign verify ghcr.io/iml1111/musashi:latest \
   --certificate-oidc-issuer https://token.actions.githubusercontent.com \
-  --certificate-identity-regexp 'https://github\.com/imiml/musashi/\.github/workflows/.*'
+  --certificate-identity-regexp 'https://github\.com/iml1111/musashi/\.github/workflows/.*'
 
 # Check image information
 docker inspect ghcr.io/imiml/musashi:latest | jq '.[0].Config.Labels'
@@ -115,7 +115,7 @@ docker run -d \
   -e MONGODB_URL="mongodb://mongodb:27017" \
   -e DATABASE_NAME="musashi" \
   -e SECRET_KEY="your-secret-key" \
-  ghcr.io/imiml/musashi:latest
+  ghcr.io/iml1111/musashi:latest
 
 # Using host MongoDB
 docker run -d \
@@ -126,7 +126,7 @@ docker run -d \
   --add-host host.docker.internal:host-gateway \
   -e DATABASE_NAME="musashi" \
   -e SECRET_KEY="your-secret-key" \
-  ghcr.io/imiml/musashi:latest
+  ghcr.io/iml1111/musashi:latest
 
 # Check status
 docker ps --filter name=musashi
@@ -411,13 +411,13 @@ docker cp musashi-mongodb:/backup ./backup-$(date +%Y%m%d-%H%M%S)
 
 ```bash
 # Pull new version image
-NEW_VERSION="v2.0.0"
-docker pull ghcr.io/imiml/musashi:${NEW_VERSION}
+NEW_VERSION="v1.0.5"  # Replace with actual new version
+docker pull ghcr.io/iml1111/musashi:${NEW_VERSION}
 
 # Verify signature
-cosign verify ghcr.io/imiml/musashi:${NEW_VERSION} \
+cosign verify ghcr.io/iml1111/musashi:${NEW_VERSION} \
   --certificate-oidc-issuer https://token.actions.githubusercontent.com \
-  --certificate-identity-regexp 'https://github\.com/imiml/musashi/\.github/workflows/.*'
+  --certificate-identity-regexp 'https://github\.com/iml1111/musashi/\.github/workflows/.*'
 
 # Create new container (different port)
 docker run -d \
@@ -460,7 +460,7 @@ docker-compose pull
 docker-compose up -d
 
 # Or specify version explicitly
-sed -i 's/:latest/:v2.0.0/g' docker-compose.yml
+sed -i 's/:latest/:v1.0.5/g' docker-compose.yml  # Replace with actual version
 docker-compose up -d
 
 # Verify
@@ -472,7 +472,7 @@ docker-compose logs musashi --tail=50
 
 ```bash
 # Rollback to previous version if issues occur
-PREVIOUS_VERSION="v1.0.0"
+PREVIOUS_VERSION="v1.0.4"  # Replace with your current version
 
 # Stop current version
 docker stop musashi && docker rm musashi

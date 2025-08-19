@@ -1,7 +1,7 @@
 <!-- Last updated: 2025-01-14 -->
 # 🗡️ Musashi - AI Agent Workflow Design Tool
 
-> **Visual AI Agent Workflow Designer Focused on Design Without Execution**
+> **Open-Source Visual Workflow Designer for AI Agent Systems**
 
 <div align="center">
   <img src="https://img.shields.io/badge/version-1.0.4-blue.svg" alt="Version">
@@ -12,34 +12,46 @@
 </div>
 
 <div align="center">
-  <h3>Flow Sharp, Ship Fast.</h3>
-  <p>Reduce code complexity, create powerful workflows.</p>
+  <h3>🎯 Flow Sharp, Ship Fast.</h3>
+  <p>Design complex AI agent workflows visually, without writing code.</p>
 </div>
 
 ---
 
-## ✨ Key Features
+## ✨ Why Musashi?
 
-### 🎨 Visual Workflow Design
-- **Drag & Drop Interface** - Intuitive node editing based on React Flow
-- **Auto Layout** - Automatic alignment with Dagre algorithm
-- **Various Node Types** - Support for Agent, Function, MCP, User Input, Output nodes
-- **Smart Connections** - Automatic input/output connection management between nodes
+Musashi is designed specifically for **AI workflow design without execution**, focusing on:
 
-### 👥 Team Collaboration
-- **Real-time Sharing** - Instant workflow sharing and collaboration
-- **RBAC Permission Management** - Role-based access control with Admin, Editor, Viewer roles
-- **Team Workspaces** - Independent workflow environments for each team
+- 🎯 **Design-First Approach** - Pure workflow design tool without runtime overhead
+- 🚀 **Lightweight & Fast** - Minimal dependencies, optimized Docker image (~150MB)
+- 🔧 **Framework Agnostic** - Export workflows as JSON for any execution engine
+- 🌐 **Open Source** - MIT licensed, community-driven development
 
-### 🔄 Version Control
-- **Git-Friendly** - Version control system integration with JSON format
-- **Version History** - Track all changes
-- **Export/Import** - Workflow backup and migration
+## 🎨 Core Features
 
-### 🛡️ Security
-- **JWT Authentication** - Secure token-based user authentication
-- **Container Signing** - Images signed with Cosign
-- **Vulnerability Scanning** - Automatic security checks with Trivy
+### Visual Workflow Designer
+- **🖱️ Drag & Drop Interface** - Intuitive node-based editor powered by React Flow
+- **📐 Auto Layout** - Automatic graph alignment using Dagre algorithm
+- **🔌 Rich Node Types** - Agent, Function, MCP Server, User Input, Output nodes
+- **🔗 Smart Connections** - Type-safe input/output matching with validation
+
+### Team Collaboration
+- **👥 Multi-User Support** - Real-time collaboration with conflict resolution
+- **🔐 Role-Based Access** - Admin, Editor, Viewer permissions per workspace
+- **📊 Workflow History** - Track changes with detailed update logs
+- **🔄 Version Control** - Optimistic locking prevents conflicting edits
+
+### Developer Experience
+- **📦 JSON Export/Import** - Git-friendly workflow format
+- **🔍 TypeScript Support** - Full type safety in frontend
+- **📝 OpenAPI Docs** - Auto-generated API documentation
+- **🐳 Docker First** - Production-ready containerized deployment
+
+### Security & Compliance
+- **🔒 JWT Authentication** - Secure token-based access control
+- **✅ Container Signing** - Cosign-verified Docker images
+- **🛡️ Security Scanning** - Automated Trivy vulnerability checks
+- **📋 SBOM Generation** - Software bill of materials included
 
 ---
 
@@ -76,8 +88,6 @@
 
 ```bash
 # Pull the latest image from GitHub Container Registry
-docker pull ghcr.io/iml1111/musashi:v1.0.1
-# Or use latest tag
 docker pull ghcr.io/iml1111/musashi:latest
 
 # Run with a single command (includes MongoDB)
@@ -105,7 +115,7 @@ open http://localhost
 
 ```bash
 # 1. Download docker-compose.yml
-curl -O https://raw.githubusercontent.com/imiml/musashi/main/docker-compose.yml
+curl -O https://raw.githubusercontent.com/iml1111/musashi/main/docker-compose.yml
 
 # 2. Set environment variables
 echo "SECRET_KEY=$(openssl rand -hex 32)" > .env
@@ -221,10 +231,10 @@ docker cp musashi-mongodb:/backup ./backup-$(date +%Y%m%d)
 docker stop musashi
 
 # Pull new image
-docker pull ghcr.io/iml1111/musashi:v2.0.0
+docker pull ghcr.io/iml1111/musashi:latest
 
 # Verify image signature (optional)
-cosign verify ghcr.io/iml1111/musashi:v2.0.0 \
+cosign verify ghcr.io/iml1111/musashi:latest \
   --certificate-oidc-issuer https://token.actions.githubusercontent.com \
   --certificate-identity-regexp 'https://github\.com/iml1111/musashi/\.github/workflows/.*'
 
@@ -234,7 +244,7 @@ docker run -d \
   -p 80:80 \
   -p 8080:8080 \
   --env-file .env \
-  ghcr.io/iml1111/musashi:v2.0.0
+  ghcr.io/iml1111/musashi:latest
 
 # Remove old container after verification
 docker rm musashi
@@ -249,7 +259,7 @@ docker stop musashi
 docker run -d \
   --name musashi \
   --env-file .env \
-  ghcr.io/iml1111/musashi:v1.0.2
+  ghcr.io/iml1111/musashi:latest
 
 # Restore data
 docker cp ./backup-20240120 musashi-mongodb:/restore
@@ -363,43 +373,51 @@ docker logs --since 2h musashi
 
 <table>
 <tr>
-<td align="center"><b>Frontend</b></td>
-<td align="center"><b>Backend</b></td>
-<td align="center"><b>Database</b></td>
-<td align="center"><b>DevOps</b></td>
+<td align="center"><b>🎨 Frontend</b></td>
+<td align="center"><b>⚙️ Backend</b></td>
+<td align="center"><b>💾 Database</b></td>
+<td align="center"><b>🚀 DevOps</b></td>
 </tr>
 <tr>
 <td>
 
-- React 18
-- TypeScript
-- React Flow
-- Tailwind CSS
-- Vite
+- **React 18** + TypeScript 5.2
+- **React Flow** 11.11 (Workflow Editor)
+- **Dagre** 0.8.5 (Auto Layout)
+- **Tailwind CSS** 3.3
+- **Vite** 7.1 (Build Tool)
+- **Zustand** (State Management)
+- **Vitest** (Testing)
 
 </td>
 <td>
 
-- Python 3.12
-- FastAPI
-- Pydantic
-- Motor
-- JWT
+- **Python 3.12**
+- **FastAPI** 0.104+
+- **Pydantic** 2.5+ (Validation)
+- **Motor** 3.3+ (Async MongoDB)
+- **python-jose** (JWT Auth)
+- **passlib** (Password Hashing)
+- **pytest** (Testing)
 
 </td>
 <td>
 
-- MongoDB 7.0
+- **MongoDB** 7.0+
 - Document Store
+- Async Operations
+- Index Optimization
 - GridFS (planned)
 
 </td>
 <td>
 
-- Docker
-- GitHub Actions
-- Cosign
-- Trivy
+- **Docker** + Alpine Linux
+- **GitHub Actions** CI/CD
+- **Cosign** (Image Signing)
+- **Trivy** (Security Scan)
+- **GHCR** (Registry)
+- **Nginx** (Reverse Proxy)
 
 </td>
 </tr>

@@ -40,12 +40,15 @@ mongodb --version  # 7.0 or higher (for local development)
 
 ```bash
 # Set up entire development environment at once
-git clone https://github.com/imiml/musashi.git
+git clone https://github.com/iml1111/musashi.git
 cd musashi
-make dev  # Run entire stack with Docker
+make dev  # Run backend + MongoDB with Docker
+
+# Frontend development (run separately)
+cd frontend && npm install && npm run dev
 
 # Check in browser
-open http://localhost:3000  # Frontend
+open http://localhost:3000  # Frontend (Vite dev server)
 open http://localhost:8000/docs  # Backend API Docs
 ```
 
@@ -61,7 +64,7 @@ git clone https://github.com/YOUR_USERNAME/musashi.git
 cd musashi
 
 # 3. Add upstream repository
-git remote add upstream https://github.com/imiml/musashi.git
+git remote add upstream https://github.com/iml1111/musashi.git
 git fetch upstream
 
 # 4. Sync main branch
