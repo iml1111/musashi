@@ -16,6 +16,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.0.7] - 2025-08-19
+
+### ✨ Added
+- Comprehensive read-only mode for shared workflow viewing
+- Prompt viewer modal integration in shared workflows
+- Display all node properties in read-only mode
+
+### 🐛 Fixed
+- Agent node document icon button not opening prompt modal
+- Empty NodeSidebar in read-only shared workflow view
+- Missing node property details in shared view
+
+### 🎨 Improved
+- Enhanced user experience for viewing shared workflows
+- Better visual feedback for read-only components
+- Consistent read-only behavior across all workflow elements
+
+---
+
 ## [1.0.6] - 2025-08-19
 
 ### 🐛 Fixed
