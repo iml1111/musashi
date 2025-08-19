@@ -80,14 +80,6 @@ try {
         }
     );
     
-    // 팀 ID 인덱스
-    db.workflows.createIndex(
-        { "team_id": 1 },
-        {
-            name: "team_id_index",
-            background: true
-        }
-    );
     
     // 워크플로우 Name 텍스트 Search 인덱스
     db.workflows.createIndex(
@@ -149,7 +141,6 @@ try {
             name: "Sample Workflow",
             description: "A sample workflow for development testing",
             owner_id: testUser._id,
-            team_id: null,
             nodes: [
                 {
                     id: "node_1",

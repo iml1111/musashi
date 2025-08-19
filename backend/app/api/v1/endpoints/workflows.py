@@ -16,9 +16,10 @@ async def get_workflows(
     current_user: User = Depends(get_current_active_user_dependency),
     db=Depends(get_database),
 ):
-    """Get all workflows for authenticated user"""
+    """Get all workflows (team collaboration mode)"""
     service = WorkflowService(db)
-    return await service.get_workflows(skip=skip, limit=limit, owner_id=str(current_user.id))
+    # Team mode: All authenticated users can see all workflows
+    return await service.get_workflows(skip=skip, limit=limit)
 
 
 @router.post("/", response_model=Workflow)
@@ -90,9 +91,10 @@ async def share_workflow(
     current_user: User = Depends(get_current_active_user_dependency),
     db=Depends(get_database),
 ):
-    """Generate share token for workflow"""
+    """Generate share token for workflow (any team member can share)"""
     service = WorkflowService(db)
-    workflow = await service.share_workflow(workflow_id, str(current_user.id))
+    # Team mode: Any authenticated user can share any workflow
+    workflow = await service.share_workflow_team_mode(workflow_id)
     if not workflow:
         raise HTTPException(status_code=404, detail="Workflow not found")
     return {"share_token": workflow.share_token, "is_public": workflow.is_public}

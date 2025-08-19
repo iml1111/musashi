@@ -162,6 +162,26 @@ class WorkflowService:
             workflow = await self.get_workflow(workflow_id)
 
         return workflow
+    
+    async def share_workflow_team_mode(self, workflow_id: str) -> Optional[Workflow]:
+        """Team mode: Any authenticated user can share any workflow"""
+        if not ObjectId.is_valid(workflow_id):
+            return None
+        
+        workflow = await self.get_workflow(workflow_id)
+        if not workflow:
+            return None
+        
+        # Generate share token if not exists (no owner check)
+        if not workflow.share_token:
+            share_token = secrets.token_urlsafe(16)
+            await self.collection.update_one(
+                {"_id": ObjectId(workflow_id)},
+                {"$set": {"share_token": share_token, "is_public": True}},
+            )
+            workflow = await self.get_workflow(workflow_id)
+        
+        return workflow
 
     async def get_workflow_by_share_token(self, share_token: str) -> Optional[Workflow]:
         workflow = await self.collection.find_one({"share_token": share_token, "is_public": True})

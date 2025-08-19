@@ -101,13 +101,13 @@ make clean                 # Remove containers, networks, volumes
 - `frontend/src/types/` - TypeScript type definitions
 
 ### Key Models
-- **Workflow**: Contains nodes[], edges[], metadata, version, team_id
+- **Workflow**: Contains nodes[], edges[], metadata, version
 - **Node**: id, type, label, properties{}, position (auto-calculated by Dagre)
 - **Edge**: id, source, target, label
-- **User**: email, username, roles[] with team-based RBAC
+- **User**: email, username, roles[]
 
 ### Database Collections
-- `workflows` - Workflow documents with owner_id, team_id, version
+- `workflows` - Workflow documents with owner_id, version
 - `users` - User accounts with hashed_password, roles[]
 
 ## Development Notes

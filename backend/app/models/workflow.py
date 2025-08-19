@@ -83,7 +83,6 @@ class WorkflowUpdate(BaseModel):
 class WorkflowInDB(WorkflowBase):
     id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
     owner_id: str
-    team_id: Optional[str] = None
     version: int = 1
     is_public: bool = False
     share_token: Optional[str] = None

@@ -43,7 +43,6 @@ WorkflowUpdate:
 WorkflowInDB (extends WorkflowBase):
   - id: PyObjectId
   - owner_id: str
-  - team_id: Optional[str]
   - version: int
   - created_at: datetime
   - updated_at: datetime

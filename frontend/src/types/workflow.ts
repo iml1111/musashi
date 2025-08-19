@@ -30,7 +30,6 @@ export interface Workflow {
   edges: Edge[]
   metadata: Record<string, any>
   owner_id: string
-  team_id?: string
   version: number
   is_public: boolean
   share_token?: string
