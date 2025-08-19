@@ -16,6 +16,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.0.5] - 2025-08-19
+
+### 🐛 Fixed
+- Kubernetes 502 Bad Gateway error caused by nginx trying to bind to privileged port 80
+- Non-root container permission issues in Kubernetes environments
+
+### 🧹 Changed  
+- Simplified port configuration from 3 ports to single port (8080)
+- Removed nginx port 80 binding for non-root user compatibility
+- Updated Docker EXPOSE directive to use only port 8080
+- Improved container security by maintaining non-root user execution
+
+### 📚 Documentation
+- Updated port configuration documentation in README.md
+- Clarified single-port architecture (nginx serves both frontend and API proxy)
+- Updated Docker run examples with correct port mapping
+
+---
+
 ## [1.0.4] - 2025-08-15
 
 ### 🐛 Fixed

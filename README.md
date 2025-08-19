@@ -4,7 +4,7 @@
 > **Open-Source Visual Workflow Designer for AI Agent Systems**
 
 <div align="center">
-  <img src="https://img.shields.io/badge/version-1.0.4-blue.svg" alt="Version">
+  <img src="https://img.shields.io/badge/version-1.0.5-blue.svg" alt="Version">
   <img src="https://img.shields.io/badge/license-MIT-green.svg" alt="License">
   <img src="https://img.shields.io/badge/docker-ready-blue.svg" alt="Docker Ready">
   <img src="https://img.shields.io/badge/ghcr.io-available-blue.svg" alt="GHCR">
@@ -90,12 +90,11 @@ Musashi is designed specifically for **AI workflow design without execution**, f
 # Pull the latest image from GitHub Container Registry
 docker pull ghcr.io/iml1111/musashi:latest
 
-# Run with a single command (includes MongoDB)
+# Run with a single command (requires external MongoDB)
 docker run -d \
   --name musashi \
   --restart unless-stopped \
-  -p 80:80 \
-  -p 8080:8080 \
+  -p 80:8080 \
   -e MONGODB_URL="mongodb://host.docker.internal:27017" \
   -e DATABASE_NAME="musashi" \
   -e SECRET_KEY="$(openssl rand -hex 32)" \
@@ -114,18 +113,15 @@ open http://localhost
 ### Docker Compose (Recommended)
 
 ```bash
-# 1. Download docker-compose.yml
+# Download and run with one command
 curl -O https://raw.githubusercontent.com/iml1111/musashi/main/docker-compose.yml
-
-# 2. Set environment variables
 echo "SECRET_KEY=$(openssl rand -hex 32)" > .env
-
-# 3. Run
 docker-compose up -d
 
-# 4. Access
-open http://localhost
+# Access at http://localhost
 ```
+
+> For detailed installation options, see [INSTALL.md](./INSTALL.md)
 
 ### 🔐 Default Admin Credentials
 
@@ -157,17 +153,7 @@ When Musashi starts for the first time, it automatically creates an admin accoun
 | `LOG_LEVEL` | Log level (debug/info/warning/error) | `info` | ❌ |
 | `ACCESS_TOKEN_EXPIRE_MINUTES` | Token expiration time (minutes) | `11520` | ❌ |
 
-### Environment Variables Example
-
-```bash
-# .env file
-MONGODB_URL=mongodb://mongodb:27017
-DATABASE_NAME=musashi
-SECRET_KEY=your-secret-key-minimum-32-characters
-BACKEND_CORS_ORIGINS=http://localhost,https://yourdomain.com
-ENVIRONMENT=production
-LOG_LEVEL=info
-```
+> For complete environment variable reference and examples, see [INSTALL.md](./INSTALL.md#environment-variables-configuration)
 
 ---
 
@@ -177,93 +163,36 @@ LOG_LEVEL=info
 
 | Port | Service | Description |
 |------|---------|-------------|
-| `80` | Frontend | React application (nginx) - Production |
-| `8080` | Backend API | FastAPI REST API - Direct access |
+| `8080` | Web Application | Nginx serving Frontend + API proxy |
 | `27017` | MongoDB | Database (external) - RDBMS support planned |
+
+> **Note**: The container exposes only port 8080, which serves both the frontend and proxies API requests to the backend internally.
 
 ### Health Check Endpoints
 
 ```bash
-# Frontend health check
-curl http://localhost/health
-# Response: {"status": "ok"}
+# Health check
+curl http://localhost/api/v1/health
+# Response: {"status": "healthy", "api": "v1"}
 
-# Backend API health check
+# API health check (via nginx proxy)
 curl http://localhost:8080/api/v1/health
-# Response: {"status": "healthy", "api": "v1", "timestamp": "2024-01-20T10:00:00Z"}
+# Response: {"status": "healthy", "api": "v1"}
 
 # Docker health check status
 docker inspect musashi --format='{{.State.Health.Status}}'
 # Response: healthy
 ```
 
-### Docker Health Check Configuration
-
-```yaml
-healthcheck:
-  test: ["CMD", "curl", "-f", "http://localhost/api/v1/health"]
-  interval: 30s
-  timeout: 3s
-  retries: 3
-  start_period: 40s
-```
 
 ---
 
 ## 🔄 Upgrade Guide
 
-### 1. Backup
-
 ```bash
-# MongoDB backup
-docker exec musashi-mongodb mongodump \
-  --db musashi \
-  --out /backup/musashi-$(date +%Y%m%d)
-
-# Copy backup files
-docker cp musashi-mongodb:/backup ./backup-$(date +%Y%m%d)
-```
-
-### 2. Upgrade to New Version
-
-```bash
-# Stop existing container
-docker stop musashi
-
-# Pull new image
-docker pull ghcr.io/iml1111/musashi:latest
-
-# Verify image signature (optional)
-cosign verify ghcr.io/iml1111/musashi:latest \
-  --certificate-oidc-issuer https://token.actions.githubusercontent.com \
-  --certificate-identity-regexp 'https://github\.com/iml1111/musashi/\.github/workflows/.*'
-
-# Run new version
-docker run -d \
-  --name musashi-new \
-  -p 80:80 \
-  -p 8080:8080 \
-  --env-file .env \
-  ghcr.io/iml1111/musashi:latest
-
-# Remove old container after verification
-docker rm musashi
-docker rename musashi-new musashi
-```
-
-### 3. Rollback (If Needed)
-
-```bash
-# Restore to previous version
-docker stop musashi
-docker run -d \
-  --name musashi \
-  --env-file .env \
-  ghcr.io/iml1111/musashi:latest
-
-# Restore data
-docker cp ./backup-20240120 musashi-mongodb:/restore
-docker exec musashi-mongodb mongorestore --db musashi /restore/musashi
+# Pull new image and restart
+docker-compose pull
+docker-compose up -d
 ```
 
 ---
@@ -297,13 +226,8 @@ Automatically created on first run:
 ### Q: I want to change the ports
 
 ```bash
-# Map to different ports
-docker run -d \
-  --name musashi \
-  -p 8080:80 \      # Frontend to 8080
-  -p 9000:8000 \    # API to 9000
-  --env-file .env \
-  ghcr.io/iml1111/musashi:latest
+# Map to different host port
+docker run -d --name musashi -p 8888:8080 ghcr.io/iml1111/musashi:latest
 ```
 
 ### Q: How to set up SSL/TLS?
@@ -328,15 +252,7 @@ server {
 
 ### Q: How to backup and restore?
 
-```bash
-# Backup
-docker exec musashi-mongodb mongodump --db musashi --out /backup
-docker cp musashi-mongodb:/backup ./backup
-
-# Restore
-docker cp ./backup musashi-mongodb:/restore
-docker exec musashi-mongodb mongorestore --db musashi /restore/musashi
-```
+See [INSTALL.md](./INSTALL.md#backup-automation) for backup and restore procedures.
 
 ### Q: Multi-platform support?
 

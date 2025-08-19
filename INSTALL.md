@@ -46,8 +46,7 @@ docker pull ghcr.io/iml1111/musashi:latest
 docker run -d \
   --name musashi \
   --restart unless-stopped \
-  -p 80:80 \
-  -p 8080:8080 \
+  -p 80:8080 \
   -e MONGODB_URL="mongodb://host.docker.internal:27017" \
   -e DATABASE_NAME="musashi" \
   -e SECRET_KEY="$(openssl rand -hex 32)" \

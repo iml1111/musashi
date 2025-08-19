@@ -154,7 +154,6 @@ http {
     add_header Content-Security-Policy "default-src 'self' http: https: data: blob: 'unsafe-inline'" always;
 
     server {
-        listen 80;
         listen 8080;
         server_name _;
         root /usr/share/nginx/html;
@@ -284,8 +283,8 @@ RUN mkdir -p /var/cache/nginx /var/log/nginx /var/run && \
 # Switch to non-root user
 USER musashi
 
-# Expose ports for frontend and backend
-EXPOSE 80 8080 8000
+# Expose port for nginx (serving both frontend and API proxy)
+EXPOSE 8080
 
 # Enhanced health check with better diagnostics
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \

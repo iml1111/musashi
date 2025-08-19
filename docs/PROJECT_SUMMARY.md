@@ -1,7 +1,7 @@
 # Musashi Project Summary
 
-**Last Updated**: 2025-01-15  
-**Version**: 1.0.4  
+**Last Updated**: 2025-08-19  
+**Version**: 1.0.5  
 **Repository**: https://github.com/iml1111/musashi
 
 ## 🎯 Problem
@@ -90,69 +90,32 @@ Musashi provides a **lightweight, open-source visual workflow designer** specifi
 
 ## 🚀 Build & Run
 
-### Quick Start (Production)
-```bash
-# Using pre-built image from GHCR
-docker pull ghcr.io/iml1111/musashi:latest
-
-# Single command run
-docker run -d \
-  --name musashi \
-  -p 80:80 \
-  -p 8080:8080 \
-  -e MONGODB_URL=mongodb://host.docker.internal:27017 \
-  -e DATABASE_NAME=musashi \
-  -e SECRET_KEY=$(openssl rand -hex 32) \
-  ghcr.io/iml1111/musashi:latest
-```
+For detailed installation instructions, see [README.md](../README.md#-quick-start) or [INSTALL.md](../INSTALL.md).
 
 ### Development Setup
 ```bash
-# Clone repository
+# Clone and setup
 git clone https://github.com/iml1111/musashi.git
 cd musashi
+make dev  # Backend + MongoDB
 
-# Backend + MongoDB (Docker)
-make dev
-
-# Frontend (separate terminal)
+# Frontend development
 cd frontend && npm install && npm run dev
-
-# Access
-# Frontend: http://localhost:3000
-# Backend API: http://localhost:8000/docs
 ```
 
 ### Build from Source
 ```bash
 # Optimized production build
 docker build -t musashi:latest -f Dockerfile.optimized .
-
-# Or use Make commands
-make docker-build
-make docker-run
 ```
 
-## 🔌 Ports/Health
+## 🔌 Service Architecture
 
-### Production Ports
-| Port | Service | Description |
-|------|---------|-------------|
-| **80** | Frontend | Nginx serving React app |
-| **8080** | Backend API | FastAPI direct access |
-| **27017** | MongoDB | External database |
+### Port Configuration
+- **8080**: Single entry point (Nginx serving frontend + API proxy)
+- **27017**: MongoDB (external database)
 
-### Health Endpoints
-```bash
-# Frontend health check
-curl http://localhost/health
-
-# Backend API health check
-curl http://localhost:8080/api/v1/health
-
-# Docker health status
-docker inspect musashi --format='{{.State.Health.Status}}'
-```
+Health monitoring is available at `/api/v1/health`. See [README.md](../README.md#-ports-and-health-checks) for details.
 
 ## 🔄 CI/CD
 
@@ -182,20 +145,8 @@ make test           # All tests
 
 ## ⚙️ Configuration
 
-### Required Environment Variables
-```bash
-MONGODB_URL=mongodb://localhost:27017  # MongoDB connection
-DATABASE_NAME=musashi                   # Database name
-SECRET_KEY=your-secret-key             # JWT signing key (32+ chars)
-```
-
-### Optional Configuration
-```bash
-BACKEND_CORS_ORIGINS=http://localhost  # CORS allowed origins
-ENVIRONMENT=production                  # Runtime environment
-LOG_LEVEL=info                         # Logging level
-ACCESS_TOKEN_EXPIRE_MINUTES=11520      # Token expiration (8 days)
-```
+See [README.md](../README.md#-environment-variables) for core configuration.
+For complete environment variable reference, see [INSTALL.md](../INSTALL.md#environment-variables-configuration).
 
 ## 📊 Project Metrics
 
