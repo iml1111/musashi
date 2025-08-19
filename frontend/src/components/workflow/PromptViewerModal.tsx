@@ -11,6 +11,7 @@ interface PromptViewerModalProps {
   prompts: PromptContext[]
   onChange: (developerMessage: string, prompts: PromptContext[]) => void
   inputs: Array<{ key: string; type: string; example?: string }>
+  isReadOnly?: boolean
 }
 
 const PromptViewerModal: React.FC<PromptViewerModalProps> = ({
@@ -19,7 +20,8 @@ const PromptViewerModal: React.FC<PromptViewerModalProps> = ({
   developerMessage,
   prompts,
   onChange,
-  inputs
+  inputs,
+  isReadOnly = false
 }) => {
   const [tempDeveloperMessage, setTempDeveloperMessage] = useState(developerMessage)
   const [tempPrompts, setTempPrompts] = useState<PromptContext[]>(prompts || [])
@@ -334,6 +336,11 @@ const PromptViewerModal: React.FC<PromptViewerModalProps> = ({
                   This is the main system prompt that defines the agent's behavior and capabilities.
                 </p>
               </div>
+              {isReadOnly ? (
+                <div className="flex-1 p-4 font-mono text-sm bg-gray-50 border border-gray-200 rounded-md overflow-y-auto whitespace-pre-wrap">
+                  {tempDeveloperMessage || 'No developer message defined'}
+                </div>
+              ) : (
               <textarea
                 value={tempDeveloperMessage}
                 onChange={(e) => {
@@ -361,6 +368,7 @@ Process the $$input$$ data and generate a summary.
 - Focus on key points
 - Use markdown formatting"
               />
+              )}
               <div className="mt-2 text-xs text-gray-500">
                 <span>{tempDeveloperMessage.length} characters</span>
               </div>
@@ -375,7 +383,7 @@ Process the $$input$$ data and generate a summary.
                   <label className="block text-sm font-medium text-gray-700">
                     Prompt Context (Optional)
                   </label>
-                  {tempPrompts.length < 100 && !isAddingPrompt && (
+                  {!isReadOnly && tempPrompts.length < 100 && !isAddingPrompt && (
                     <button
                       onClick={() => setIsAddingPrompt(true)}
                       className="flex items-center gap-1 px-3 py-1 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700"

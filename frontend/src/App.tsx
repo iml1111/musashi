@@ -7,19 +7,7 @@ import MusashiFlowEditor from './pages/MusashiFlowEditor'
 import Login from './pages/Login'
 import AdminDashboard from './pages/AdminDashboard'
 import Components from './pages/Components'
-// Temporarily disable SharedWorkflow to avoid initialization issues
-// import SharedWorkflow from './pages/SharedWorkflow'
-
-// Test component for React Flow testing
-const SharedWorkflow = () => (
-  <div className="min-h-screen bg-gray-50">
-    <div className="p-4">
-      <h2 className="text-xl font-semibold mb-4">React Flow Test Environment</h2>
-      <p className="text-gray-600 mb-6">Testing workflow editor components without authentication</p>
-      <MusashiFlowEditor />
-    </div>
-  </div>
-)
+import SharedWorkflow from './pages/SharedWorkflow'
 
 const queryClient = new QueryClient()
 

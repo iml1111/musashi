@@ -24,7 +24,7 @@ interface OutputItemProps {
   onDelete?: () => void
 }
 
-const OutputItem: React.FC<OutputItemProps> = ({ output, onUpdate, onDelete }) => {
+const OutputItem: React.FC<OutputItemProps & { isReadOnly?: boolean }> = ({ output, onUpdate, onDelete, isReadOnly = false }) => {
   const [isEditing, setIsEditing] = useState(false)
   const [editKey, setEditKey] = useState(output.key)
   const [editType, setEditType] = useState(output.type)
@@ -155,24 +155,26 @@ const OutputItem: React.FC<OutputItemProps> = ({ output, onUpdate, onDelete }) =
           <span className="text-sm font-medium">{output.key}</span>
           <span className="text-xs text-gray-500 ml-2">({output.type})</span>
         </div>
-        <div className="flex items-center space-x-1">
-          <button
-            onClick={() => setIsEditing(true)}
-            className="text-gray-600 hover:text-gray-700 p-1"
-            title="Edit output"
-          >
-            <Edit2 className="w-3 h-3" />
-          </button>
-          {onDelete && (
+        {!isReadOnly && (
+          <div className="flex items-center space-x-1">
             <button
-              onClick={onDelete}
-              className="text-red-600 hover:text-red-700 p-1"
-              title="Delete output"
+              onClick={() => setIsEditing(true)}
+              className="text-gray-600 hover:text-gray-700 p-1"
+              title="Edit output"
             >
-              <Trash2 className="w-3 h-3" />
+              <Edit2 className="w-3 h-3" />
             </button>
-          )}
-        </div>
+            {onDelete && (
+              <button
+                onClick={onDelete}
+                className="text-red-600 hover:text-red-700 p-1"
+                title="Delete output"
+              >
+                <Trash2 className="w-3 h-3" />
+              </button>
+            )}
+          </div>
+        )}
       </div>
       {output.example && (
         <div className="mt-2">
@@ -204,6 +206,7 @@ interface NodeSidebarProps {
   onRemoveConnection: (edgeId: string) => void
   onUpdateEdgeDirection?: (edgeId: string, direction: 'unidirectional' | 'bidirectional') => void
   onSaveWorkflow?: () => void
+  isReadOnly?: boolean
 }
 
 const NodeSidebar: React.FC<NodeSidebarProps> = ({
@@ -217,6 +220,7 @@ const NodeSidebar: React.FC<NodeSidebarProps> = ({
   onRemoveConnection,
   onUpdateEdgeDirection,
   onSaveWorkflow,
+  isReadOnly = false,
 }) => {
   const [isConnecting, setIsConnecting] = useState(false)
   const [selectedTarget, setSelectedTarget] = useState<string>('')
@@ -271,7 +275,7 @@ const NodeSidebar: React.FC<NodeSidebarProps> = ({
     <div className="absolute right-0 top-0 h-full w-80 bg-white shadow-lg border-l border-gray-200 z-10 flex flex-col">
       <div className="p-4 border-b border-gray-200 flex-shrink-0">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Node Details</h2>
+          <h2 className="text-lg font-semibold">{isReadOnly ? 'Node Properties (Read Only)' : 'Node Details'}</h2>
           <button
             onClick={onClose}
             className="p-1 hover:bg-gray-100 rounded"
@@ -306,12 +310,18 @@ const NodeSidebar: React.FC<NodeSidebarProps> = ({
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Label
           </label>
-          <input
-            type="text"
-            value={currentNode.data?.label || ''}
-            onChange={handleLabelChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-musashi-500"
-          />
+          {isReadOnly ? (
+            <div className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-gray-700">
+              {currentNode.data?.label || 'Unnamed'}
+            </div>
+          ) : (
+            <input
+              type="text"
+              value={currentNode.data?.label || ''}
+              onChange={handleLabelChange}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-musashi-500"
+            />
+          )}
         </div>
         
         {/* Memo Field */}
@@ -319,17 +329,23 @@ const NodeSidebar: React.FC<NodeSidebarProps> = ({
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Memo
           </label>
-          <textarea
-            value={currentNode.data?.memo || ''}
-            onChange={(e) => {
-              onUpdateNode(selectedNode.id, {
-                data: { ...selectedNode.data, memo: e.target.value }
-              })
-            }}
-            placeholder="Add your notes or comments here..."
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-musashi-500 resize-none"
-            rows={3}
-          />
+          {isReadOnly ? (
+            <div className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-gray-700 whitespace-pre-wrap min-h-[76px]">
+              {currentNode.data?.memo || 'No memo'}
+            </div>
+          ) : (
+            <textarea
+              value={currentNode.data?.memo || ''}
+              onChange={(e) => {
+                onUpdateNode(selectedNode.id, {
+                  data: { ...selectedNode.data, memo: e.target.value }
+                })
+              }}
+              placeholder="Add your notes or comments here..."
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-musashi-500 resize-none"
+              rows={3}
+            />
+          )}
         </div>
 
         {/* Outputs for all node types except MCP and Function (they have their own Output Configuration) */}
@@ -393,6 +409,7 @@ const NodeSidebar: React.FC<NodeSidebarProps> = ({
                     key={index}
                     output={output}
                     index={index}
+                    isReadOnly={isReadOnly}
                     onUpdate={(updatedOutput) => {
                       const newOutputs = [...(currentNode.data?.outputs || [])]
                       newOutputs[index] = updatedOutput
@@ -410,7 +427,7 @@ const NodeSidebar: React.FC<NodeSidebarProps> = ({
                   />
                 ))}
                 
-                {selectedNode.type !== 'vectorstore' && (!currentNode.data?.outputs || currentNode.data.outputs.length < 30) && !isAddingOutput && (
+                {!isReadOnly && selectedNode.type !== 'vectorstore' && (!currentNode.data?.outputs || currentNode.data.outputs.length < 30) && !isAddingOutput && (
                 <button
                   onClick={() => {
                     setIsAddingOutput(true)
@@ -425,7 +442,7 @@ const NodeSidebar: React.FC<NodeSidebarProps> = ({
                 </button>
               )}
               
-              {selectedNode.type !== 'vectorstore' && isAddingOutput && (
+              {!isReadOnly && selectedNode.type !== 'vectorstore' && isAddingOutput && (
                 <div className="bg-gray-50 p-3 rounded-md space-y-2">
                   <input
                     type="text"
@@ -504,6 +521,7 @@ const NodeSidebar: React.FC<NodeSidebarProps> = ({
         )}
 
         {/* Connections - Moved to right after Outputs */}
+        {!isReadOnly && (
         <div className="border-t pt-4">
           <h3 className="text-sm font-medium text-gray-700 mb-2">Connections</h3>
           
@@ -716,6 +734,7 @@ const NodeSidebar: React.FC<NodeSidebarProps> = ({
             </div>
           )}
         </div>
+        )}
 
         {/* Parameters for Agent Node */}
         {selectedNode.type === 'agent' && currentNode.data?.parameters && (
@@ -727,23 +746,31 @@ const NodeSidebar: React.FC<NodeSidebarProps> = ({
                 <label className="block text-xs font-medium text-gray-700 mb-1">
                   Model <span className="text-red-500">*</span>
                 </label>
-                <ModelDropdown
-                  value={currentNode.data.parameters.model || ''}
-                  onChange={(newModel) => {
-                    onUpdateNode(selectedNode.id, {
-                      data: {
-                        ...currentNode.data,
-                        parameters: {
-                          ...currentNode.data.parameters,
-                          model: newModel
-                        }
-                      }
-                    })
-                  }}
-                  required
-                />
-                {!currentNode.data.parameters.model && (
-                  <p className="text-xs text-red-500 mt-1">Model is required</p>
+                {isReadOnly ? (
+                  <div className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-gray-700">
+                    {currentNode.data.parameters.model || 'Not specified'}
+                  </div>
+                ) : (
+                  <>
+                    <ModelDropdown
+                      value={currentNode.data.parameters.model || ''}
+                      onChange={(newModel) => {
+                        onUpdateNode(selectedNode.id, {
+                          data: {
+                            ...currentNode.data,
+                            parameters: {
+                              ...currentNode.data.parameters,
+                              model: newModel
+                            }
+                          }
+                        })
+                      }}
+                      required
+                    />
+                    {!currentNode.data.parameters.model && (
+                      <p className="text-xs text-red-500 mt-1">Model is required</p>
+                    )}
+                  </>
                 )}
               </div>
 
@@ -801,13 +828,22 @@ const NodeSidebar: React.FC<NodeSidebarProps> = ({
                   })()}
                 </div>
                 
-                {/* Edit Button */}
+                {/* Edit/View Button */}
                 <button
                   onClick={() => setShowPromptViewerModal(true)}
                   className="w-full px-3 py-2 text-sm bg-white border border-gray-300 rounded-md hover:bg-gray-50 flex items-center justify-center"
                 >
-                  <Edit2 className="w-4 h-4 mr-2" />
-                  Edit Developer Message & Prompts
+                  {isReadOnly ? (
+                    <>
+                      <Globe className="w-4 h-4 mr-2" />
+                      View Developer Message & Prompts
+                    </>
+                  ) : (
+                    <>
+                      <Edit2 className="w-4 h-4 mr-2" />
+                      Edit Developer Message & Prompts
+                    </>
+                  )}
                 </button>
                 
                 <div className="flex items-start justify-between mt-1">
@@ -894,25 +930,32 @@ const NodeSidebar: React.FC<NodeSidebarProps> = ({
                       <label className="block text-xs font-medium text-gray-700 mb-1">
                         Temperature: {currentNode.data.parameters.temperature || 1.0}
                       </label>
-                      <input
-                        type="range"
-                        min="0"
-                        max="2"
-                        step="0.1"
-                        value={currentNode.data.parameters.temperature || 1.0}
-                        onChange={(e) => {
-                          onUpdateNode(selectedNode.id, {
-                            data: {
-                              ...currentNode.data,
-                              parameters: {
-                                ...currentNode.data.parameters,
-                                temperature: parseFloat(e.target.value)
+                      {isReadOnly ? (
+                        <div className="w-full px-3 py-1 bg-gray-50 border border-gray-200 rounded-md text-sm text-gray-700">
+                          {currentNode.data.parameters.temperature || 1.0}
+                        </div>
+                      ) : (
+                        <input
+                          type="range"
+                          min="0"
+                          max="2"
+                          step="0.1"
+                          value={currentNode.data.parameters.temperature || 1.0}
+                          onChange={(e) => {
+                            onUpdateNode(selectedNode.id, {
+                              data: {
+                                ...currentNode.data,
+                                parameters: {
+                                  ...currentNode.data.parameters,
+                                  temperature: parseFloat(e.target.value)
+                                }
                               }
-                            }
-                          })
-                        }}
-                        className="w-full"
-                      />
+                            })
+                          }}
+                          className="w-full"
+                          disabled={isReadOnly}
+                        />
+                      )}
                       <p className="text-xs text-gray-500 mt-1">Controls randomness in the output</p>
                     </div>
 
@@ -923,19 +966,22 @@ const NodeSidebar: React.FC<NodeSidebarProps> = ({
                         type="number"
                         value={currentNode.data.parameters.max_tokens || 10000}
                         onChange={(e) => {
-                          onUpdateNode(selectedNode.id, {
-                            data: {
-                              ...currentNode.data,
-                              parameters: {
-                                ...currentNode.data.parameters,
-                                max_tokens: parseInt(e.target.value) || 10000
+                          if (!isReadOnly) {
+                            onUpdateNode(selectedNode.id, {
+                              data: {
+                                ...currentNode.data,
+                                parameters: {
+                                  ...currentNode.data.parameters,
+                                  max_tokens: parseInt(e.target.value) || 10000
+                                }
                               }
-                            }
-                          })
+                            })
+                          }
                         }}
-                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-musashi-500"
+                        className={`w-full px-3 py-2 text-sm border ${isReadOnly ? 'bg-gray-50 border-gray-200' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 focus:ring-musashi-500`}
                         min="1"
                         max="128000"
+                        readOnly={isReadOnly}
                       />
                       <p className="text-xs text-gray-500 mt-1">Maximum number of tokens to generate</p>
                     </div>
@@ -1008,41 +1054,43 @@ const NodeSidebar: React.FC<NodeSidebarProps> = ({
                       <div
                         key={tool.type}
                         onClick={() => {
-                          const currentTools = currentNode.data.parameters.tools || []
-                          let updatedTools
-                          
-                          if (!isEnabled) {
-                            // Add or enable the tool
-                            const existingTool = currentTools.find((t: any) => t.type === tool.type)
-                            if (existingTool) {
-                              updatedTools = currentTools.map((t: any) =>
-                                t.type === tool.type ? { ...t, enabled: true } : t
-                              )
-                            } else {
-                              updatedTools = [...currentTools, { type: tool.type, enabled: true }]
-                            }
-                          } else {
-                            // Disable the tool
-                            updatedTools = currentTools.map((t: any) =>
-                              t.type === tool.type ? { ...t, enabled: false } : t
-                            )
-                          }
-                          
-                          onUpdateNode(selectedNode.id, {
-                            data: {
-                              ...currentNode.data,
-                              parameters: {
-                                ...currentNode.data.parameters,
-                                tools: updatedTools
+                          if (!isReadOnly) {
+                            const currentTools = currentNode.data.parameters.tools || []
+                            let updatedTools
+                            
+                            if (!isEnabled) {
+                              // Add or enable the tool
+                              const existingTool = currentTools.find((t: any) => t.type === tool.type)
+                              if (existingTool) {
+                                updatedTools = currentTools.map((t: any) =>
+                                  t.type === tool.type ? { ...t, enabled: true } : t
+                                )
+                              } else {
+                                updatedTools = [...currentTools, { type: tool.type, enabled: true }]
                               }
+                            } else {
+                              // Disable the tool
+                              updatedTools = currentTools.map((t: any) =>
+                                t.type === tool.type ? { ...t, enabled: false } : t
+                              )
                             }
-                          })
+                            
+                            onUpdateNode(selectedNode.id, {
+                              data: {
+                                ...currentNode.data,
+                                parameters: {
+                                  ...currentNode.data.parameters,
+                                  tools: updatedTools
+                                }
+                              }
+                            })
+                          }
                         }}
                         className={`
-                          border rounded-lg p-3 cursor-pointer transition-all duration-200
+                          border rounded-lg p-3 ${isReadOnly ? '' : 'cursor-pointer'} transition-all duration-200
                           ${isEnabled 
                             ? 'border-blue-400 bg-blue-50 shadow-sm' 
-                            : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm'
+                            : 'border-gray-200 bg-white ' + (isReadOnly ? '' : 'hover:border-gray-300 hover:shadow-sm')
                           }
                         `}
                         style={{
@@ -1387,6 +1435,7 @@ const NodeSidebar: React.FC<NodeSidebarProps> = ({
 
 
         {/* Delete Node */}
+        {!isReadOnly && (
         <div className="border-t pt-4">
           <button
             onClick={handleDeleteNode}
@@ -1396,6 +1445,7 @@ const NodeSidebar: React.FC<NodeSidebarProps> = ({
             Delete Node
           </button>
         </div>
+        )}
       </div>
       
       {/* Prompt Viewer Modal */}
@@ -1407,25 +1457,28 @@ const NodeSidebar: React.FC<NodeSidebarProps> = ({
                           currentNode.data?.parameters?.system_prompt || ''}
           prompts={currentNode.data?.parameters?.prompts || []}
           onChange={(newDeveloperMessage, newPrompts) => {
-            onUpdateNode(selectedNode.id, {
-              data: {
-                ...currentNode.data,
-                parameters: {
-                  ...currentNode.data.parameters,
-                  developer_message: newDeveloperMessage,
-                  prompts: newPrompts
-                  // system_prompt field removed - using developer_message only
+            if (!isReadOnly) {
+              onUpdateNode(selectedNode.id, {
+                data: {
+                  ...currentNode.data,
+                  parameters: {
+                    ...currentNode.data.parameters,
+                    developer_message: newDeveloperMessage,
+                    prompts: newPrompts
+                    // system_prompt field removed - using developer_message only
+                  }
                 }
-              }
-            })
-            // Save workflow immediately after updating node
-            onSaveWorkflow?.()
+              })
+              // Save workflow immediately after updating node
+              onSaveWorkflow?.()
+            }
           }}
           inputs={currentNode.data?.connected_inputs?.map((input: ConnectedInput) => ({
             key: input.outputKey,
             type: input.outputType,
             example: input.outputExample
           })) || []}
+          isReadOnly={isReadOnly}
         />
       )}
 
