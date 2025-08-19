@@ -16,26 +16,37 @@ interface ReactFlowWrapperProps {
   fitViewOptions?: any
   isSidebarOpen?: boolean
   children?: React.ReactNode
+  deleteKeyCode?: string | null
+  multiSelectionKeyCode?: string | null
 }
 
 // Wrapper component that uses FlowCanvas
 const ReactFlowWrapper = forwardRef<FlowCanvasHandle, ReactFlowWrapperProps>((props, ref) => {
+  // Note: deleteKeyCode and multiSelectionKeyCode are accepted but not passed to FlowCanvas
+  // as FlowCanvas doesn't support these props. They're included in the interface
+  // for compatibility with SharedWorkflow component.
+  const {
+    deleteKeyCode,
+    multiSelectionKeyCode,
+    ...flowCanvasProps
+  } = props;
+  
   return (
     <FlowCanvas
       ref={ref}
-      nodes={props.nodes}
-      edges={props.edges}
-      onNodeClick={props.onNodeClick}
-      onPaneClick={props.onPaneClick}
-      onNodesChange={props.onNodesChange}
-      onEdgesChange={props.onEdgesChange}
-      onConnect={props.onConnect}
-      onEdgeClick={props.onEdgeClick}
-      nodeTypes={props.nodeTypes}
-      edgeTypes={props.edgeTypes}
-      fitView={props.fitView}
-      fitViewOptions={props.fitViewOptions}
-      isSidebarOpen={props.isSidebarOpen}
+      nodes={flowCanvasProps.nodes}
+      edges={flowCanvasProps.edges}
+      onNodeClick={flowCanvasProps.onNodeClick}
+      onPaneClick={flowCanvasProps.onPaneClick}
+      onNodesChange={flowCanvasProps.onNodesChange}
+      onEdgesChange={flowCanvasProps.onEdgesChange}
+      onConnect={flowCanvasProps.onConnect}
+      onEdgeClick={flowCanvasProps.onEdgeClick}
+      nodeTypes={flowCanvasProps.nodeTypes}
+      edgeTypes={flowCanvasProps.edgeTypes}
+      fitView={flowCanvasProps.fitView}
+      fitViewOptions={flowCanvasProps.fitViewOptions}
+      isSidebarOpen={flowCanvasProps.isSidebarOpen}
     />
   )
 })
