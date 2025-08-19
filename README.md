@@ -4,7 +4,7 @@
 > **Open-Source Visual Workflow Designer for AI Agent Systems**
 
 <div align="center">
-  <img src="https://img.shields.io/badge/version-1.0.5-blue.svg" alt="Version">
+  <img src="https://img.shields.io/badge/version-1.0.6-blue.svg" alt="Version">
   <img src="https://img.shields.io/badge/license-MIT-green.svg" alt="License">
   <img src="https://img.shields.io/badge/docker-ready-blue.svg" alt="Docker Ready">
   <img src="https://img.shields.io/badge/ghcr.io-available-blue.svg" alt="GHCR">

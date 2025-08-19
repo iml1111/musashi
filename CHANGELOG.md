@@ -16,6 +16,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.0.6] - 2025-08-19
+
+### 🐛 Fixed
+- HTTPS Mixed Content error in Kubernetes environments
+- API requests being blocked when accessing site over HTTPS
+
+### 🧹 Changed
+- Improved nginx X-Forwarded-Proto header handling for proper protocol detection
+- nginx now preserves original protocol from Kubernetes Ingress
+
+### 🔒 Security
+- Fixed protocol mismatch that could cause security warnings in browsers
+
+---
+
 ## [1.0.5] - 2025-08-19
 
 ### 🐛 Fixed
